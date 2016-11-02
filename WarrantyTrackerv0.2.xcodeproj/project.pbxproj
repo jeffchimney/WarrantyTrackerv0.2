@@ -17,6 +17,7 @@
 		BE1C11321DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11311DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift */; };
 		BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */; };
 		BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */; };
+		BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +54,7 @@
 		BE1C11331DC921D200B0D493 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewReceiptViewController.swift; sourceTree = "<group>"; };
 		BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyBeginsEndsViewController.swift; sourceTree = "<group>"; };
+		BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyDetailsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +109,7 @@
 				BE1C11111DC921D200B0D493 /* NewItemViewController.swift */,
 				BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */,
 				BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */,
+				BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */,
 				BE1C11131DC921D200B0D493 /* SecondViewController.swift */,
 				BE1C11151DC921D200B0D493 /* Main.storyboard */,
 				BE1C11181DC921D200B0D493 /* Assets.xcassets */,
@@ -272,6 +275,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */,
+				BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* SecondViewController.swift in Sources */,
 				BE1C11101DC921D200B0D493 /* AppDelegate.swift in Sources */,
 				BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */,
@@ -526,6 +530,7 @@
 				BE1C11381DC921D200B0D493 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BE1C11391DC921D200B0D493 /* Build configuration list for PBXNativeTarget "WarrantyTrackerv0.2Tests" */ = {
 			isa = XCConfigurationList;
@@ -534,6 +539,7 @@
 				BE1C113B1DC921D200B0D493 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		BE1C113C1DC921D200B0D493 /* Build configuration list for PBXNativeTarget "WarrantyTrackerv0.2UITests" */ = {
 			isa = XCConfigurationList;
@@ -542,6 +548,7 @@
 				BE1C113E1DC921D200B0D493 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

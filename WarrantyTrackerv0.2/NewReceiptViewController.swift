@@ -25,11 +25,13 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
         if (imagePicked) {
-            nextButton.titleLabel?.text = "Next"
+            nextButton.setTitle("Next", for: .normal)
         } else {
-            nextButton.titleLabel?.text = "Skip"
+            nextButton.setTitle("Skip", for: .normal)
         }
     }
     
@@ -74,8 +76,12 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
     @IBAction func backButtonPressed(_ sender: Any) {
     }
     
+    @IBAction func unwindSegue(segue:UIStoryboardSegue) {
+        
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if (segue.identifier == "toReceipt") {
+        if (segue.identifier == "toDates") {
             if let nextViewController = segue.destination as? WarrantyBeginsEndsViewController {
                 if (itemImage != nil) {
                     nextViewController.itemImage = itemImage

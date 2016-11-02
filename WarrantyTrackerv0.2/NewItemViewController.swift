@@ -20,11 +20,13 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
         if (imagePicked) {
-            nextButton.titleLabel?.text = "Next"
+            nextButton.setTitle("Next", for: .normal)
         } else {
-            nextButton.titleLabel?.text = "Skip"
+            nextButton.setTitle("Skip", for: .normal)
         }
     }
     

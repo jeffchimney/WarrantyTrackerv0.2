@@ -113,7 +113,7 @@
                                 <state key="normal" title="Next"/>
                                 <connections>
                                     <action selector="nextButtonPressed:" destination="ply-ph-qyA" eventType="touchUpInside" id="ym5-eQ-RaW"/>
-                                    <segue destination="hub-Nr-lbi" kind="show" id="G3b-uQ-Xnx"/>
+                                    <segue destination="hub-Nr-lbi" kind="show" identifier="toDates" id="G3b-uQ-Xnx"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Photo of the receipt" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edx-JY-thI">
@@ -130,7 +130,7 @@
                                 <state key="normal" title="Back"/>
                                 <connections>
                                     <action selector="backButtonPressed:" destination="ply-ph-qyA" eventType="touchUpInside" id="zXd-pW-JZy"/>
-                                    <segue destination="XJr-GZ-3su" kind="unwind" unwindAction="unwindSegueWithSegue:" id="kkc-Pu-lzi"/>
+                                    <segue destination="XJr-GZ-3su" kind="unwind" unwindAction="unwindSegueWithSegue:" id="h7a-zu-HrK"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -163,10 +163,10 @@
             </objects>
             <point key="canvasLocation" x="2339.130434782609" y="-345.6521739130435"/>
         </scene>
-        <!--View Controller-->
+        <!--Warranty Begins Ends View Controller-->
         <scene sceneID="ync-Ic-GN4">
             <objects>
-                <viewController id="hub-Nr-lbi" sceneMemberID="viewController">
+                <viewController id="hub-Nr-lbi" customClass="WarrantyBeginsEndsViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="URk-yd-bqD"/>
                         <viewControllerLayoutGuide type="bottom" id="82x-Kv-beu"/>
@@ -175,61 +175,229 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warranty Ends" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zZh-ag-EZo">
-                                <rect key="frame" x="16" y="311" width="112" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="u7H-Ql-lnC">
-                                <rect key="frame" x="0.0" y="87" width="375" height="216"/>
+                                <rect key="frame" x="0.0" y="179" width="375" height="308"/>
                                 <date key="date" timeIntervalSinceReferenceDate="499738453.201415">
                                     <!--2016-11-02 00:14:13 +0000-->
                                 </date>
                             </datePicker>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warranty Begins" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wza-s4-rkt">
-                                <rect key="frame" x="16" y="58" width="127" height="21"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvy-2n-8ld">
+                                <rect key="frame" x="16" y="20" width="34" height="31"/>
+                                <state key="normal" title="Back"/>
+                                <connections>
+                                    <segue destination="ahV-rm-Kvg" kind="unwind" unwindAction="unwindSegueWithSegue:" id="ItZ-g1-7hu"/>
+                                </connections>
+                            </button>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="eBN-AH-L0w">
+                                <rect key="frame" x="327" y="20" width="32" height="31"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OJT-Bg-3Zv">
+                                        <rect key="frame" x="0.0" y="0.0" width="32" height="31"/>
+                                        <state key="normal" title="Next"/>
+                                        <connections>
+                                            <segue destination="NRk-em-Kxy" kind="show" identifier="toDetails" id="u3v-PC-X7A"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                            </stackView>
+                            <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="IiD-ov-fD5">
+                                <rect key="frame" x="0.0" y="399" width="414" height="288"/>
+                                <date key="date" timeIntervalSinceReferenceDate="499738453.201415">
+                                    <!--2016-11-02 00:14:13 +0000-->
+                                </date>
+                            </datePicker>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warranty Ends" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zZh-ag-EZo">
+                                <rect key="frame" x="16" y="127.5" width="112" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvy-2n-8ld">
-                                <rect key="frame" x="16" y="20" width="34" height="30"/>
-                                <state key="normal" title="Back"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="End" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eZa-Xc-7YN">
+                                <rect key="frame" x="329.5" y="127.5" width="29.5" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Start" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oaJ-9V-dNt">
+                                <rect key="frame" x="321" y="93" width="38" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Warranty Begins" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wza-s4-rkt">
+                                <rect key="frame" x="16" y="93" width="126.5" height="20.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZOJ-Gj-1mg">
+                                <rect key="frame" x="164" y="495" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="saveDateButtonPressed:" destination="hub-Nr-lbi" eventType="touchUpInside" id="hVI-oP-bga"/>
+                                </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OJT-Bg-3Zv">
-                                <rect key="frame" x="327" y="20" width="32" height="30"/>
-                                <state key="normal" title="Next"/>
-                            </button>
-                            <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="IiD-ov-fD5">
-                                <rect key="frame" x="0.0" y="340" width="375" height="216"/>
-                                <date key="date" timeIntervalSinceReferenceDate="499738453.201415">
-                                    <!--2016-11-02 00:14:13 +0000-->
-                                </date>
-                            </datePicker>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="top" secondItem="URk-yd-bqD" secondAttribute="bottom" id="2bL-as-7Yq"/>
-                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="trailing" secondItem="IiD-ov-fD5" secondAttribute="trailing" id="5ey-kA-GeV"/>
-                            <constraint firstItem="IiD-ov-fD5" firstAttribute="top" secondItem="zZh-ag-EZo" secondAttribute="bottom" constant="8" symbolic="YES" id="AxU-yU-WpS"/>
-                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="leading" secondItem="sPM-xm-TNo" secondAttribute="leadingMargin" id="CUq-bM-0D6"/>
-                            <constraint firstItem="OJT-Bg-3Zv" firstAttribute="trailing" secondItem="sPM-xm-TNo" secondAttribute="trailingMargin" id="Kij-U0-SAc"/>
-                            <constraint firstItem="zZh-ag-EZo" firstAttribute="top" secondItem="u7H-Ql-lnC" secondAttribute="bottom" constant="8" symbolic="YES" id="Nbr-6L-qgn"/>
-                            <constraint firstAttribute="trailing" secondItem="u7H-Ql-lnC" secondAttribute="trailing" id="OqC-Va-DXH"/>
-                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="leading" secondItem="sPM-xm-TNo" secondAttribute="leading" id="Tpm-wZ-MEV"/>
-                            <constraint firstItem="wza-s4-rkt" firstAttribute="leading" secondItem="zZh-ag-EZo" secondAttribute="leading" id="bxa-8u-yyu"/>
-                            <constraint firstItem="wza-s4-rkt" firstAttribute="top" secondItem="Vvy-2n-8ld" secondAttribute="bottom" constant="8" symbolic="YES" id="iVy-sH-gAS"/>
-                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="leading" secondItem="IiD-ov-fD5" secondAttribute="leading" id="odv-s9-eRK"/>
-                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="leading" secondItem="wza-s4-rkt" secondAttribute="leading" id="om6-Dt-Wcq"/>
-                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="baseline" secondItem="OJT-Bg-3Zv" secondAttribute="baseline" id="pgU-Ud-uu0"/>
-                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="top" secondItem="wza-s4-rkt" secondAttribute="bottom" constant="8" symbolic="YES" id="vHx-TO-nbq"/>
+                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="centerX" secondItem="ZOJ-Gj-1mg" secondAttribute="centerX" id="2ZI-ui-CFT"/>
+                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="centerY" secondItem="sPM-xm-TNo" secondAttribute="centerY" id="3qN-yM-eLy"/>
+                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="top" secondItem="eBN-AH-L0w" secondAttribute="top" id="ABb-kh-pBa"/>
+                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="bottom" secondItem="eBN-AH-L0w" secondAttribute="bottom" id="E33-xM-nZD"/>
+                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="leading" secondItem="wza-s4-rkt" secondAttribute="leading" id="ES2-L0-jBE"/>
+                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="leading" secondItem="sPM-xm-TNo" secondAttribute="leading" id="Gho-km-gc6"/>
+                            <constraint firstItem="wza-s4-rkt" firstAttribute="baseline" secondItem="oaJ-9V-dNt" secondAttribute="baseline" id="HE9-1m-lW9"/>
+                            <constraint firstItem="ZOJ-Gj-1mg" firstAttribute="top" secondItem="u7H-Ql-lnC" secondAttribute="bottom" constant="8" symbolic="YES" id="LG2-gm-Noe"/>
+                            <constraint firstItem="eBN-AH-L0w" firstAttribute="trailing" secondItem="sPM-xm-TNo" secondAttribute="trailingMargin" id="P1S-M9-bXf"/>
+                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="leading" secondItem="sPM-xm-TNo" secondAttribute="leadingMargin" id="RGP-wA-oIg"/>
+                            <constraint firstItem="Vvy-2n-8ld" firstAttribute="top" secondItem="URk-yd-bqD" secondAttribute="bottom" id="TbB-Z7-dEi"/>
+                            <constraint firstItem="82x-Kv-beu" firstAttribute="top" secondItem="ZOJ-Gj-1mg" secondAttribute="bottom" constant="93" id="VJS-cS-2SX"/>
+                            <constraint firstItem="wza-s4-rkt" firstAttribute="top" secondItem="Vvy-2n-8ld" secondAttribute="bottom" constant="42" id="WrJ-gk-kG9"/>
+                            <constraint firstItem="u7H-Ql-lnC" firstAttribute="top" secondItem="zZh-ag-EZo" secondAttribute="bottom" constant="31" id="amC-Zv-5es"/>
+                            <constraint firstItem="eBN-AH-L0w" firstAttribute="trailing" secondItem="oaJ-9V-dNt" secondAttribute="trailing" id="bFA-2H-Q9x"/>
+                            <constraint firstItem="oaJ-9V-dNt" firstAttribute="trailing" secondItem="eZa-Xc-7YN" secondAttribute="trailing" id="gQh-bn-jj9"/>
+                            <constraint firstItem="zZh-ag-EZo" firstAttribute="baseline" secondItem="eZa-Xc-7YN" secondAttribute="baseline" id="h9R-2X-Ibe"/>
+                            <constraint firstItem="wza-s4-rkt" firstAttribute="leading" secondItem="zZh-ag-EZo" secondAttribute="leading" id="mVJ-fG-OuI"/>
+                            <constraint firstItem="zZh-ag-EZo" firstAttribute="top" secondItem="wza-s4-rkt" secondAttribute="bottom" constant="14" id="xTs-yI-cgf"/>
+                            <constraint firstAttribute="trailing" secondItem="u7H-Ql-lnC" secondAttribute="trailing" id="xfo-HT-Jal"/>
+                            <constraint firstItem="82x-Kv-beu" firstAttribute="top" secondItem="IiD-ov-fD5" secondAttribute="bottom" constant="37" id="zkP-Ap-IdP"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="zkP-Ap-IdP"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=regular">
+                            <mask key="constraints">
+                                <include reference="zkP-Ap-IdP"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=regular-widthClass=compact">
+                            <mask key="subviews">
+                                <exclude reference="IiD-ov-fD5"/>
+                            </mask>
+                        </variation>
                     </view>
+                    <connections>
+                        <outlet property="beginsPicker" destination="u7H-Ql-lnC" id="d5t-aT-Pcj"/>
+                        <outlet property="nextButton" destination="OJT-Bg-3Zv" id="iJw-Ub-spZ"/>
+                        <outlet property="saveDateButton" destination="ZOJ-Gj-1mg" id="Ytx-V2-MAl"/>
+                        <outlet property="selectedEndDate" destination="eZa-Xc-7YN" id="uSB-Wd-OMv"/>
+                        <outlet property="selectedStartDate" destination="oaJ-9V-dNt" id="MqF-4I-crW"/>
+                        <outlet property="warrantyEndsLabel" destination="zZh-ag-EZo" id="JRy-nt-od9"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8BK-fu-c7w" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="ahV-rm-Kvg" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
-            <point key="canvasLocation" x="3033" y="-346"/>
+            <point key="canvasLocation" x="3000.8000000000002" y="-345.87706146926541"/>
+        </scene>
+        <!--Warranty Details View Controller-->
+        <scene sceneID="T4M-aB-hgT">
+            <objects>
+                <viewController id="NRk-em-Kxy" customClass="WarrantyDetailsViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="sOS-Vo-X8r"/>
+                        <viewControllerLayoutGuide type="bottom" id="ltT-VG-pZe"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="EMX-UB-gZX">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KrL-mz-nm7">
+                                <rect key="frame" x="16" y="20" width="34" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Back"/>
+                                <connections>
+                                    <segue destination="PaZ-Bf-7Yl" kind="unwind" unwindAction="unwindSegueWithSegue:" id="mJd-mN-pTc"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="758-zc-Sx1">
+                                <rect key="frame" x="170" y="580" width="34" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Save"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wc1-Bf-lbJ">
+                                <rect key="frame" x="78" y="58" width="34" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Tags" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dfI-PM-FEr">
+                                <rect key="frame" x="78" y="188" width="37" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Remind me..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uDN-aN-NoC">
+                                <rect key="frame" x="137" y="476" width="100" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <segmentedControl opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="1sS-aG-KJr">
+                                <rect key="frame" x="16" y="505" width="343" height="29"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <segments>
+                                    <segment title="1"/>
+                                    <segment title="2"/>
+                                    <segment title="3"/>
+                                    <segment title="4"/>
+                                    <segment title="5"/>
+                                </segments>
+                            </segmentedControl>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="weeks before expiry" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nfq-JU-8tG">
+                                <rect key="frame" x="111" y="541" width="153" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="anJ-TL-yPM">
+                                <rect key="frame" x="120" y="53" width="144" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="myB-Lp-KJX">
+                                <rect key="frame" x="120" y="184" width="144" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="neD-tU-rmW">
+                                <rect key="frame" x="120" y="116" width="239" height="60"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Description" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1ed-74-nBY">
+                                <rect key="frame" x="27" y="122" width="88" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="descriptionTextView" destination="neD-tU-rmW" id="WPj-U9-k2p"/>
+                        <outlet property="tagsTextField" destination="myB-Lp-KJX" id="soQ-Hf-jhI"/>
+                        <outlet property="titleTextField" destination="anJ-TL-yPM" id="jJP-U0-2DL"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="NtD-7w-WU0" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <exit id="PaZ-Bf-7Yl" userLabel="Exit" sceneMemberID="exit"/>
+            </objects>
+            <point key="canvasLocation" x="3708" y="-346.77661169415296"/>
         </scene>
         <!--Second View Controller-->
         <scene sceneID="wg7-f3-ORb">
