@@ -8,13 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		BE1C11101DC921D200B0D493 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C110F1DC921D200B0D493 /* AppDelegate.swift */; };
-		BE1C11121DC921D200B0D493 /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11111DC921D200B0D493 /* FirstViewController.swift */; };
+		BE1C11121DC921D200B0D493 /* NewItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11111DC921D200B0D493 /* NewItemViewController.swift */; };
 		BE1C11141DC921D200B0D493 /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11131DC921D200B0D493 /* SecondViewController.swift */; };
 		BE1C11171DC921D200B0D493 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE1C11151DC921D200B0D493 /* Main.storyboard */; };
 		BE1C11191DC921D200B0D493 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BE1C11181DC921D200B0D493 /* Assets.xcassets */; };
 		BE1C111C1DC921D200B0D493 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BE1C111A1DC921D200B0D493 /* LaunchScreen.storyboard */; };
 		BE1C11271DC921D200B0D493 /* WarrantyTrackerv0_2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11261DC921D200B0D493 /* WarrantyTrackerv0_2Tests.swift */; };
 		BE1C11321DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11311DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift */; };
+		BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */; };
+		BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,7 +39,7 @@
 /* Begin PBXFileReference section */
 		BE1C110C1DC921D200B0D493 /* WarrantyTrackerv0.2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WarrantyTrackerv0.2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE1C110F1DC921D200B0D493 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		BE1C11111DC921D200B0D493 /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
+		BE1C11111DC921D200B0D493 /* NewItemViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewItemViewController.swift; sourceTree = "<group>"; };
 		BE1C11131DC921D200B0D493 /* SecondViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondViewController.swift; sourceTree = "<group>"; };
 		BE1C11161DC921D200B0D493 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		BE1C11181DC921D200B0D493 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -49,6 +51,8 @@
 		BE1C112D1DC921D200B0D493 /* WarrantyTrackerv0.2UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WarrantyTrackerv0.2UITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE1C11311DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarrantyTrackerv0_2UITests.swift; sourceTree = "<group>"; };
 		BE1C11331DC921D200B0D493 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewReceiptViewController.swift; sourceTree = "<group>"; };
+		BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyBeginsEndsViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,7 +104,9 @@
 			isa = PBXGroup;
 			children = (
 				BE1C110F1DC921D200B0D493 /* AppDelegate.swift */,
-				BE1C11111DC921D200B0D493 /* FirstViewController.swift */,
+				BE1C11111DC921D200B0D493 /* NewItemViewController.swift */,
+				BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */,
+				BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */,
 				BE1C11131DC921D200B0D493 /* SecondViewController.swift */,
 				BE1C11151DC921D200B0D493 /* Main.storyboard */,
 				BE1C11181DC921D200B0D493 /* Assets.xcassets */,
@@ -265,9 +271,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* SecondViewController.swift in Sources */,
 				BE1C11101DC921D200B0D493 /* AppDelegate.swift in Sources */,
-				BE1C11121DC921D200B0D493 /* FirstViewController.swift in Sources */,
+				BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */,
+				BE1C11121DC921D200B0D493 /* NewItemViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
