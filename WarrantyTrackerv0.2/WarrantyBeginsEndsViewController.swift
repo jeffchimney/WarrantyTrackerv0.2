@@ -44,12 +44,17 @@ class WarrantyBeginsEndsViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    @IBAction func beginsPickerChanged(_ sender: Any) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        let startDate = dateFormatter.string(from: beginsPicker.date)
-        self.selectedStartDate.text = startDate
+
+    @IBAction func pickerChanged(_ sender: Any) {
+        if startDatePicked { // make sure end date is never earlier than start date
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d, yyyy"
+            print(beginsPicker.date.compare(dateFormatter.date(from: selectedStartDate.text!)!) == .orderedAscending)
+
+            if beginsPicker.date.compare(dateFormatter.date(from: selectedStartDate.text!)!) == .orderedAscending {
+                beginsPicker.date = dateFormatter.date(from: selectedStartDate.text!)!
+            }
+        }
     }
     
     @IBAction func unwindSegue(segue:UIStoryboardSegue) {
@@ -57,7 +62,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
     }
     
     @IBAction func saveDateButtonPressed(_ sender: Any) {
-        if startDatePicked == false && endDatePicked == false {
+        if startDatePicked == false && endDatePicked == false { // set start date
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             let startDate = dateFormatter.string(from: beginsPicker.date)
@@ -67,7 +72,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
             warrantyEndsLabel.isHidden = false
             saveDateButton.setTitle("Set End Date", for: .normal)
             startDatePicked = true
-        } else if startDatePicked == true && endDatePicked == false {
+        } else if startDatePicked == true && endDatePicked == false { // set end date
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             let endDate = dateFormatter.string(from: beginsPicker.date)
@@ -77,7 +82,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
             selectedEndDate.isHidden = false
             saveDateButton.setTitle("Change Dates", for: .normal)
             endDatePicked = true
-        } else if startDatePicked == true && endDatePicked == true {
+        } else if startDatePicked == true && endDatePicked == true { // clear both dates and start over
             self.selectedStartDate.text = ""
             self.selectedEndDate.text = ""
             warrantyEndsLabel.isHidden = true
@@ -91,7 +96,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toDetails" {
-            if let nextViewController = segue.destination as? WarrantyDetailsViewController {
+            if let nextViewController = segue.destination as? WarrantyDetailsViewController { // pass data to the next view controller
                 if itemImage != nil {
                     nextViewController.itemImage = itemImage
                 }

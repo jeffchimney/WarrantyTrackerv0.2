@@ -21,11 +21,16 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var descriptionTextView: UITextView!
     @IBOutlet weak var tagsTextField: UITextField!
     
+    var tagArray: [String] = []
+    let maxSize = 10
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         titleTextField.delegate = self
         tagsTextField.delegate = self
+
+        tagsTextField.addTarget(self, action: #selector(addTag(sender:)), for: UIControlEvents.editingChanged)
     }
     
     override func didReceiveMemoryWarning() {
@@ -33,11 +38,65 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    private func addTag() {
-        if tagsTextField.text == "" {
+    @objc private func addTag(sender: UITextField) {
+        if tagsTextField.text != "" {
+            let enteredText = tagsTextField.text!
+            let lastChar = enteredText.substring(from:enteredText.index(enteredText.endIndex, offsetBy: -1))
             
+            if lastChar == "," || lastChar == " " {
+                let tag = enteredText.substring(to: enteredText.index(enteredText.endIndex, offsetBy: -1))
+                let capitalizedTag = String(tag.characters.first!).uppercased() + String(tag.characters.dropFirst())
+                if !tagArray.contains(capitalizedTag) {
+                    tagArray.append(capitalizedTag)
+                    
+                    var spacer: CGFloat = 50
+                    var counter = 0
+                    for thisTag in tagArray {
+                        if counter < maxSize {
+                            counter += 1
+                            // width is set at the bottom of the conditional
+                            let label = UILabel()
+                            label.backgroundColor = UIColor.red
+                            if counter <= 4 {
+                                switch counter {
+                                case 1:
+                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                case 2:
+                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                case 3:
+                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                case 4:
+                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                    spacer = 50
+                                default: break
+                                }
+                            } else {
+                                switch counter {
+                                case 5:
+                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                case 6:
+                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                case 7:
+                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                case 8:
+                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                default: break
+                                }
+                            }
+                            label.textAlignment = NSTextAlignment.center
+                            print(label.intrinsicContentSize.width)
+                            label.text = thisTag
+                            self.view.addSubview(label)
+                            spacer = spacer + 50
+                        }
+                    }
+                }
+                print(tagArray)
+                tagsTextField.text = ""
+            }
         }
     }
+    
     
     //MARK: Text Field Delegate Methods
     

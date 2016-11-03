@@ -180,6 +180,9 @@
                                 <date key="date" timeIntervalSinceReferenceDate="499738453.201415">
                                     <!--2016-11-02 00:14:13 +0000-->
                                 </date>
+                                <connections>
+                                    <action selector="pickerChanged:" destination="hub-Nr-lbi" eventType="valueChanged" id="KUA-5B-3RF"/>
+                                </connections>
                             </datePicker>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vvy-2n-8ld">
                                 <rect key="frame" x="16" y="20" width="34" height="31"/>
