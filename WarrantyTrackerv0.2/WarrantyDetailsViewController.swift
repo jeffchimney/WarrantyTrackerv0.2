@@ -50,45 +50,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
             
             if lastChar == "," || lastChar == " " {
                 let tag = enteredText.substring(to: enteredText.index(enteredText.endIndex, offsetBy: -1))
-                let capitalizedTag = String(tag.characters.first!).uppercased() + String(tag.characters.dropFirst())
-                if !tagArray.contains(capitalizedTag) {
-                    tagArray.append(capitalizedTag)
-                    
-                    var spacer: CGFloat = 30
-                    var counter = 0
-                    var rowCounter = 0
-                    var offset = 250 + (rowCounter*25)
-                    // set width and text of label
-                    let label = UILabel()
-                    label.backgroundColor = UIColor.red
-                    label.text = capitalizedTag
-                    label.sizeToFit()
-                    tagLabelArray.append(label)
-                    for thisLabel in tagLabelArray {
-                        if counter < maxSize {
-                            counter += 1
-                            thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                            
-                            if (thisLabel.center.x + thisLabel.frame.width/2) > self.view.frame.width-30 { // add label to the next row
-                                rowCounter += 1
-                                spacer = 30
-                                offset = 250 + (rowCounter*25)
-                                thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                            } else {
-                                if tagLabelArray.count > 1 { // if there are two items in the array, calculate space between
-                                    spacer = spacer + tagLabelArray[counter-1].frame.width + tagLabelArray[counter].frame.width
-                                    thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                                } else { // if there is one item in the array, move it away from the edge of the screen
-                                    thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                                }
-                            }
-                            self.view.addSubview(label)
-                        }
-                    }
-                }
-                print(tagArray)
-                print(tagLabelArray.count)
-                tagsTextField.text = ""
+                addTagAndLabel(usingString: tag)
             }
         }
     }
@@ -96,10 +58,51 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBAction func saveButtonPressed(_ sender: Any) {
     }
     
+    private func addTagAndLabel(usingString tag:String) {
+        let capitalizedTag = String(tag.characters.first!).uppercased() + String(tag.characters.dropFirst())
+        if !tagArray.contains(capitalizedTag) {
+            tagArray.append(capitalizedTag)
+            
+            var spacer: CGFloat = 30
+            var counter = 0
+            var rowCounter = 0
+            var offset = 250 + (rowCounter*25)
+            // set width and text of label
+            let label = UILabel()
+            label.backgroundColor = UIColor.red
+            label.text = capitalizedTag
+            label.sizeToFit()
+            tagLabelArray.append(label)
+            for thisLabel in tagLabelArray {
+                if counter < maxSize {
+                    counter += 1
+                    thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
+                    
+                    if (thisLabel.center.x + thisLabel.frame.width/2) > self.view.frame.width-30 { // add label to the next row
+                        rowCounter += 1
+                        spacer = 30
+                        offset = 250 + (rowCounter*25)
+                        thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
+                    } else {
+                        if tagLabelArray.count > 1 { // if there are two items in the array, calculate space between
+                            spacer = spacer + tagLabelArray[counter-1].frame.width + tagLabelArray[counter].frame.width
+                            thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
+                        } else { // if there is one item in the array, move it away from the edge of the screen
+                            thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
+                        }
+                    }
+                    self.view.addSubview(label)
+                }
+            }
+        }
+        print(tagArray)
+        print(tagLabelArray.count)
+        tagsTextField.text = ""
+    }
+    
     //MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        
     }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
@@ -107,10 +110,13 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
             saveButton.isEnabled = true
         }
         textField.resignFirstResponder()
-        return false
+        return true
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if (textField.text != "" && textField == tagsTextField) {
+            addTagAndLabel(usingString: textField.text!)
+        }
         textField.resignFirstResponder()
         return true
     }

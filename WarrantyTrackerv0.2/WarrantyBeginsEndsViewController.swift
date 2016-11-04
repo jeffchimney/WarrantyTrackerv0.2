@@ -40,6 +40,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
         warrantyEndsLabel.isHidden = true
         selectedEndDate.isHidden = true
         navBar.title = "Warranty"
+        nextButton.title = "Skip"
     }
     
     override func didReceiveMemoryWarning() {
