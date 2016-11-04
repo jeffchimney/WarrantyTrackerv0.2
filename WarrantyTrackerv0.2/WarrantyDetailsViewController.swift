@@ -50,51 +50,40 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
                 if !tagArray.contains(capitalizedTag) {
                     tagArray.append(capitalizedTag)
                     
-                    var spacer: CGFloat = 50
+                    var spacer: CGFloat = 30
                     var counter = 0
                     var rowCounter = 0
-                    for thisTag in tagArray {
+                    var offset = 250 + (rowCounter*25)
+                    // set width and text of label
+                    let label = UILabel()
+                    label.backgroundColor = UIColor.red
+                    label.text = capitalizedTag
+                    label.sizeToFit()
+                    tagLabelArray.append(label)
+                    for thisLabel in tagLabelArray {
                         if counter < maxSize {
                             counter += 1
-                            // width is set at the bottom of the conditional
-                            let label = UILabel()
-                            label.backgroundColor = UIColor.red
-                            if counter <= 4 {
-                                switch counter {
-                                case 1:
-                                    label.center = CGPoint(x: spacer, y: 250)
-                                case 2:
-                                    label.center = CGPoint(x: spacer, y: 250)
-                                case 3:
-                                    label.center = CGPoint(x: spacer, y: 250)
-                                case 4:
-                                    label.center = CGPoint(x: spacer, y: 250)
-                                    spacer = 50
-                                default: break
-                                }
+                            thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
+                            
+                            if (thisLabel.center.x + thisLabel.frame.width/2) > self.view.frame.width-30 { // add label to the next row
+                                rowCounter += 1
+                                spacer = 30
+                                offset = 250 + (rowCounter*25)
+                                thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
                             } else {
-                                switch counter {
-                                case 5:
-                                    label.center = CGPoint(x: spacer, y: 300)
-                                case 6:
-                                    label.center = CGPoint(x: spacer, y: 300)
-                                case 7:
-                                    label.center = CGPoint(x: spacer, y: 300)
-                                case 8:
-                                    label.center = CGPoint(x: spacer, y: 300)
-                                default: break
+                                if tagLabelArray.count > 1 { // if there are two items in the array, calculate space between
+                                    spacer = spacer + tagLabelArray[counter-1].frame.width + tagLabelArray[counter].frame.width
+                                    thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
+                                } else { // if there is one item in the array, move it away from the edge of the screen
+                                    thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
                                 }
                             }
-                            print(label.intrinsicContentSize.width)
-                            label.text = thisTag
-                            label.sizeToFit()
                             self.view.addSubview(label)
-                            tagLabelArray.append(label)
-                            spacer = spacer + tagLabelArray[counter-1].frame.width
                         }
                     }
                 }
                 print(tagArray)
+                print(tagLabelArray.count)
                 tagsTextField.text = ""
             }
         }
