@@ -18,7 +18,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     //
     
     @IBOutlet weak var titleTextField: UITextField!
-    @IBOutlet weak var descriptionTextView: UITextView!
+    @IBOutlet weak var descriptionTextField: UITextField!
     @IBOutlet weak var tagsTextField: UITextField!
     @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var navBar: UINavigationItem!
@@ -36,6 +36,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
         tagsTextField.addTarget(self, action: #selector(addTag(sender:)), for: UIControlEvents.editingChanged)
         saveButton.isEnabled = false
         navBar.title = "Details"
+        descriptionTextField.text = ""
     }
     
     override func didReceiveMemoryWarning() {
@@ -66,7 +67,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
             var spacer: CGFloat = 30
             var counter = 0
             var rowCounter = 0
-            var offset = 250 + (rowCounter*25)
+            var offset = 100 + (rowCounter*25)
             // set width and text of label
             let label = UILabel()
             label.backgroundColor = UIColor.red
