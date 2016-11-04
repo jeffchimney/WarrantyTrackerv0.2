@@ -22,6 +22,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var tagsTextField: UITextField!
     
     var tagArray: [String] = []
+    var tagLabelArray: [UILabel] = []
     let maxSize = 10
     
     override func viewDidLoad() {
@@ -51,6 +52,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
                     
                     var spacer: CGFloat = 50
                     var counter = 0
+                    var rowCounter = 0
                     for thisTag in tagArray {
                         if counter < maxSize {
                             counter += 1
@@ -60,34 +62,35 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
                             if counter <= 4 {
                                 switch counter {
                                 case 1:
-                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                    label.center = CGPoint(x: spacer, y: 250)
                                 case 2:
-                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                    label.center = CGPoint(x: spacer, y: 250)
                                 case 3:
-                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                    label.center = CGPoint(x: spacer, y: 250)
                                 case 4:
-                                    label.center = CGPoint(x: 160+spacer, y: 250)
+                                    label.center = CGPoint(x: spacer, y: 250)
                                     spacer = 50
                                 default: break
                                 }
                             } else {
                                 switch counter {
                                 case 5:
-                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                    label.center = CGPoint(x: spacer, y: 300)
                                 case 6:
-                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                    label.center = CGPoint(x: spacer, y: 300)
                                 case 7:
-                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                    label.center = CGPoint(x: spacer, y: 300)
                                 case 8:
-                                    label.center = CGPoint(x: 30+spacer, y: 300)
+                                    label.center = CGPoint(x: spacer, y: 300)
                                 default: break
                                 }
                             }
-                            label.textAlignment = NSTextAlignment.center
                             print(label.intrinsicContentSize.width)
                             label.text = thisTag
+                            label.sizeToFit()
                             self.view.addSubview(label)
-                            spacer = spacer + 50
+                            tagLabelArray.append(label)
+                            spacer = spacer + tagLabelArray[counter-1].frame.width
                         }
                     }
                 }
