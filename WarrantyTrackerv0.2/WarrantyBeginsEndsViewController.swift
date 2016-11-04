@@ -18,9 +18,10 @@ class WarrantyBeginsEndsViewController: UIViewController {
     @IBOutlet weak var beginsPicker: UIDatePicker!
     @IBOutlet weak var selectedStartDate: UILabel!
     @IBOutlet weak var selectedEndDate: UILabel!
-    @IBOutlet weak var nextButton: UIButton!
+    @IBOutlet weak var nextButton: UIBarButtonItem!
     @IBOutlet weak var saveDateButton: UIButton!
     @IBOutlet weak var warrantyEndsLabel: UILabel!
+    @IBOutlet weak var navBar: UINavigationItem!
     
     var startDatePicked = false
     var endDatePicked = false
@@ -38,6 +39,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
         saveDateButton.setTitle("Set Start Date", for: .normal)
         warrantyEndsLabel.isHidden = true
         selectedEndDate.isHidden = true
+        navBar.title = "Warranty"
     }
     
     override func didReceiveMemoryWarning() {
@@ -57,10 +59,6 @@ class WarrantyBeginsEndsViewController: UIViewController {
         }
     }
     
-    @IBAction func unwindSegue(segue:UIStoryboardSegue) {
-        
-    }
-    
     @IBAction func saveDateButtonPressed(_ sender: Any) {
         if startDatePicked == false && endDatePicked == false { // set start date
             let dateFormatter = DateFormatter()
@@ -72,6 +70,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
             warrantyEndsLabel.isHidden = false
             saveDateButton.setTitle("Set End Date", for: .normal)
             startDatePicked = true
+            nextButton.title = "Skip"
         } else if startDatePicked == true && endDatePicked == false { // set end date
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
@@ -82,6 +81,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
             selectedEndDate.isHidden = false
             saveDateButton.setTitle("Change Dates", for: .normal)
             endDatePicked = true
+            nextButton.title = "Next"
         } else if startDatePicked == true && endDatePicked == true { // clear both dates and start over
             self.selectedStartDate.text = ""
             self.selectedEndDate.text = ""
@@ -90,6 +90,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
             selectedEndDate.isHidden = true
             startDatePicked = false
             endDatePicked = false
+            nextButton.title = "Skip"
         }
         
     }

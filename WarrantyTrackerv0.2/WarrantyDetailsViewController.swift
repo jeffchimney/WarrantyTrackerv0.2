@@ -20,6 +20,8 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var descriptionTextView: UITextView!
     @IBOutlet weak var tagsTextField: UITextField!
+    @IBOutlet weak var saveButton: UIBarButtonItem!
+    @IBOutlet weak var navBar: UINavigationItem!
     
     var tagArray: [String] = []
     var tagLabelArray: [UILabel] = []
@@ -32,6 +34,8 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
         tagsTextField.delegate = self
 
         tagsTextField.addTarget(self, action: #selector(addTag(sender:)), for: UIControlEvents.editingChanged)
+        saveButton.isEnabled = false
+        navBar.title = "Details"
     }
     
     override func didReceiveMemoryWarning() {
@@ -89,6 +93,8 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    @IBAction func saveButtonPressed(_ sender: Any) {
+    }
     
     //MARK: Text Field Delegate Methods
     
@@ -97,6 +103,10 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+        if titleTextField.text != "" && tagArray.count != 0 {
+            saveButton.isEnabled = true
+        }
+        textField.resignFirstResponder()
         return false
     }
     

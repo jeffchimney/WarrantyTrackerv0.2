@@ -11,7 +11,8 @@ import UIKit
 class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var nextButton: UIButton!
+    @IBOutlet weak var nextButton: UIBarButtonItem!
+    @IBOutlet weak var navBar: UINavigationItem!
     
     var imageToSave: UIImage!
     let imagePicker = UIImagePickerController()
@@ -20,13 +21,14 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
+        navBar.title = "Item"
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if (imagePicked) {
-            nextButton.setTitle("Next", for: .normal)
+        if imagePicked {
+            nextButton.title = "Next"
         } else {
-            nextButton.setTitle("Skip", for: .normal)
+            nextButton.title = "Skip"
         }
     }
     
@@ -66,9 +68,6 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     @IBAction func nextButtonPressed(_ sender: Any) {
-    }
-    
-    @IBAction func unwindSegue(segue:UIStoryboardSegue) {
         
     }
     

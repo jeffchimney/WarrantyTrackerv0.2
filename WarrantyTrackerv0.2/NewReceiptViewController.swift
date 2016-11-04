@@ -15,8 +15,8 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
     //
     
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var nextButton: UIButton!
-    @IBOutlet weak var backButton: UIButton!
+    @IBOutlet weak var nextButton: UIBarButtonItem!
+    @IBOutlet weak var navBar: UINavigationItem!
     
     var imageToSave: UIImage!
     let imagePicker = UIImagePickerController()
@@ -25,13 +25,14 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
+        navBar.title = "Receipt"
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        if (imagePicked) {
-            nextButton.setTitle("Next", for: .normal)
+        if imagePicked {
+            nextButton.title = "Next"
         } else {
-            nextButton.setTitle("Skip", for: .normal)
+            nextButton.title = "Skip"
         }
     }
     
@@ -71,13 +72,6 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
     }
     
     @IBAction func nextButtonPressed(_ sender: Any) {
-    }
-    
-    @IBAction func backButtonPressed(_ sender: Any) {
-    }
-    
-    @IBAction func unwindSegue(segue:UIStoryboardSegue) {
-        
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
