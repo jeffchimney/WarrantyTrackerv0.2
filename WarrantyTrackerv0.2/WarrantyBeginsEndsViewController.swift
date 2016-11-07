@@ -98,6 +98,10 @@ class WarrantyBeginsEndsViewController: UIViewController {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toDetails" {
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d, yyyy"
+            
             if let nextViewController = segue.destination as? WarrantyDetailsViewController { // pass data to the next view controller
                 if itemImage != nil {
                     nextViewController.itemImage = itemImage
@@ -105,8 +109,10 @@ class WarrantyBeginsEndsViewController: UIViewController {
                 if receiptImage != nil {
                     nextViewController.receiptImage = receiptImage
                 }
-                nextViewController.startDate = selectedStartDate.text!
-                nextViewController.endDate = selectedEndDate.text!
+                if hasWarranty { // pass along warranty dates
+                    nextViewController.startDate = dateFormatter.date(from: selectedStartDate.text!)
+                    nextViewController.endDate = dateFormatter.date(from: selectedEndDate.text!)
+                }
             }
         }
     }

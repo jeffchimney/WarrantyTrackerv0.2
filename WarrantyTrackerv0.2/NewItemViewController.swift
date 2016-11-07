@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
@@ -17,6 +18,11 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     var imageToSave: UIImage!
     let imagePicker = UIImagePickerController()
     var imagePicked = false
+    
+    //camera variables
+    let captureSession = AVCaptureSession()
+    let stillImageOutput = AVCaptureStillImageOutput()
+    var error: NSError?
     
     override func viewDidLoad() {
         super.viewDidLoad()

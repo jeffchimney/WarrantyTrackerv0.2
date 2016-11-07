@@ -13,8 +13,9 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     // variables that have been passed forward
     var itemImage: UIImage! = nil
     var receiptImage: UIImage! = nil
-    var startDate: String = ""
-    var endDate: String = ""
+    var startDate: Date? = nil
+    var endDate: Date? = nil
+    var hasWarranty: Bool = true
     //
     
     @IBOutlet weak var titleTextField: UITextField!
@@ -22,10 +23,13 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var tagsTextField: UITextField!
     @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var navBar: UINavigationItem!
+    @IBOutlet weak var numberOfWeeksSegment: UISegmentedControl!
     
     var tagArray: [String] = []
     var tagLabelArray: [UILabel] = []
     let maxSize = 10
+    
+    let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +61,27 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
+        let record: Record = Record(with: titleTextField.text!, description: descriptionTextField.text, tags: tagArray, warrantyStarts: startDate, warrantyEnds: endDate, itemImage: itemImage, receiptImage: receiptImage, weeksBeforeReminder: numberOfWeeksSegment.selectedSegmentIndex, hasWarranty: hasWarranty)
+        
+        //get your object from NSUserDefaults.
+        if let loadedData = UserDefaults().object(forKey: "records") {
+            
+            if var loadedRecords = NSKeyedUnarchiver.unarchiveObject(with: loadedData as! Data) as? [Record] {
+                loadedRecords.append(record)
+                //store the new record object into NSUserDefaults.
+                let recordData = NSKeyedArchiver.archivedData(withRootObject: loadedRecords)
+                defaults.set(recordData, forKey: "records")
+                defaults.synchronize()
+            }
+        } else {
+            var newRecord: [Record] = []
+            newRecord.append(record)
+            //store the new record object into NSUserDefaults.
+            let recordData = NSKeyedArchiver.archivedData(withRootObject: newRecord)
+            defaults.set(recordData, forKey: "records")
+            defaults.synchronize()
+        }
+        self.navigationController!.popToRootViewController(animated: true)
     }
     
     private func addTagAndLabel(usingString tag:String) {
@@ -96,8 +121,6 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
                 }
             }
         }
-        print(tagArray)
-        print(tagLabelArray.count)
         tagsTextField.text = ""
     }
     
