@@ -15,5 +15,5 @@ class WarrantyTableViewCell: UITableViewCell {
     @IBOutlet weak var descriptionView: UITextView!
     @IBOutlet weak var warrantyStarts: UILabel!
     @IBOutlet weak var warrantyEnds: UILabel!
-    @IBOutlet weak var warrantyImage: UIImageView!
+    @IBOutlet weak var warrantyImageView: UIImageView!
 }

@@ -50,31 +50,16 @@ public class Record: NSObject, NSCoding {
         }
     }
     
-    required public convenience init?(coder aDecoder: NSCoder) {
-        guard let title = aDecoder.decodeObject(forKey: "title") as? String,
-        let descriptionString = aDecoder.decodeObject(forKey: "description") as? String,
-        let tags = aDecoder.decodeObject(forKey: "tags") as? [String],
-        let itemImage = aDecoder.decodeObject(forKey: "itemImage") as? UIImage,
-        let receiptImage = aDecoder.decodeObject(forKey: "receiptImage") as? UIImage,
-        let hasWarranty = aDecoder.decodeObject(forKey: "hasWarranty") as? Bool,
-        let warrantyStarts = aDecoder.decodeObject(forKey: "warrantyStarts") as? Date,
-        let warrantyEnds = aDecoder.decodeObject(forKey: "warrantyEnds") as? Date,
-        let weeksBeforeReminder = aDecoder.decodeObject(forKey: "weeksBeforeReminder") as? Int
-        else {
-            return nil
-        }
-        
-        self.init(
-            with: title,
-            description: descriptionString,
-            tags: tags,
-            warrantyStarts: warrantyStarts,
-            warrantyEnds: warrantyEnds,
-            itemImage: itemImage,
-            receiptImage: receiptImage,
-            weeksBeforeReminder: weeksBeforeReminder,
-            hasWarranty: hasWarranty
-        )
+    required public init?(coder aDecoder: NSCoder) {
+        self.title = aDecoder.decodeObject(forKey: "title") as? String ?? ""
+        self.descriptionString = aDecoder.decodeObject(forKey: "description") as? String ?? ""
+        self.tags = aDecoder.decodeObject(forKey: "tags") as? [String] ?? [""]
+        self.itemImage = aDecoder.decodeObject(forKey: "itemImage") as? UIImage
+        self.receiptImage = aDecoder.decodeObject(forKey: "receiptImage") as? UIImage
+        self.hasWarranty = aDecoder.decodeObject(forKey: "hasWarranty") as? Bool ?? true
+        self.warrantyStarts = aDecoder.decodeObject(forKey: "warrantyStarts") as? Date
+        self.warrantyEnds = aDecoder.decodeObject(forKey: "warrantyEnds") as? Date
+        self.weeksBeforeReminder = aDecoder.decodeObject(forKey: "weeksBeforeReminder") as? Int ?? 1
     }
     
     public func encode(with aCoder: NSCoder) {

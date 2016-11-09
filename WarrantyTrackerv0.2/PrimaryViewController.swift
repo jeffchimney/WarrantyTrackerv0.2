@@ -66,7 +66,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         cell.descriptionView.text = record.description
         cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts!)
         cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds!)
-        cell.warrantyImage.image = record.itemImage
+        cell.warrantyImageView.image = record.itemImage
         
         return cell
     }
