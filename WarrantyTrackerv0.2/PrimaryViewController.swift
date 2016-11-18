@@ -63,7 +63,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         dateFormatter.dateFormat = "MMM d, yyyy"
         
         cell.title.text = record.title
-        cell.descriptionView.text = record.description
+        cell.descriptionView.text = record.descriptionString
         cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts!)
         cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds!)
         cell.warrantyImageView.image = record.itemImage

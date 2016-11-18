@@ -26,7 +26,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     var captureDevice: AVCaptureDevice?
     var previewLayer: AVCaptureVideoPreviewLayer?
     let stillImageOutput = AVCapturePhotoOutput()
-    let settings = AVCapturePhotoSettings()
+    var settings = AVCapturePhotoSettings(format: [AVVideoCodecKey:AVVideoCodecJPEG]);
     var error: NSError?
     
     override func viewDidLoad() {
@@ -34,7 +34,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         imagePicker.delegate = self
         navBar.title = "Item"
         
-        captureSession.sessionPreset = AVCaptureSessionPresetHigh
+        captureSession.sessionPreset = AVCaptureSessionPresetPhoto
         
         let session = AVCaptureDeviceDiscoverySession(deviceTypes: [AVCaptureDeviceType.builtInWideAngleCamera], mediaType: AVMediaTypeVideo, position: AVCaptureDevicePosition.back)
         
@@ -42,13 +42,13 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             if device.hasMediaType(AVMediaTypeVideo) {
                 if device.position == AVCaptureDevicePosition.back {
                     captureDevice = device
+                    if !captureSession.isRunning {
+                        beginSession()
+                    }
                     print("Capture device found!")
+                    break
                 }
             }
-        }
-        
-        if captureDevice != nil {
-            beginSession()
         }
     }
     
@@ -60,19 +60,19 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         }
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        if captureSession.isRunning { // make sure captureSession has stopped before changing views.
+            captureSession.stopRunning()
+        }
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
     @IBAction func openCameraButton(sender: AnyObject) {
-//        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
-//            imagePicker.sourceType = UIImagePickerControllerSourceType.camera;
-//            imagePicker.allowsEditing = false
-//            self.present(imagePicker, animated: true, completion: nil)
-//        }
-        
-        capturePicture()
+        self.stillImageOutput.capturePhoto(with: settings, delegate: self)
         captureSession.stopRunning()
     }
     
@@ -84,88 +84,13 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         }
     }
     
-//    func updateDeviceSettings(focusValue : Float, isoValue : Float) {
-//        if let device = captureDevice {
-//            do {
-//                try captureDevice!.lockForConfiguration()
-//                
-//            } catch let error as NSError {
-//                print(error)
-//            }
-//            
-//            device.setFocusModeLockedWithLensPosition(focusValue, completionHandler: { (time) -> Void in
-//                //
-//            })
-//            
-//            // Adjust the iso to clamp between minIso and maxIso based on the active format
-//            let minISO = device.activeFormat.minISO
-//            let maxISO = device.activeFormat.maxISO
-//            let clampedISO = isoValue * (maxISO - minISO) + minISO
-//            device.setExposureModeCustomWithDuration(AVCaptureExposureDurationCurrent, iso: clampedISO, completionHandler: { (time) -> Void in
-//            })
-//            
-//            device.unlockForConfiguration()
-//            
-//        }
-//    }
-//    
-//    func touchPercent(touch : UITouch) -> CGPoint {
-//        // Get the dimensions of the screen in points
-//        let screenSize = UIScreen.main.bounds.size
-//        
-//        // Create an empty CGPoint object set to 0, 0
-//        var touchPer = CGPoint.zero
-//        
-//        // Set the x and y values to be the value of the tapped position, divided by the width/height of the screen
-//        touchPer.x = touch.location(in: self.view).x / screenSize.width
-//        touchPer.y = touch.location(in: self.view).y / screenSize.height
-//        
-//        // Return the populated CGPoint
-//        return touchPer
-//    }
-//    
-//    func focusTo(value : Float) {
-//        if let device = captureDevice {
-//            do {
-//                try captureDevice!.lockForConfiguration()
-//                
-//            } catch let error as NSError {
-//                print(error)
-//            }
-//            
-//            device.setFocusModeLockedWithLensPosition(value, completionHandler: { (time) -> Void in
-//                //
-//            })
-//            device.unlockForConfiguration()
-//            
-//        }
-//    }
-//    
-//    let screenWidth = UIScreen.main.bounds.size.width
-//    
-//    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        //if let touchPer = touches.first {
-//        let touchPer = touchPercent( touch: touches.first! as UITouch )
-//        updateDeviceSettings(focusValue: Float(touchPer.x), isoValue: Float(touchPer.y))
-//        
-//        
-//        super.touchesBegan(touches, with:event)
-//    }
-//    
-//    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-//        // if let anyTouch = touches.first {
-//        let touchPer = touchPercent( touch: touches.first! as UITouch )
-//        // let touchPercent = anyTouch.locationInView(self.view).x / screenWidth
-//        //      focusTo(Float(touchPercent))
-//        updateDeviceSettings(focusValue: Float(touchPer.x), isoValue: Float(touchPer.y))
-//    }
-    
     func configureDevice() {
         if captureDevice != nil {
             do {
                 try captureDevice!.lockForConfiguration()
             } catch let error as NSError {
                 print(error)
+                print("Couldnt lock capturedevice config")
             }
             
             captureDevice?.focusMode = .continuousAutoFocus
@@ -180,13 +105,31 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             deviceInput = try AVCaptureDeviceInput(device: captureDevice)
         } catch let error as NSError {
             print(error)
+            print("Couldnt set device input")
             deviceInput = nil
         }
         
-        captureSession.addInput(deviceInput)
+        captureSession.beginConfiguration()
+        
+        // remove existing devices
+        for eachDevice in captureSession.inputs {
+            captureSession.removeInput(eachDevice as! AVCaptureInput)
+        }
+        
+        for eachDevice in captureSession.outputs {
+            captureSession.removeOutput(eachDevice as! AVCaptureOutput)
+        }
+        
+        // add new devices
+        if captureSession.canAddInput(deviceInput) {
+            captureSession.addInput(deviceInput)
+        }
+        
         if captureSession.canAddOutput(stillImageOutput) {
             captureSession.addOutput(stillImageOutput)
         }
+        
+        captureSession.commitConfiguration()
         
         let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
         let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType,
@@ -203,17 +146,13 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         previewLayer?.frame = self.view.layer.frame
         captureSession.startRunning()
         imagePicked = false
-        nextButton.title = "Skip"
-    }
-    
-    func capturePicture(){
-        self.stillImageOutput.capturePhoto(with: settings, delegate: self)
     }
     
     func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
         
         if let error = error {
-            print(error.localizedDescription)
+            print(error)
+            print("Can't capture")
         }
         
         if let sampleBuffer = photoSampleBuffer, let previewBuffer = previewPhotoSampleBuffer, let imageData = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewBuffer) {
@@ -222,9 +161,6 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             imageView.image = image
             imageView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
             imagePicked = true
-            //captureSession.stopRunning()
-            nextButton.title = "Next"
-            
         } else {
             
         }
