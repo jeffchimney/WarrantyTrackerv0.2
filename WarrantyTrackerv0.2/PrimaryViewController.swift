@@ -10,11 +10,15 @@
 import UIKit
 import CoreData
 
-class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
+    
+    let searchController = UISearchController(searchResultsController: nil)
+    var searchActive = false
 
     @IBOutlet weak var warrantiesTableView: UITableView!
     let cellIdentifier = "WarrantyTableViewCell"
     var records: [NSManagedObject] = []
+    var filteredRecords: [NSManagedObject] = []
     let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
@@ -26,6 +30,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         //get your object from CoreData
         
         self.warrantiesTableView.reloadData()
+        
+        searchController.dimsBackgroundDuringPresentation = false
+        searchController.hidesNavigationBarDuringPresentation = false
+        definesPresentationContext = true
+        navigationItem.titleView = searchController.searchBar
+        searchController.searchBar.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -65,25 +75,77 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! WarrantyTableViewCell
-        let record = records[indexPath.row] as! Record
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
         
-        cell.title.text = record.title
-        cell.descriptionView.text = record.descriptionString
-        cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-        cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
-        let recordImage = UIImage(data: record.itemImage as! Data)
-        cell.warrantyImageView.image = recordImage
-        
-        print(record.tags ?? "None found")
+        if searchActive {
+            let record = filteredRecords[indexPath.row] as! Record
+            cell.title.text = record.title
+            cell.descriptionView.text = record.descriptionString
+            cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
+            cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+            let recordImage = UIImage(data: record.itemImage as! Data)
+            cell.warrantyImageView.image = recordImage
+        } else {
+            let record = records[indexPath.row] as! Record
+            cell.title.text = record.title
+            cell.descriptionView.text = record.descriptionString
+            cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
+            cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+            let recordImage = UIImage(data: record.itemImage as! Data)
+            cell.warrantyImageView.image = recordImage
+        }
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return records.count
+        if searchActive {
+            return filteredRecords.count
+        } else {
+            return records.count
+        }
+    }
+    
+    //MARK: Search bar delegate functions
+    func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
+        searchActive = true;
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchActive = false;
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        searchActive = false;
+        warrantiesTableView.reloadData()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchActive = false;
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        filteredRecords = []
+        for record in records {
+            let currentRecord = record as! Record
+            for tag in currentRecord.tags! {
+                let currentTag = tag as! Tag
+                if ((currentRecord.title?.contains(searchText))! || (currentTag.tag?.contains(searchText))!) && !filteredRecords.contains(currentRecord) {
+                    filteredRecords.append(currentRecord)
+                    print("appending match")
+                }
+            }
+        }
+        
+        if(filteredRecords.count == 0){
+            searchActive = false;
+        } else {
+            searchActive = true;
+        }
+        print("Changed")
+        warrantiesTableView.reloadData()
     }
 }
 
