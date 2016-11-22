@@ -18,8 +18,9 @@
 		BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */; };
 		BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */; };
 		BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */; };
-		BE5269AD1DCE925D00B46A4B /* Record.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5269AC1DCE925D00B46A4B /* Record.swift */; };
 		BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */; };
+		BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE69FF1C1DE4DD830052685E /* CoreData.framework */; };
+		BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,8 +58,9 @@
 		BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewReceiptViewController.swift; sourceTree = "<group>"; };
 		BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyBeginsEndsViewController.swift; sourceTree = "<group>"; };
 		BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyDetailsViewController.swift; sourceTree = "<group>"; };
-		BE5269AC1DCE925D00B46A4B /* Record.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Record.swift; sourceTree = "<group>"; };
 		BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyTableViewCellController.swift; sourceTree = "<group>"; };
+		BE69FF1C1DE4DD830052685E /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		BEB975C81DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WarrantyTracker.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -93,6 +96,7 @@
 				BE1C11251DC921D200B0D493 /* WarrantyTrackerv0.2Tests */,
 				BE1C11301DC921D200B0D493 /* WarrantyTrackerv0.2UITests */,
 				BE1C110D1DC921D200B0D493 /* Products */,
+				BE69FF1B1DE4DD830052685E /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -115,12 +119,12 @@
 				BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */,
 				BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */,
 				BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */,
-				BE5269AC1DCE925D00B46A4B /* Record.swift */,
 				BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */,
 				BE1C11151DC921D200B0D493 /* Main.storyboard */,
 				BE1C11181DC921D200B0D493 /* Assets.xcassets */,
 				BE1C111A1DC921D200B0D493 /* LaunchScreen.storyboard */,
 				BE1C111D1DC921D200B0D493 /* Info.plist */,
+				BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */,
 			);
 			path = WarrantyTrackerv0.2;
 			sourceTree = "<group>";
@@ -141,6 +145,14 @@
 				BE1C11331DC921D200B0D493 /* Info.plist */,
 			);
 			path = WarrantyTrackerv0.2UITests;
+			sourceTree = "<group>";
+		};
+		BE69FF1B1DE4DD830052685E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				BE69FF1C1DE4DD830052685E /* CoreData.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -283,8 +295,8 @@
 				BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */,
 				BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
+				BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */,
 				BE1C11101DC921D200B0D493 /* AppDelegate.swift in Sources */,
-				BE5269AD1DCE925D00B46A4B /* Record.swift in Sources */,
 				BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */,
 				BE1C11121DC921D200B0D493 /* NewItemViewController.swift in Sources */,
 				BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */,
@@ -559,6 +571,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BEB975C81DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodel */,
+			);
+			currentVersion = BEB975C81DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodel */;
+			path = WarrantyTracker.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = BE1C11041DC921D200B0D493 /* Project object */;
 }

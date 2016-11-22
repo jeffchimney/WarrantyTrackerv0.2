@@ -7,12 +7,13 @@
 //
 
 import UIKit
+import CoreData
 
-class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
+class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     
     // variables that have been passed forward
-    var itemImage: UIImage! = nil
-    var receiptImage: UIImage! = nil
+    var itemImageData: Data! = nil
+    var receiptImageData: Data! = nil
     var startDate: Date? = nil
     var endDate: Date? = nil
     var hasWarranty: Bool = true
@@ -24,15 +25,22 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var numberOfWeeksSegment: UISegmentedControl!
+    @IBOutlet weak var tagsPickerView: UIPickerView!
+    @IBOutlet weak var removeTagButton: UIButton!
     
-    var tagArray: [String] = []
-    var tagLabelArray: [UILabel] = []
+    var tagArray = [String]()
+    var tagLabelArray = [UILabel]()
     let maxSize = 10
     
     let defaults = UserDefaults.standard
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.tagsPickerView.dataSource = self;
+        self.tagsPickerView.delegate = self;
+        
+        removeTagButton.isHidden = true
         
         titleTextField.delegate = self
         tagsTextField.delegate = self
@@ -41,6 +49,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
         saveButton.isEnabled = false
         navBar.title = "Details"
         descriptionTextField.text = ""
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -55,75 +64,71 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
             
             if lastChar == "," || lastChar == " " {
                 let tag = enteredText.substring(to: enteredText.index(enteredText.endIndex, offsetBy: -1))
-                addTagAndLabel(usingString: tag)
+                addTagToArray(usingString: tag)
             }
         }
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
-        let record: Record = Record(with: titleTextField.text!, description: descriptionTextField.text, tags: tagArray, warrantyStarts: startDate, warrantyEnds: endDate, itemImage: itemImage, receiptImage: receiptImage, weeksBeforeReminder: numberOfWeeksSegment.selectedSegmentIndex, hasWarranty: hasWarranty)
+        //let record: Record = Record(with: titleTextField.text!, description: descriptionTextField.text, tags: tagArray, warrantyStarts: startDate, warrantyEnds: endDate, itemImage: itemImage, receiptImage: receiptImage, weeksBeforeReminder: numberOfWeeksSegment.selectedSegmentIndex, hasWarranty: hasWarranty)
         
-        //get your object from NSUserDefaults.
-        if let loadedData = UserDefaults().object(forKey: "records") {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+
+        let recordEntity = NSEntityDescription.entity(forEntityName: "Record", in: managedContext)!
+        let tagEntity = NSEntityDescription.entity(forEntityName: "Tag", in: managedContext)!
+        
+        let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
+        
+        record.title = titleTextField.text!
+        record.descriptionString = descriptionTextField.text!
+        //record.tags = tagArray
+        record.warrantyStarts = startDate as NSDate?
+        record.warrantyEnds = endDate as NSDate?
+        record.itemImage = itemImageData as NSData?
+        record.receiptImage = receiptImageData as NSData?
+        record.weeksBeforeReminder = Int32(numberOfWeeksSegment.selectedSegmentIndex)
+        record.hasWarranty = hasWarranty
+        
+        // add tags
+        for tag in tagArray {
+            let newTag = NSManagedObject(entity: tagEntity, insertInto: managedContext) as! Tag
             
-            if var loadedRecords = NSKeyedUnarchiver.unarchiveObject(with: loadedData as! Data) as? [Record] {
-                loadedRecords.append(record)
-                //store the new record object into NSUserDefaults.
-                let recordData = NSKeyedArchiver.archivedData(withRootObject: loadedRecords)
-                defaults.set(recordData, forKey: "records")
-                defaults.synchronize()
-            }
-        } else {
-            var newRecord: [Record] = []
-            newRecord.append(record)
-            //store the new record object into NSUserDefaults.
-            let recordData = NSKeyedArchiver.archivedData(withRootObject: newRecord)
-            defaults.set(recordData, forKey: "records")
-            defaults.synchronize()
+            newTag.tag = tag
+            record.addToTags(newTag)
+        }
+
+        do {
+            try managedContext.save()
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
         }
         self.navigationController!.popToRootViewController(animated: true)
     }
     
-    private func addTagAndLabel(usingString tag:String) {
+    private func addTagToArray(usingString tag:String) {
         let capitalizedTag = String(tag.characters.first!).uppercased() + String(tag.characters.dropFirst())
         if !tagArray.contains(capitalizedTag) {
             tagArray.append(capitalizedTag)
-            
-            var spacer: CGFloat = 30
-            var counter = 0
-            var rowCounter = 0
-            var offset = 100 + (rowCounter*25)
-            // set width and text of label
-            let label = UILabel()
-            label.backgroundColor = UIColor.red
-            label.text = capitalizedTag
-            label.sizeToFit()
-            tagLabelArray.append(label)
-            for thisLabel in tagLabelArray {
-                if counter < maxSize {
-                    counter += 1
-                    thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                    
-                    if (thisLabel.center.x + thisLabel.frame.width/2) > self.view.frame.width-30 { // add label to the next row
-                        rowCounter += 1
-                        spacer = 30
-                        offset = 250 + (rowCounter*25)
-                        thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                    } else {
-                        if tagLabelArray.count > 1 { // if there are two items in the array, calculate space between
-                            spacer = spacer + tagLabelArray[counter-1].frame.width + tagLabelArray[counter].frame.width
-                            thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                        } else { // if there is one item in the array, move it away from the edge of the screen
-                            thisLabel.center = CGPoint(x: spacer, y: CGFloat(offset))
-                        }
-                    }
-                    self.view.addSubview(label)
-                }
-            }
         }
         tagsTextField.text = ""
+        tagsPickerView.reloadAllComponents()
+        removeTagButton.isHidden = false
+        // enable save button if there is text in the title field
+        if titleTextField.text != "" && tagArray.count != 0 {
+            saveButton.isEnabled = true
+        }
     }
     
+    @IBAction func removeButtonPressed(_ sender: Any) {
+        print(tagsPickerView.selectedRow(inComponent: 0).description)
+        tagArray.remove(at: tagsPickerView.selectedRow(inComponent: 0))
+        tagsPickerView.reloadAllComponents()
+    }
     //MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -139,9 +144,22 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if (textField.text != "" && textField == tagsTextField) {
-            addTagAndLabel(usingString: textField.text!)
+            addTagToArray(usingString: textField.text!)
         }
         textField.resignFirstResponder()
         return true
+    }
+    
+    //MARK: Picker View Delegate Methods
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return tagArray.count;
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return tagArray[row]
     }
 }

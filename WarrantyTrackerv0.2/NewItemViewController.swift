@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 
-class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, AVCapturePhotoCaptureDelegate {
+class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var nextButton: UIBarButtonItem!
@@ -17,39 +17,19 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var libraryButton: UIButton!
     
-    var imageToSave: UIImage!
+    var imageDataToSave: Data!
     let imagePicker = UIImagePickerController()
     var imagePicked = false
     
     //camera variables
-    let captureSession = AVCaptureSession()
-    var captureDevice: AVCaptureDevice?
-    var previewLayer: AVCaptureVideoPreviewLayer?
-    let stillImageOutput = AVCapturePhotoOutput()
-    var settings = AVCapturePhotoSettings(format: [AVVideoCodecKey:AVVideoCodecJPEG]);
-    var error: NSError?
+    var session: AVCaptureSession?
+    var stillImageOutput: AVCaptureStillImageOutput?
+    var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
         navBar.title = "Item"
-        
-        captureSession.sessionPreset = AVCaptureSessionPresetPhoto
-        
-        let session = AVCaptureDeviceDiscoverySession(deviceTypes: [AVCaptureDeviceType.builtInWideAngleCamera], mediaType: AVMediaTypeVideo, position: AVCaptureDevicePosition.back)
-        
-        for device in (session?.devices)! {
-            if device.hasMediaType(AVMediaTypeVideo) {
-                if device.position == AVCaptureDevicePosition.back {
-                    captureDevice = device
-                    if !captureSession.isRunning {
-                        beginSession()
-                    }
-                    print("Capture device found!")
-                    break
-                }
-            }
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -58,12 +38,45 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         } else {
             nextButton.title = "Next"
         }
+        
+        session = AVCaptureSession()
+        session!.sessionPreset = AVCaptureSessionPresetPhoto
+        let backCamera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
+        
+        var error: NSError?
+        var input: AVCaptureDeviceInput!
+        do {
+            input = try AVCaptureDeviceInput(device: backCamera)
+        } catch let error1 as NSError {
+            error = error1
+            input = nil
+            print(error!.localizedDescription)
+        }
+        
+        if error == nil && session!.canAddInput(input) {
+            session!.addInput(input)
+            
+            stillImageOutput = AVCaptureStillImageOutput()
+            stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+            
+            if session!.canAddOutput(stillImageOutput) {
+                session!.addOutput(stillImageOutput)
+                videoPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+                videoPreviewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
+                videoPreviewLayer!.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
+                imageView.layer.addSublayer(videoPreviewLayer!)
+                session!.startRunning()
+            }
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        videoPreviewLayer!.frame = imageView.bounds
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        if captureSession.isRunning { // make sure captureSession has stopped before changing views.
-            captureSession.stopRunning()
-        }
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -72,8 +85,21 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     @IBAction func openCameraButton(sender: AnyObject) {
-        self.stillImageOutput.capturePhoto(with: settings, delegate: self)
-        captureSession.stopRunning()
+        if let videoConnection = stillImageOutput!.connection(withMediaType: AVMediaTypeVideo) {
+            stillImageOutput?.captureStillImageAsynchronously(from: videoConnection, completionHandler: { (sampleBuffer, error) -> Void in
+                if sampleBuffer != nil {
+                    let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
+                    self.imageDataToSave = imageData
+                    let dataProvider = CGDataProvider(data: imageData as! CFData)
+                    let cgImageRef = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: CGColorRenderingIntent.defaultIntent)
+                    let image = UIImage(cgImage: cgImageRef!, scale: 1.0, orientation: UIImageOrientation.right)
+                    self.session?.stopRunning()
+                    self.imageView.layer.sublayers?.removeAll()
+                    self.imageView.contentMode = .scaleAspectFill
+                    self.imageView.image = image
+                }
+            })
+        }
     }
     
     @IBAction func openPhotoLibraryButton(sender: AnyObject) {
@@ -81,88 +107,6 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             imagePicker.sourceType = UIImagePickerControllerSourceType.photoLibrary;
             imagePicker.allowsEditing = false
             self.present(imagePicker, animated: true, completion: nil)
-        }
-    }
-    
-    func configureDevice() {
-        if captureDevice != nil {
-            do {
-                try captureDevice!.lockForConfiguration()
-            } catch let error as NSError {
-                print(error)
-                print("Couldnt lock capturedevice config")
-            }
-            
-            captureDevice?.focusMode = .continuousAutoFocus
-            captureDevice?.unlockForConfiguration()
-        }
-    }
-    
-    func beginSession() {
-        configureDevice()
-        var deviceInput: AVCaptureDeviceInput!
-        do {
-            deviceInput = try AVCaptureDeviceInput(device: captureDevice)
-        } catch let error as NSError {
-            print(error)
-            print("Couldnt set device input")
-            deviceInput = nil
-        }
-        
-        captureSession.beginConfiguration()
-        
-        // remove existing devices
-        for eachDevice in captureSession.inputs {
-            captureSession.removeInput(eachDevice as! AVCaptureInput)
-        }
-        
-        for eachDevice in captureSession.outputs {
-            captureSession.removeOutput(eachDevice as! AVCaptureOutput)
-        }
-        
-        // add new devices
-        if captureSession.canAddInput(deviceInput) {
-            captureSession.addInput(deviceInput)
-        }
-        
-        if captureSession.canAddOutput(stillImageOutput) {
-            captureSession.addOutput(stillImageOutput)
-        }
-        
-        captureSession.commitConfiguration()
-        
-        let previewPixelType = settings.availablePreviewPhotoPixelFormatTypes.first!
-        let previewFormat = [kCVPixelBufferPixelFormatTypeKey as String: previewPixelType,
-                             kCVPixelBufferWidthKey as String: 160,
-                             kCVPixelBufferHeightKey as String: 160,
-                             ]
-        settings.previewPhotoFormat = previewFormat
-        
-        previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
-        previewLayer?.zPosition = 1
-        libraryButton.layer.zPosition = 2
-        captureButton.layer.zPosition = 2
-        self.view.layer.addSublayer(previewLayer!)
-        previewLayer?.frame = self.view.layer.frame
-        captureSession.startRunning()
-        imagePicked = false
-    }
-    
-    func capture(_ captureOutput: AVCapturePhotoOutput, didFinishProcessingPhotoSampleBuffer photoSampleBuffer: CMSampleBuffer?, previewPhotoSampleBuffer: CMSampleBuffer?, resolvedSettings: AVCaptureResolvedPhotoSettings, bracketSettings: AVCaptureBracketedStillImageSettings?, error: Error?) {
-        
-        if let error = error {
-            print(error)
-            print("Can't capture")
-        }
-        
-        if let sampleBuffer = photoSampleBuffer, let previewBuffer = previewPhotoSampleBuffer, let imageData = AVCapturePhotoOutput.jpegPhotoDataRepresentation(forJPEGSampleBuffer: sampleBuffer, previewPhotoSampleBuffer: previewBuffer) {
-            
-            let image = UIImage(data: imageData, scale: 1.0)
-            imageView.image = image
-            imageView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-            imagePicked = true
-        } else {
-            
         }
     }
     
@@ -188,7 +132,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         if (segue.identifier == "toReceipt") {
             if let nextViewController = segue.destination as? NewReceiptViewController {
                 if (imageView.image != nil) {
-                    nextViewController.itemImage = imageView.image
+                    nextViewController.itemImageData = imageDataToSave
                 } else {
                     print("Was nil")
                 }

@@ -8,12 +8,13 @@
 //
 
 import UIKit
+import CoreData
 
 class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var warrantiesTableView: UITableView!
     let cellIdentifier = "WarrantyTableViewCell"
-    var records = [Record]()
+    var records: [NSManagedObject] = []
     let defaults = UserDefaults.standard
 
     override func viewDidLoad() {
@@ -22,23 +23,30 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.warrantiesTableView.delegate = self
         self.warrantiesTableView.dataSource = self
         
-        //get your object from NSUserDefaults.
-        if let loadedData = defaults.data(forKey: "records") {
-            
-            if let loadedRecords = NSKeyedUnarchiver.unarchiveObject(with: loadedData) as? [Record] {
-                records = loadedRecords
-            }
-        }
+        //get your object from CoreData
+        
         self.warrantiesTableView.reloadData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        //get your object from NSUserDefaults.
-        if let loadedData = UserDefaults().object(forKey: "records") {
-            if let loadedRecords = NSKeyedUnarchiver.unarchiveObject(with: loadedData as! Data) {
-                records = loadedRecords as! [Record]
-            }
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
         }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        
+        do {
+            records = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        //get your object from CoreData
+        
         self.warrantiesTableView.reloadData()
     }
 
@@ -57,16 +65,19 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! WarrantyTableViewCell
-        let record = records[indexPath.row]
+        let record = records[indexPath.row] as! Record
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
         
         cell.title.text = record.title
         cell.descriptionView.text = record.descriptionString
-        cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts!)
-        cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds!)
-        cell.warrantyImageView.image = record.itemImage
+        cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
+        cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+        let recordImage = UIImage(data: record.itemImage as! Data)
+        cell.warrantyImageView.image = recordImage
+        
+        print(record.tags ?? "None found")
         
         return cell
     }

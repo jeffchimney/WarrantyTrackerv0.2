@@ -11,8 +11,8 @@ import UIKit
 class WarrantyBeginsEndsViewController: UIViewController {
     
     // variables that have been passed forward
-    var itemImage: UIImage! = nil
-    var receiptImage: UIImage! = nil
+    var itemImageData: Data! = nil
+    var receiptImageData: Data! = nil
     //
     
     @IBOutlet weak var beginsPicker: UIDatePicker!
@@ -103,11 +103,11 @@ class WarrantyBeginsEndsViewController: UIViewController {
             dateFormatter.dateFormat = "MMM d, yyyy"
             
             if let nextViewController = segue.destination as? WarrantyDetailsViewController { // pass data to the next view controller
-                if itemImage != nil {
-                    nextViewController.itemImage = itemImage
+                if itemImageData != nil {
+                    nextViewController.itemImageData = itemImageData
                 }
-                if receiptImage != nil {
-                    nextViewController.receiptImage = receiptImage
+                if receiptImageData != nil {
+                    nextViewController.receiptImageData = receiptImageData
                 }
                 if hasWarranty { // pass along warranty dates
                     nextViewController.startDate = dateFormatter.date(from: selectedStartDate.text!)
