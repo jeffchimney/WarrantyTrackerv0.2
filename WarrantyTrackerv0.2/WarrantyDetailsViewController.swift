@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreData
+import EventKit
 
 class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     
@@ -33,6 +34,8 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
     let maxSize = 10
     
     let defaults = UserDefaults.standard
+    let eventStore = EKEventStore()
+    var calendars: [EKCalendar]?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,15 +44,18 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         self.tagsPickerView.delegate = self;
         
         removeTagButton.isHidden = true
+        saveButton.isEnabled = false
         
         titleTextField.delegate = self
         tagsTextField.delegate = self
-
         tagsTextField.addTarget(self, action: #selector(addTag(sender:)), for: UIControlEvents.editingChanged)
-        saveButton.isEnabled = false
         navBar.title = "Details"
         descriptionTextField.text = ""
         
+        // to find and use the calendar for events:
+        //let calendar = checkCalendar()
+        //var calEvent = EKEvent(eventStore: eventStore)
+        //calEvent.calendar = calendar
     }
     
     override func didReceiveMemoryWarning() {
@@ -129,6 +135,54 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         tagArray.remove(at: tagsPickerView.selectedRow(inComponent: 0))
         tagsPickerView.reloadAllComponents()
     }
+    
+    func checkCalendar() -> EKCalendar {
+        var retCal: EKCalendar?
+        
+        let calendars = eventStore.calendars(for: EKEntityType.event) // Grab every calendar the user has
+        var exists: Bool = false
+        for calendar in calendars { // Search all these calendars
+            if calendar.title == "WarrantyTracker" {
+                exists = true
+                retCal = calendar
+            }
+        }
+        
+        if !exists {
+            let newCalendar = EKCalendar(for:EKEntityType.event, eventStore:eventStore)
+            newCalendar.title="WarrantyTracker"
+            newCalendar.source = eventStore.defaultCalendarForNewEvents.source
+            do {
+                try eventStore.saveCalendar(newCalendar, commit:true)
+            } catch {
+                print("Couldn't add calendar")
+            }
+            retCal = newCalendar
+        }
+        
+        return retCal!
+    }
+    
+    func requestAccessToCalendar() {
+        eventStore.requestAccess(to: EKEntityType.event, completion: {
+            (accessGranted: Bool, error: Error?) in
+            
+            if accessGranted == true {
+                DispatchQueue.main.async(execute: {
+                    self.loadCalendars()
+                })
+            } else {
+                DispatchQueue.main.async(execute: {
+                    
+                })
+            }
+        })
+    }
+    
+    func loadCalendars() {
+        calendars = eventStore.calendars(for: EKEntityType.event)
+    }
+    
     //MARK: Text Field Delegate Methods
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
