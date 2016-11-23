@@ -52,10 +52,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         navBar.title = "Details"
         descriptionTextField.text = ""
         
-        // to find and use the calendar for events:
-        //let calendar = checkCalendar()
-        //var calEvent = EKEvent(eventStore: eventStore)
-        //calEvent.calendar = calendar
+        requestAccessToCalendar()
     }
     
     override func didReceiveMemoryWarning() {
@@ -113,6 +110,32 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         } catch let error as NSError {
             print("Could not save. \(error), \(error.userInfo)")
         }
+        
+        // to find and use the calendar for events:
+        let calendar = checkCalendar()
+        let newEvent = EKEvent(eventStore: eventStore)
+        newEvent.calendar = calendar
+        newEvent.title = titleTextField.text! + " Warranty Expires"
+        newEvent.notes = "Is your item still working properly?  Its warranty expires today."
+        newEvent.startDate = endDate!
+        newEvent.endDate = endDate!
+        newEvent.isAllDay = true
+        // still need to add a reminder # of weeks before expiry.
+        //newEvent.addAlarm(<#T##alarm: EKAlarm##EKAlarm#>)
+        
+        // try to save the event
+        do {
+            try eventStore.save(newEvent, span: .thisEvent, commit: true)
+            
+            self.dismiss(animated: true, completion: nil)
+        } catch {
+            let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
+            let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            alert.addAction(OKAction)
+            
+            self.present(alert, animated: true, completion: nil)
+        }
+        
         self.navigationController!.popToRootViewController(animated: true)
     }
     
@@ -173,7 +196,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
                 })
             } else {
                 DispatchQueue.main.async(execute: {
-                    
+                    // Are you sure?
                 })
             }
         })
