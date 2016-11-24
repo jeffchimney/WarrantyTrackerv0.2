@@ -120,8 +120,25 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         newEvent.startDate = endDate!
         newEvent.endDate = endDate!
         newEvent.isAllDay = true
-        // still need to add a reminder # of weeks before expiry.
-        //newEvent.addAlarm(<#T##alarm: EKAlarm##EKAlarm#>)
+        // configure alarm for event
+        let daysToSubtract = (numberOfWeeksSegment.selectedSegmentIndex+1)*(-7)
+        
+        var addingPeriod = DateComponents()
+        addingPeriod.day = daysToSubtract
+        addingPeriod.hour = 12
+        
+        let userCalendar = NSCalendar.current
+        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
+//        let dateformatter = DateFormatter()
+            
+//        dateformatter.dateStyle = DateFormatter.Style.medium
+//            
+//        dateformatter.timeStyle = DateFormatter.Style.short
+//            
+//        print(dateformatter.string(from: alarmDate!))
+        
+        let alarm = EKAlarm(absoluteDate: alarmDate!)
+        newEvent.addAlarm(alarm)
         
         // try to save the event
         do {

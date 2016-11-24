@@ -414,7 +414,7 @@
                                         <rect key="frame" x="0.0" y="28" width="375" height="105"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1Mx-eG-FsG" id="KEm-Vk-89d">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="104"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="105"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rNs-yK-2oH">
@@ -439,12 +439,6 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="TIR-AI-Lp7">
-                                                    <rect key="frame" x="0.0" y="0.0" width="98" height="105"/>
-                                                    <constraints>
-                                                        <constraint firstAttribute="width" constant="98" id="gpd-Rx-boI"/>
-                                                    </constraints>
-                                                </imageView>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GTy-iS-eAP">
                                                     <rect key="frame" x="106" y="2" width="34" height="21"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -457,20 +451,26 @@
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="TIR-AI-Lp7">
+                                                    <rect key="frame" x="0.0" y="0.0" width="80" height="105"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="80" id="dJh-Ro-g9f"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="7FP-CP-w6D" firstAttribute="baseline" secondItem="OjL-XL-sBi" secondAttribute="baseline" id="2Yv-tF-dzF"/>
+                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="centerY" secondItem="KEm-Vk-89d" secondAttribute="centerY" id="C6d-3Q-Sb2"/>
+                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="top" id="Dmz-nH-TWA"/>
                                                 <constraint firstItem="rNs-yK-2oH" firstAttribute="trailing" secondItem="KEm-Vk-89d" secondAttribute="trailingMargin" id="H1a-3G-8Y9"/>
                                                 <constraint firstItem="rNs-yK-2oH" firstAttribute="top" secondItem="7FP-CP-w6D" secondAttribute="bottom" constant="8" symbolic="YES" id="IDF-MC-F9V"/>
                                                 <constraint firstItem="OjL-XL-sBi" firstAttribute="baseline" secondItem="Eek-Ry-K99" secondAttribute="baseline" id="JGA-bA-VVF"/>
-                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="leading" secondItem="TIR-AI-Lp7" secondAttribute="trailing" constant="8" symbolic="YES" id="LH9-6i-exj"/>
                                                 <constraint firstItem="Eek-Ry-K99" firstAttribute="leading" secondItem="OjL-XL-sBi" secondAttribute="trailing" constant="12" id="QIB-6K-YFO"/>
-                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="bottom" secondItem="rNs-yK-2oH" secondAttribute="bottom" id="hxq-Vi-gUr"/>
+                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="bottom" secondItem="rNs-yK-2oH" secondAttribute="bottom" id="TGZ-M2-uBj"/>
+                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="leading" secondItem="TIR-AI-Lp7" secondAttribute="trailing" constant="26" id="ggf-pg-NgQ"/>
                                                 <constraint firstItem="7FP-CP-w6D" firstAttribute="top" secondItem="GTy-iS-eAP" secondAttribute="bottom" constant="2" id="nOH-gO-UEJ"/>
                                                 <constraint firstItem="OjL-XL-sBi" firstAttribute="leading" secondItem="7FP-CP-w6D" secondAttribute="trailing" constant="8" symbolic="YES" id="nhs-ha-l45"/>
-                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="top" id="oe8-Cg-MCU"/>
-                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="centerY" secondItem="KEm-Vk-89d" secondAttribute="centerY" id="omd-6b-DFe"/>
-                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="leading" secondItem="KEm-Vk-89d" secondAttribute="leading" id="qeh-CD-Gjd"/>
+                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="leading" secondItem="KEm-Vk-89d" secondAttribute="leading" id="oiT-KR-2dS"/>
                                                 <constraint firstItem="GTy-iS-eAP" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="topMargin" constant="-6" id="sO5-rN-qZk"/>
                                                 <constraint firstItem="7FP-CP-w6D" firstAttribute="leading" secondItem="rNs-yK-2oH" secondAttribute="leading" id="tSq-EU-5om"/>
                                                 <constraint firstItem="GTy-iS-eAP" firstAttribute="leading" secondItem="7FP-CP-w6D" secondAttribute="leading" id="zHe-QO-J5U"/>

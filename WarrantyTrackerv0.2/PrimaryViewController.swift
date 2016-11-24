@@ -96,6 +96,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             let recordImage = UIImage(data: record.itemImage as! Data)
             cell.warrantyImageView.image = recordImage
         }
+        cell.warrantyImageView.contentMode = .scaleAspectFit
         
         return cell
     }
@@ -139,11 +140,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
         
-        if(filteredRecords.count == 0){
+        if (searchText == "") {
             searchActive = false;
         } else {
             searchActive = true;
         }
+        
         print("Changed")
         warrantiesTableView.reloadData()
     }
