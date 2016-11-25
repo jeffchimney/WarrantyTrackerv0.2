@@ -242,6 +242,7 @@
                         <outlet property="saveDateButton" destination="ZOJ-Gj-1mg" id="Ytx-V2-MAl"/>
                         <outlet property="selectedEndDate" destination="eZa-Xc-7YN" id="uSB-Wd-OMv"/>
                         <outlet property="selectedStartDate" destination="oaJ-9V-dNt" id="MqF-4I-crW"/>
+                        <outlet property="warrantyBeginsLabel" destination="wza-s4-rkt" id="RBA-0o-fSN"/>
                         <outlet property="warrantyEndsLabel" destination="zZh-ag-EZo" id="JRy-nt-od9"/>
                     </connections>
                 </viewController>
@@ -417,7 +418,7 @@
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="105"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rNs-yK-2oH">
+                                                <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rNs-yK-2oH">
                                                     <rect key="frame" x="106" y="47" width="261" height="58"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <accessibility key="accessibilityConfiguration">
@@ -504,11 +505,40 @@
                     </navigationItem>
                     <connections>
                         <outlet property="warrantiesTableView" destination="X9G-na-xFK" id="FLZ-3S-mBS"/>
+                        <segue destination="V4F-5l-YAZ" kind="show" identifier="toCellDetails" id="NTB-Ct-SDx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Nw-L8-lE0" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1653.5999999999999" y="358.4707646176912"/>
+        </scene>
+        <!--Title-->
+        <scene sceneID="zR5-Ou-uAx">
+            <objects>
+                <viewController storyboardIdentifier="DetailsViewController" id="V4F-5l-YAZ" customClass="DetailsViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="D4c-NW-Mct"/>
+                        <viewControllerLayoutGuide type="bottom" id="h7Q-ol-Bub"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ply-O8-ujW">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <toolbarItems>
+                        <barButtonItem title="Item" id="Q07-sn-I6e"/>
+                    </toolbarItems>
+                    <navigationItem key="navigationItem" title="Title" id="8QO-op-5u8">
+                        <barButtonItem key="rightBarButtonItem" title="Edit" id="LB4-fr-eoL"/>
+                    </navigationItem>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="navBar" destination="8QO-op-5u8" id="IYX-eH-aqG"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Jre-FS-Xcn" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2503" y="358"/>
         </scene>
         <!--First-->
         <scene sceneID="PCq-cE-Hge">

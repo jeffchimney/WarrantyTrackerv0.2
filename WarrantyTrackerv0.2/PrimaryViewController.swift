@@ -10,7 +10,7 @@
 import UIKit
 import CoreData
 
-class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
+class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate {
     
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
@@ -19,8 +19,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     let cellIdentifier = "WarrantyTableViewCell"
     var records: [NSManagedObject] = []
     var filteredRecords: [NSManagedObject] = []
+    var selectedRecord: Record!
     let defaults = UserDefaults.standard
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -36,6 +37,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         definesPresentationContext = true
         navigationItem.titleView = searchController.searchBar
         searchController.searchBar.delegate = self
+        
+        // register for previewing with 3d touch
+        if traitCollection.forceTouchCapability == .available {
+            registerForPreviewing(with: self, sourceView: view)
+        } else {
+            print("3D Touch Not Available")
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -59,6 +67,20 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         self.warrantiesTableView.reloadData()
     }
+    
+//    func delete(withDateTime date: NSDate) {
+//        guard let appDelegate =
+//            UIApplication.shared.delegate as? AppDelegate else {
+//                return
+//        }
+//        let managedContext =
+//            appDelegate.persistentContainer.viewContext
+//        let fetchRequest =
+//            NSFetchRequest<NSManagedObject>(entityName: "Record")
+//        fetchRequest.predicate = NSPredicate(format: "dateCreated==%@", date)
+//        let object = try! managedContext.fetch(fetchRequest)
+//        managedContext.delete(object[0]) // delete first returned object
+//    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -69,9 +91,15 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         return 1 // maybe 2 if we want a separate section for expired warranties
     }
     
-//    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        <#code#>
-//    }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if searchActive {
+            selectedRecord = filteredRecords[indexPath.row] as! Record
+            performSegue(withIdentifier: "toCellDetails", sender: self)
+        } else {
+            selectedRecord = records[indexPath.row] as! Record
+            performSegue(withIdentifier: "toCellDetails", sender: self)
+        }
+    }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! WarrantyTableViewCell
@@ -109,9 +137,40 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
+    // handle edit and deletes on tableview cells
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete {
+//            if searchActive {
+//                let alert = UIAlertController(title: "Are you sure?", message: "Deleting this record will remove all associated data.", preferredStyle: UIAlertControllerStyle.alert)
+//                alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in
+//                    let selectedRecord = self.filteredRecords[indexPath.row] as! Record
+//                    self.filteredRecords.remove(at: indexPath.row)
+//                    tableView.deleteRows(at: [indexPath], with: .fade)
+//                    self.delete(withDateTime: selectedRecord.dateCreated!)
+//                    tableView.reloadData()
+//                }))
+//                alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in print("you have pressed the Cancel button")
+//                }))
+//                self.present(alert, animated: true, completion: nil)
+//            } else {
+//                let alert = UIAlertController(title: "Are you sure?", message: "Deleting this record will remove all associated data.", preferredStyle: UIAlertControllerStyle.alert)
+//                alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in
+//                    let selectedRecord = self.records[indexPath.row] as! Record
+//                    self.records.remove(at: indexPath.row)
+//                    tableView.deleteRows(at: [indexPath], with: .fade)
+//                    self.delete(withDateTime: selectedRecord.dateCreated!)
+//                    tableView.reloadData()
+//                }))
+//                alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in print("you have pressed the Cancel button")
+//                }))
+//                self.present(alert, animated: true, completion: nil)
+//            }
+//        }
+//    }
+    
     //MARK: Search bar delegate functions
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        searchActive = true;
+        searchActive = false;
     }
     
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
@@ -135,7 +194,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 let currentTag = tag as! Tag
                 if ((currentRecord.title?.contains(searchText))! || (currentTag.tag?.contains(searchText))!) && !filteredRecords.contains(currentRecord) {
                     filteredRecords.append(currentRecord)
-                    print("appending match")
                 }
             }
         }
@@ -145,9 +203,51 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         } else {
             searchActive = true;
         }
-        
-        print("Changed")
         warrantiesTableView.reloadData()
+    }
+    
+    //MARK: Peek and Pop methods
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        
+        guard let indexPath = warrantiesTableView.indexPathForRow(at: location),
+            let cell = warrantiesTableView.cellForRow(at: indexPath) else {
+                return nil }
+        
+        guard let detailViewController =
+            storyboard?.instantiateViewController(
+                withIdentifier: "DetailsViewController") as?
+            DetailsViewController else { return nil }
+        
+        if searchActive {
+            selectedRecord = filteredRecords[indexPath.row-1] as! Record
+        } else {
+            selectedRecord = records[indexPath.row-1] as! Record
+        }
+        
+        detailViewController.record = selectedRecord
+        detailViewController.preferredContentSize =
+            CGSize(width: 0.0, height: 600)
+        
+        previewingContext.sourceRect = cell.frame
+        
+        return detailViewController
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        show(viewControllerToCommit, sender: self)
+    }
+    
+    // MARK: Prepare for segue
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if (segue.identifier == "toCellDetails") {
+            if let nextViewController = segue.destination as? DetailsViewController {
+                if (selectedRecord != nil) {
+                    nextViewController.record = selectedRecord
+                } else {
+                    print("Selected Record was nil")
+                }
+            }
+        }
     }
 }
 

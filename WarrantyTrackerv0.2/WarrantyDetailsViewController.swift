@@ -47,10 +47,19 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         saveButton.isEnabled = false
         
         titleTextField.delegate = self
+        descriptionTextField.delegate = self
         tagsTextField.delegate = self
         tagsTextField.addTarget(self, action: #selector(addTag(sender:)), for: UIControlEvents.editingChanged)
         navBar.title = "Details"
         descriptionTextField.text = ""
+        
+        titleTextField.autocapitalizationType = .words
+        descriptionTextField.autocapitalizationType = .sentences
+        tagsTextField.autocapitalizationType = .sentences
+        
+        titleTextField.tag = 0
+        descriptionTextField.tag = 1
+        tagsTextField.tag = 2
         
         requestAccessToCalendar()
     }
@@ -73,7 +82,6 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
-        //let record: Record = Record(with: titleTextField.text!, description: descriptionTextField.text, tags: tagArray, warrantyStarts: startDate, warrantyEnds: endDate, itemImage: itemImage, receiptImage: receiptImage, weeksBeforeReminder: numberOfWeeksSegment.selectedSegmentIndex, hasWarranty: hasWarranty)
         
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {
@@ -96,6 +104,8 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         record.receiptImage = receiptImageData as NSData?
         record.weeksBeforeReminder = Int32(numberOfWeeksSegment.selectedSegmentIndex)
         record.hasWarranty = hasWarranty
+        record.dateCreated = Date() as NSDate?
+        print(Date())
         
         // add tags
         for tag in tagArray {
@@ -163,6 +173,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         }
         tagsTextField.text = ""
         tagsPickerView.reloadAllComponents()
+        tagsPickerView.selectRow(tagArray.count-1, inComponent: 0, animated: true)
         removeTagButton.isHidden = false
         // enable save button if there is text in the title field
         if titleTextField.text != "" && tagArray.count != 0 {
@@ -240,8 +251,23 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         if (textField.text != "" && textField == tagsTextField) {
             addTagToArray(usingString: textField.text!)
         }
-        textField.resignFirstResponder()
-        return true
+        //textField.resignFirstResponder()
+        
+        //
+        let nextTage=textField.tag+1;
+        // Try to find next responder
+        let nextResponder=textField.superview?.viewWithTag(nextTage) as UIResponder!
+        
+        if (nextResponder != nil){
+            // Found next responder, so set it.
+            nextResponder?.becomeFirstResponder()
+        }
+        else
+        {
+            // Not found, so remove keyboard
+            textField.resignFirstResponder()
+        }
+        return false // We do not want UITextField to insert line-breaks.
     }
     
     //MARK: Picker View Delegate Methods

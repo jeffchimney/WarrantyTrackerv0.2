@@ -20,6 +20,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
     @IBOutlet weak var selectedEndDate: UILabel!
     @IBOutlet weak var nextButton: UIBarButtonItem!
     @IBOutlet weak var saveDateButton: UIButton!
+    @IBOutlet weak var warrantyBeginsLabel: UILabel!
     @IBOutlet weak var warrantyEndsLabel: UILabel!
     @IBOutlet weak var navBar: UINavigationItem!
     
@@ -37,6 +38,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
         selectedStartDate.textColor = UIColor.red
         selectedEndDate.textColor = UIColor.red
         saveDateButton.setTitle("Set Start Date", for: .normal)
+        warrantyBeginsLabel.isHidden = true
         warrantyEndsLabel.isHidden = true
         selectedEndDate.isHidden = true
         navBar.title = "Warranty"
@@ -68,7 +70,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
             self.selectedStartDate.text = startDate
             
             selectedStartDate.isHidden = false
-            warrantyEndsLabel.isHidden = false
+            warrantyBeginsLabel.isHidden = false
             saveDateButton.setTitle("Set End Date", for: .normal)
             startDatePicked = true
             nextButton.title = "Skip"
