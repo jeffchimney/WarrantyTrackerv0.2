@@ -23,6 +23,9 @@ class WarrantyBeginsEndsViewController: UIViewController {
     @IBOutlet weak var warrantyBeginsLabel: UILabel!
     @IBOutlet weak var warrantyEndsLabel: UILabel!
     @IBOutlet weak var navBar: UINavigationItem!
+    @IBOutlet weak var numberOfWeeksSegment: UISegmentedControl!
+    @IBOutlet weak var remindMeLabel1: UILabel!
+    @IBOutlet weak var remindMeLabel2: UILabel!
     
     var startDatePicked = false
     var endDatePicked = false
@@ -43,6 +46,10 @@ class WarrantyBeginsEndsViewController: UIViewController {
         selectedEndDate.isHidden = true
         navBar.title = "Warranty"
         nextButton.title = "Skip"
+        
+        remindMeLabel1.isHidden = true
+        numberOfWeeksSegment.isHidden = true
+        remindMeLabel2.isHidden = true
     }
     
     override func didReceiveMemoryWarning() {
@@ -85,6 +92,10 @@ class WarrantyBeginsEndsViewController: UIViewController {
             saveDateButton.setTitle("Change Dates", for: .normal)
             endDatePicked = true
             nextButton.title = "Next"
+            
+            remindMeLabel1.isHidden = false
+            numberOfWeeksSegment.isHidden = false
+            remindMeLabel2.isHidden = false
         } else if startDatePicked == true && endDatePicked == true { // clear both dates and start over
             self.selectedStartDate.text = ""
             self.selectedEndDate.text = ""
@@ -114,6 +125,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
                 if hasWarranty { // pass along warranty dates
                     nextViewController.startDate = dateFormatter.date(from: selectedStartDate.text!)
                     nextViewController.endDate = dateFormatter.date(from: selectedEndDate.text!)
+                    nextViewController.weeksBeforeReminder = numberOfWeeksSegment.selectedSegmentIndex
                 }
             }
         }

@@ -21,6 +21,7 @@
 		BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */; };
 		BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE69FF1C1DE4DD830052685E /* CoreData.framework */; };
 		BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */; };
+		BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */; };
 		BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
@@ -62,6 +63,7 @@
 		BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyTableViewCellController.swift; sourceTree = "<group>"; };
 		BE69FF1C1DE4DD830052685E /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
+		BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		BEB975C81DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WarrantyTracker.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -118,6 +120,7 @@
 				BE1C110F1DC921D200B0D493 /* AppDelegate.swift */,
 				BE1C11131DC921D200B0D493 /* PrimaryViewController.swift */,
 				BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */,
+				BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */,
 				BE1C11111DC921D200B0D493 /* NewItemViewController.swift */,
 				BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */,
 				BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */,
@@ -297,6 +300,7 @@
 			files = (
 				BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */,
 				BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */,
+				BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */,
 				BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
 				BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */,

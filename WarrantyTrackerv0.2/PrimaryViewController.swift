@@ -15,10 +15,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
 
+    @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
     let cellIdentifier = "WarrantyTableViewCell"
-    var records: [NSManagedObject] = []
-    var filteredRecords: [NSManagedObject] = []
+    var fetchedRecords: [NSManagedObject] = []
+    var records: [Record] = []
+    var filteredRecords: [Record] = []
     var selectedRecord: Record!
     let defaults = UserDefaults.standard
     
@@ -28,7 +30,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.warrantiesTableView.delegate = self
         self.warrantiesTableView.dataSource = self
         
-        //get your object from CoreData
+        // sorted by recent by default
+        sortBySegmentControl.selectedSegmentIndex = 0
         
         self.warrantiesTableView.reloadData()
         
@@ -59,11 +62,15 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             NSFetchRequest<NSManagedObject>(entityName: "Record")
         
         do {
-            records = try managedContext.fetch(fetchRequest)
+            fetchedRecords = try managedContext.fetch(fetchRequest)
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
         //get your object from CoreData
+        records = []
+        for eachRecord in fetchedRecords {
+            records.append(eachRecord as! Record)
+        }
         
         self.warrantiesTableView.reloadData()
     }
@@ -81,6 +88,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
 //        let object = try! managedContext.fetch(fetchRequest)
 //        managedContext.delete(object[0]) // delete first returned object
 //    }
+    
+    @IBAction func selectedSegmentChanged(_ sender: Any) {
+        warrantiesTableView.reloadData()
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -93,10 +104,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if searchActive {
-            selectedRecord = filteredRecords[indexPath.row] as! Record
+            selectedRecord = filteredRecords[indexPath.row]
             performSegue(withIdentifier: "toCellDetails", sender: self)
         } else {
-            selectedRecord = records[indexPath.row] as! Record
+            selectedRecord = records[indexPath.row]
             performSegue(withIdentifier: "toCellDetails", sender: self)
         }
     }
@@ -108,21 +119,46 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         dateFormatter.dateFormat = "MMM d, yyyy"
         
         if searchActive {
-            let record = filteredRecords[indexPath.row] as! Record
-            cell.title.text = record.title
-            cell.descriptionView.text = record.descriptionString
-            cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-            cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
-            let recordImage = UIImage(data: record.itemImage as! Data)
-            cell.warrantyImageView.image = recordImage
+            if sortBySegmentControl.selectedSegmentIndex == 0 {
+                filteredRecords.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
+                let record = filteredRecords[indexPath.row]
+                cell.title.text = record.title
+                cell.descriptionView.text = record.descriptionString
+                cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
+                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                let recordImage = UIImage(data: record.itemImage as! Data)
+                cell.warrantyImageView.image = recordImage
+            } else {
+                filteredRecords.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
+                let record = filteredRecords[indexPath.row]
+                cell.title.text = record.title
+                cell.descriptionView.text = record.descriptionString
+                cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
+                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                let recordImage = UIImage(data: record.itemImage as! Data)
+                cell.warrantyImageView.image = recordImage
+            }
         } else {
-            let record = records[indexPath.row] as! Record
-            cell.title.text = record.title
-            cell.descriptionView.text = record.descriptionString
-            cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-            cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
-            let recordImage = UIImage(data: record.itemImage as! Data)
-            cell.warrantyImageView.image = recordImage
+            if sortBySegmentControl.selectedSegmentIndex == 0 {
+                records.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
+                let record = records[indexPath.row]
+                cell.title.text = record.title
+                cell.descriptionView.text = record.descriptionString
+                cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
+                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                let recordImage = UIImage(data: record.itemImage as! Data)
+                cell.warrantyImageView.image = recordImage
+            } else {
+                records.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
+                let record = records[indexPath.row]
+                cell.title.text = record.title
+                cell.descriptionView.text = record.descriptionString
+                cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
+                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                let recordImage = UIImage(data: record.itemImage as! Data)
+                cell.warrantyImageView.image = recordImage
+            }
+
         }
         cell.warrantyImageView.contentMode = .scaleAspectFit
         
@@ -211,12 +247,15 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         guard let indexPath = warrantiesTableView.indexPathForRow(at: location),
             let cell = warrantiesTableView.cellForRow(at: indexPath) else {
-                return nil }
+            return nil
+        }
         
         guard let detailViewController =
             storyboard?.instantiateViewController(
                 withIdentifier: "DetailsViewController") as?
-            DetailsViewController else { return nil }
+            DetailsViewController else {
+            return nil
+        }
         
         if searchActive {
             selectedRecord = filteredRecords[indexPath.row-1] as! Record
@@ -225,6 +264,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         
         detailViewController.record = selectedRecord
+        detailViewController.itemImageData = selectedRecord.itemImage
+        detailViewController.receiptImageData = selectedRecord.receiptImage
         detailViewController.preferredContentSize =
             CGSize(width: 0.0, height: 600)
         
@@ -243,6 +284,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             if let nextViewController = segue.destination as? DetailsViewController {
                 if (selectedRecord != nil) {
                     nextViewController.record = selectedRecord
+                    nextViewController.itemImageData = selectedRecord.itemImage
+                    nextViewController.receiptImageData = selectedRecord.receiptImage
                 } else {
                     print("Selected Record was nil")
                 }

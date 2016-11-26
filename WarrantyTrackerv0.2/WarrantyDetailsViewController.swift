@@ -17,6 +17,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
     var receiptImageData: Data! = nil
     var startDate: Date? = nil
     var endDate: Date? = nil
+    var weeksBeforeReminder: Int!
     var hasWarranty: Bool = true
     //
     
@@ -25,7 +26,6 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
     @IBOutlet weak var tagsTextField: UITextField!
     @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var navBar: UINavigationItem!
-    @IBOutlet weak var numberOfWeeksSegment: UISegmentedControl!
     @IBOutlet weak var tagsPickerView: UIPickerView!
     @IBOutlet weak var removeTagButton: UIButton!
     
@@ -102,7 +102,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         record.warrantyEnds = endDate as NSDate?
         record.itemImage = itemImageData as NSData?
         record.receiptImage = receiptImageData as NSData?
-        record.weeksBeforeReminder = Int32(numberOfWeeksSegment.selectedSegmentIndex)
+        record.weeksBeforeReminder = Int32(weeksBeforeReminder)
         record.hasWarranty = hasWarranty
         record.dateCreated = Date() as NSDate?
         print(Date())
@@ -131,7 +131,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         newEvent.endDate = endDate!
         newEvent.isAllDay = true
         // configure alarm for event
-        let daysToSubtract = (numberOfWeeksSegment.selectedSegmentIndex+1)*(-7)
+        let daysToSubtract = (weeksBeforeReminder+1)*(-7)
         
         var addingPeriod = DateComponents()
         addingPeriod.day = daysToSubtract
