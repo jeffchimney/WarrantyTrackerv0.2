@@ -11,13 +11,21 @@ import UIKit
 
 class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate {
 
+    // variables passed from last view
     var record: Record!
-    var itemImageData: NSData!
-    var receiptImageData: NSData!
+    //
     
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var itemImageView: UIImageView!
     @IBOutlet weak var receiptImageView: UIImageView!
+    @IBOutlet weak var startDateLabel: UILabel!
+    @IBOutlet weak var endDateLabel: UILabel!
+    @IBOutlet weak var descriptionView: UITextView!
+    @IBOutlet weak var daysBeforeLabel: UILabel!
+    @IBOutlet weak var alertDateLabel: UILabel!
+    @IBOutlet weak var editButton: UIBarButtonItem!
+    
+    var isEditingRecord = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,15 +33,45 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         itemImageView.contentMode = .scaleAspectFit
         receiptImageView.contentMode = .scaleAspectFit
         
-        navBar.title = record.title!
-        itemImageView.image = UIImage(data: itemImageData as Data)
-        receiptImageView.image = UIImage(data: receiptImageData as Data)
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
         
+        navBar.title = record.title!
+        itemImageView.image = UIImage(data: record.itemImage as! Data)
+        receiptImageView.image = UIImage(data: record.receiptImage as! Data)
+        startDateLabel.text = dateFormatter.string(from: record.warrantyStarts as! Date)
+        endDateLabel.text = dateFormatter.string(from: record.warrantyEnds as! Date)
+        descriptionView.text = record.descriptionString
+        daysBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date:"
+        
+
+        // configure alarm for event
+        let daysToSubtract = Int(record.weeksBeforeReminder)*(-7)
+        
+        var addingPeriod = DateComponents()
+        addingPeriod.day = daysToSubtract
+        addingPeriod.hour = 12
+        
+        let userCalendar = NSCalendar.current
+        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: record.warrantyEnds as! Date) // this is really subtracting...
+        alertDateLabel.text = dateFormatter.string(from: alarmDate!)
         // register for previewing with 3d touch
         if traitCollection.forceTouchCapability == .available {
             registerForPreviewing(with: self, sourceView: view)
         } else {
             print("3D Touch Not Available")
+        }
+    }
+    
+    @IBAction func editButtonPressed(_ sender: Any) {
+        if isEditingRecord {
+            editButton.title = "Edit"
+            isEditingRecord = false
+            navBar.setHidesBackButton(isEditingRecord, animated: true)
+        } else {
+            editButton.title = "Done"
+            isEditingRecord = true
+            navBar.setHidesBackButton(isEditingRecord, animated: true)
         }
     }
     

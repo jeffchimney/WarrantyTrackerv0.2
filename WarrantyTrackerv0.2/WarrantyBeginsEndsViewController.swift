@@ -125,7 +125,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
                 if hasWarranty { // pass along warranty dates
                     nextViewController.startDate = dateFormatter.date(from: selectedStartDate.text!)
                     nextViewController.endDate = dateFormatter.date(from: selectedEndDate.text!)
-                    nextViewController.weeksBeforeReminder = numberOfWeeksSegment.selectedSegmentIndex
+                    nextViewController.weeksBeforeReminder = numberOfWeeksSegment.selectedSegmentIndex+1
                 }
             }
         }

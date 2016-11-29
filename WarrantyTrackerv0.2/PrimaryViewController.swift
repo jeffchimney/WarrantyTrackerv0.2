@@ -21,6 +21,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var fetchedRecords: [NSManagedObject] = []
     var records: [Record] = []
     var filteredRecords: [Record] = []
+    var recentlyDeletedRecords: [Record] = []
+    var expiredRecords: [Record] = []
+    var sections: [[Record]] = [[]]
+    let sectionHeaders = ["Valid", "Recently Deleted", "Expired"]
     var selectedRecord: Record!
     let defaults = UserDefaults.standard
     
@@ -69,8 +73,18 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         //get your object from CoreData
         records = []
         for eachRecord in fetchedRecords {
-            records.append(eachRecord as! Record)
+            let record = eachRecord as! Record
+            
+            if record.recentlyDeleted {
+                recentlyDeletedRecords.append(record)
+            } else if record.expired {
+                expiredRecords.append(record)
+            } else { // add to active records list
+                records.append(record)
+            }
         }
+        
+        sections = [records, recentlyDeletedRecords, expiredRecords]
         
         self.warrantiesTableView.reloadData()
     }
@@ -99,7 +113,11 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1 // maybe 2 if we want a separate section for expired warranties
+        return sections.count
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return sectionHeaders[section]
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -140,8 +158,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         } else {
             if sortBySegmentControl.selectedSegmentIndex == 0 {
-                records.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
-                let record = records[indexPath.row]
+                sections[indexPath.section].sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
+                let record = sections[indexPath.section][indexPath.row]
                 cell.title.text = record.title
                 cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
@@ -149,8 +167,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 let recordImage = UIImage(data: record.itemImage as! Data)
                 cell.warrantyImageView.image = recordImage
             } else {
-                records.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
-                let record = records[indexPath.row]
+                sections[indexPath.section].sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
+                let record = sections[indexPath.section][indexPath.row]
                 cell.title.text = record.title
                 cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
@@ -169,40 +187,66 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         if searchActive {
             return filteredRecords.count
         } else {
-            return records.count
+            return sections[section].count
         }
     }
     
-    // handle edit and deletes on tableview cells
-//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            if searchActive {
-//                let alert = UIAlertController(title: "Are you sure?", message: "Deleting this record will remove all associated data.", preferredStyle: UIAlertControllerStyle.alert)
-//                alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in
-//                    let selectedRecord = self.filteredRecords[indexPath.row] as! Record
-//                    self.filteredRecords.remove(at: indexPath.row)
-//                    tableView.deleteRows(at: [indexPath], with: .fade)
-//                    self.delete(withDateTime: selectedRecord.dateCreated!)
-//                    tableView.reloadData()
-//                }))
-//                alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in print("you have pressed the Cancel button")
-//                }))
-//                self.present(alert, animated: true, completion: nil)
-//            } else {
-//                let alert = UIAlertController(title: "Are you sure?", message: "Deleting this record will remove all associated data.", preferredStyle: UIAlertControllerStyle.alert)
-//                alert.addAction(UIAlertAction(title: "Delete", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in
-//                    let selectedRecord = self.records[indexPath.row] as! Record
-//                    self.records.remove(at: indexPath.row)
-//                    tableView.deleteRows(at: [indexPath], with: .fade)
-//                    self.delete(withDateTime: selectedRecord.dateCreated!)
-//                    tableView.reloadData()
-//                }))
-//                alert.addAction(UIAlertAction(title: "Cancel", style: UIAlertActionStyle.default, handler: {(action:UIAlertAction!) in print("you have pressed the Cancel button")
-//                }))
-//                self.present(alert, animated: true, completion: nil)
-//            }
-//        }
-//    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            
+            if searchActive {
+                let recordToRemove = filteredRecords[indexPath.row]
+                let index = records.index(of: recordToRemove)
+                records.remove(at: index!)
+            } else {
+                delete(record: sections[indexPath.section][indexPath.row])
+                sections[indexPath.section].remove(at: indexPath.row)
+            }
+        
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
+    
+    func delete(record: Record) {
+        
+        var fetchedRecordToDelete: Record!
+        
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        fetchRequest.predicate = NSPredicate(format: "dateCreated = %@", record.dateCreated!)
+        
+        do {
+            fetchedRecordToDelete = try managedContext.fetch(fetchRequest)[0] as! Record
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        if record.recentlyDeleted { // permenantly delete record
+            
+        } else { // set recentlyDeleted = true
+            fetchedRecordToDelete.recentlyDeleted = true
+            fetchedRecordToDelete.dateDeleted = Date() as NSDate?
+            
+            do {
+                try managedContext.save()
+            } catch {
+                print("Could not save. \(error), \(error.localizedDescription)")
+            }
+        }
+
+        sections = [records, recentlyDeletedRecords, expiredRecords]
+        warrantiesTableView.reloadData()
+    }
+    
+    
     
     //MARK: Search bar delegate functions
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
@@ -225,7 +269,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         filteredRecords = []
         for record in records {
-            let currentRecord = record as! Record
+            let currentRecord = record
             for tag in currentRecord.tags! {
                 let currentTag = tag as! Tag
                 if ((currentRecord.title?.contains(searchText))! || (currentTag.tag?.contains(searchText))!) && !filteredRecords.contains(currentRecord) {
@@ -241,6 +285,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         warrantiesTableView.reloadData()
     }
+    
+    
     
     //MARK: Peek and Pop methods
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
@@ -258,14 +304,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         
         if searchActive {
-            selectedRecord = filteredRecords[indexPath.row-1] as! Record
+            selectedRecord = filteredRecords[indexPath.row-1] 
         } else {
-            selectedRecord = records[indexPath.row-1] as! Record
+            selectedRecord = records[indexPath.row-1] 
         }
         
         detailViewController.record = selectedRecord
-        detailViewController.itemImageData = selectedRecord.itemImage
-        detailViewController.receiptImageData = selectedRecord.receiptImage
         detailViewController.preferredContentSize =
             CGSize(width: 0.0, height: 600)
         
@@ -284,8 +328,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             if let nextViewController = segue.destination as? DetailsViewController {
                 if (selectedRecord != nil) {
                     nextViewController.record = selectedRecord
-                    nextViewController.itemImageData = selectedRecord.itemImage
-                    nextViewController.receiptImageData = selectedRecord.receiptImage
                 } else {
                     print("Selected Record was nil")
                 }

@@ -105,7 +105,8 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         record.weeksBeforeReminder = Int32(weeksBeforeReminder)
         record.hasWarranty = hasWarranty
         record.dateCreated = Date() as NSDate?
-        print(Date())
+        record.recentlyDeleted = false
+        record.expired = false
         
         // add tags
         for tag in tagArray {
