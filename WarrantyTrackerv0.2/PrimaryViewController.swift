@@ -157,6 +157,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 cell.warrantyImageView.image = recordImage
             }
         } else {
+            sections = [records, recentlyDeletedRecords, expiredRecords]
             if sortBySegmentControl.selectedSegmentIndex == 0 {
                 records.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
                 let record = records[indexPath.row]
