@@ -84,8 +84,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
         
-        sections = [records, recentlyDeletedRecords, expiredRecords]
-        
         self.warrantiesTableView.reloadData()
     }
     
@@ -113,12 +111,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return sections.count
+        return 1
     }
     
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return sectionHeaders[section]
-    }
+//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+//        return sectionHeaders[section]
+//    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if searchActive {
@@ -158,8 +156,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         } else {
             if sortBySegmentControl.selectedSegmentIndex == 0 {
-                sections[indexPath.section].sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
-                let record = sections[indexPath.section][indexPath.row]
+                records.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
+                let record = records[indexPath.row]
                 cell.title.text = record.title
                 cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
@@ -167,8 +165,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 let recordImage = UIImage(data: record.itemImage as! Data)
                 cell.warrantyImageView.image = recordImage
             } else {
-                sections[indexPath.section].sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
-                let record = sections[indexPath.section][indexPath.row]
+                records.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
+                let record = records[indexPath.row]
                 cell.title.text = record.title
                 cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
@@ -187,25 +185,25 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         if searchActive {
             return filteredRecords.count
         } else {
-            return sections[section].count
+            return records.count
         }
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            
-            if searchActive {
-                let recordToRemove = filteredRecords[indexPath.row]
-                let index = records.index(of: recordToRemove)
-                records.remove(at: index!)
-            } else {
-                delete(record: sections[indexPath.section][indexPath.row])
-                sections[indexPath.section].remove(at: indexPath.row)
-            }
-        
-            tableView.deleteRows(at: [indexPath], with: .fade)
-        }
-    }
+//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+//        if editingStyle == .delete {
+//            
+//            if searchActive {
+//                let recordToRemove = filteredRecords[indexPath.row]
+//                let index = records.index(of: recordToRemove)
+//                records.remove(at: index!)
+//            } else {
+//                delete(record: sections[indexPath.section][indexPath.row])
+//                sections[indexPath.section].remove(at: indexPath.row)
+//            }
+//        
+//            tableView.deleteRows(at: [indexPath], with: .fade)
+//        }
+//    }
     
     func delete(record: Record) {
         
@@ -241,9 +239,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 print("Could not save. \(error), \(error.localizedDescription)")
             }
         }
-
-        sections = [records, recentlyDeletedRecords, expiredRecords]
-        warrantiesTableView.reloadData()
     }
     
     
