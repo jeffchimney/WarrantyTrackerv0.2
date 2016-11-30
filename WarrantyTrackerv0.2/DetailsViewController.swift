@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import CoreData
 
 class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate {
 
@@ -24,6 +25,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     @IBOutlet weak var daysBeforeLabel: UILabel!
     @IBOutlet weak var alertDateLabel: UILabel!
     @IBOutlet weak var editButton: UIBarButtonItem!
+    @IBOutlet weak var deleteButton: UIBarButtonItem!
     
     var isEditingRecord = false
     
@@ -44,7 +46,8 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         descriptionView.text = record.descriptionString
         daysBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date:"
         
-
+        deleteButton.tintColor = UIColor.red
+        
         // configure alarm for event
         let daysToSubtract = Int(record.weeksBeforeReminder)*(-7)
         
@@ -68,11 +71,30 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             editButton.title = "Edit"
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
+            navigationController?.setToolbarHidden(true, animated: true)
         } else {
             editButton.title = "Done"
             isEditingRecord = true
             navBar.setHidesBackButton(isEditingRecord, animated: true)
+            navigationController?.setToolbarHidden(false, animated: true)
+            
         }
+    }
+    
+    @IBAction func deleteButtonPressed(_ sender: Any) {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        fetchRequest.predicate = NSPredicate(format: "dateCreated==%@", record.dateCreated!)
+        let object = try! managedContext.fetch(fetchRequest)
+        managedContext.delete(object[0]) // delete first returned object
+        
+        self.navigationController!.popToRootViewController(animated: true)
     }
     
     //MARK: Peek and Pop methods

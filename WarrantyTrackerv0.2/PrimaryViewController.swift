@@ -51,6 +51,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         } else {
             print("3D Touch Not Available")
         }
+        
+        navigationController?.setToolbarHidden(true, animated: false)
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -410,7 +410,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="105" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="X9G-na-xFK">
-                                <rect key="frame" x="0.0" y="108" width="375" height="559"/>
+                                <rect key="frame" x="0.0" y="108" width="375" height="515"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="WarrantyTableViewCell" rowHeight="105" id="1Mx-eG-FsG" customClass="WarrantyTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
@@ -636,7 +636,13 @@
                         </constraints>
                     </view>
                     <toolbarItems>
-                        <barButtonItem title="Item" id="Q07-sn-I6e"/>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="hfi-rC-gs6"/>
+                        <barButtonItem title="Delete" id="MrN-h0-JCm">
+                            <connections>
+                                <action selector="deleteButtonPressed:" destination="V4F-5l-YAZ" id="Bl9-t3-cKE"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="Fa3-Jc-wFD"/>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="Title" id="8QO-op-5u8">
                         <barButtonItem key="rightBarButtonItem" title="Edit" id="LB4-fr-eoL">
@@ -649,6 +655,7 @@
                     <connections>
                         <outlet property="alertDateLabel" destination="stO-Rr-t4p" id="sMg-mR-Is8"/>
                         <outlet property="daysBeforeLabel" destination="wkx-Ns-51p" id="6LD-kw-EBc"/>
+                        <outlet property="deleteButton" destination="MrN-h0-JCm" id="Myg-SY-Dx7"/>
                         <outlet property="descriptionView" destination="36L-mA-mPw" id="i7w-tC-C4r"/>
                         <outlet property="editButton" destination="LB4-fr-eoL" id="k2C-8U-1e9"/>
                         <outlet property="endDateLabel" destination="CkB-gy-eoN" id="uqo-IP-oCJ"/>
@@ -698,7 +705,7 @@
         <!--First-->
         <scene sceneID="PCq-cE-Hge">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="yf6-WA-jp1" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="yf6-WA-jp1" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="First" image="first" selectedImage="first" id="cPa-gy-q4n"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="pmk-RX-rMv">
@@ -706,6 +713,10 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
+                    <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="9Jo-ag-TAG">
+                        <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </toolbar>
                     <connections>
                         <segue destination="8rJ-Kc-sve" kind="relationship" relationship="rootViewController" id="7Fe-HE-c6g"/>
                     </connections>
