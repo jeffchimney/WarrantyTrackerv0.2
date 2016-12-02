@@ -11,6 +11,10 @@ import CoreData
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    enum ShortcutType: String {
+        case Add = "Add"
+    }
 
     var window: UIWindow?
 
@@ -41,6 +45,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         saveContext()
+    }
+    
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        switch shortcutItem.type {
+            case "Add" :
+                let storyboard = UIStoryboard(name: "Main", bundle: nil)
+                let newItemViewController : UIViewController = storyboard.instantiateViewController(withIdentifier: "newItemViewController") as! NewItemViewController
+                window?.rootViewController?.show(newItemViewController, sender: nil)
+            default:
+            break
+        }
+        completionHandler(true)
     }
 
     // MARK: - Core Data stack

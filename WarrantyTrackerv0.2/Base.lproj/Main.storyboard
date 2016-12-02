@@ -13,7 +13,7 @@
         <!--New Item View Controller-->
         <scene sceneID="hNz-n2-bh7">
             <objects>
-                <viewController id="9pv-A4-QxB" customClass="NewItemViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="newItemViewController" id="9pv-A4-QxB" customClass="NewItemViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="Ia1-K6-d13"/>
                         <viewControllerLayoutGuide type="bottom" id="4ug-Mw-9AY"/>
@@ -23,16 +23,16 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="lMq-lz-NLr">
-                                <rect key="frame" x="0.0" y="64" width="375" height="527"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="483"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="contactAdd" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="08d-0p-s0e">
-                                <rect key="frame" x="16" y="619" width="22" height="22"/>
+                                <rect key="frame" x="16" y="575" width="22" height="22"/>
                                 <connections>
                                     <action selector="openPhotoLibraryButtonWithSender:" destination="9pv-A4-QxB" eventType="touchUpInside" id="X35-dm-pkR"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1kV-9d-Vpg">
-                                <rect key="frame" x="149" y="615" width="77" height="30"/>
+                                <rect key="frame" x="149" y="571" width="77" height="30"/>
                                 <state key="normal" title="Take Photo"/>
                                 <connections>
                                     <action selector="openCameraButtonWithSender:" destination="9pv-A4-QxB" eventType="touchUpInside" id="nLv-wb-xjp"/>
@@ -85,17 +85,17 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="contactAdd" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="341-C4-K9t">
-                                <rect key="frame" x="16" y="619" width="22" height="22"/>
+                                <rect key="frame" x="16" y="575" width="22" height="22"/>
                                 <connections>
                                     <action selector="openPhotoLibraryButtonWithSender:" destination="ply-ph-qyA" eventType="touchUpInside" id="fYK-Gd-RBM"/>
                                     <action selector="openPhotoLibraryButtonWithSender:" destination="9pv-A4-QxB" eventType="touchUpInside" id="qGH-6X-F5Q"/>
                                 </connections>
                             </button>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="N9s-yb-Ufu">
-                                <rect key="frame" x="0.0" y="64" width="375" height="527"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="483"/>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Qln-UP-J00">
-                                <rect key="frame" x="149" y="615" width="77" height="30"/>
+                                <rect key="frame" x="149" y="571" width="77" height="30"/>
                                 <state key="normal" title="Take Photo"/>
                                 <connections>
                                     <action selector="openCameraButtonWithSender:" destination="9pv-A4-QxB" eventType="touchUpInside" id="Son-e4-i9r"/>
@@ -413,15 +413,15 @@
                                 <rect key="frame" x="0.0" y="108" width="375" height="515"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="WarrantyTableViewCell" rowHeight="105" id="1Mx-eG-FsG" customClass="WarrantyTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="WarrantyTableViewCell" rowHeight="105" id="1Mx-eG-FsG" customClass="WarrantyTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="105"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1Mx-eG-FsG" id="KEm-Vk-89d">
-                                            <rect key="frame" x="0.0" y="0.0" width="375" height="105"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="342" height="105"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rNs-yK-2oH">
-                                                    <rect key="frame" x="106" y="47" width="261" height="58"/>
+                                                    <rect key="frame" x="106" y="47" width="228" height="58"/>
                                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                     <accessibility key="accessibilityConfiguration">
                                                         <accessibilityTraits key="traits" notEnabled="YES"/>
@@ -463,19 +463,19 @@
                                             </subviews>
                                             <constraints>
                                                 <constraint firstItem="7FP-CP-w6D" firstAttribute="baseline" secondItem="OjL-XL-sBi" secondAttribute="baseline" id="2Yv-tF-dzF"/>
+                                                <constraint firstItem="rNs-yK-2oH" firstAttribute="top" secondItem="7FP-CP-w6D" secondAttribute="bottom" constant="8" symbolic="YES" id="9nj-kk-sbp"/>
                                                 <constraint firstItem="TIR-AI-Lp7" firstAttribute="centerY" secondItem="KEm-Vk-89d" secondAttribute="centerY" id="C6d-3Q-Sb2"/>
                                                 <constraint firstItem="TIR-AI-Lp7" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="top" id="Dmz-nH-TWA"/>
-                                                <constraint firstItem="rNs-yK-2oH" firstAttribute="trailing" secondItem="KEm-Vk-89d" secondAttribute="trailingMargin" id="H1a-3G-8Y9"/>
-                                                <constraint firstItem="rNs-yK-2oH" firstAttribute="top" secondItem="7FP-CP-w6D" secondAttribute="bottom" constant="8" symbolic="YES" id="IDF-MC-F9V"/>
                                                 <constraint firstItem="OjL-XL-sBi" firstAttribute="baseline" secondItem="Eek-Ry-K99" secondAttribute="baseline" id="JGA-bA-VVF"/>
+                                                <constraint firstItem="rNs-yK-2oH" firstAttribute="trailing" secondItem="KEm-Vk-89d" secondAttribute="trailingMargin" id="KY5-QW-hjz"/>
+                                                <constraint firstItem="rNs-yK-2oH" firstAttribute="bottom" secondItem="TIR-AI-Lp7" secondAttribute="bottom" id="OuT-yj-xgG"/>
                                                 <constraint firstItem="Eek-Ry-K99" firstAttribute="leading" secondItem="OjL-XL-sBi" secondAttribute="trailing" constant="12" id="QIB-6K-YFO"/>
-                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="bottom" secondItem="rNs-yK-2oH" secondAttribute="bottom" id="TGZ-M2-uBj"/>
                                                 <constraint firstItem="GTy-iS-eAP" firstAttribute="leading" secondItem="TIR-AI-Lp7" secondAttribute="trailing" constant="26" id="ggf-pg-NgQ"/>
                                                 <constraint firstItem="7FP-CP-w6D" firstAttribute="top" secondItem="GTy-iS-eAP" secondAttribute="bottom" constant="2" id="nOH-gO-UEJ"/>
                                                 <constraint firstItem="OjL-XL-sBi" firstAttribute="leading" secondItem="7FP-CP-w6D" secondAttribute="trailing" constant="8" symbolic="YES" id="nhs-ha-l45"/>
                                                 <constraint firstItem="TIR-AI-Lp7" firstAttribute="leading" secondItem="KEm-Vk-89d" secondAttribute="leading" id="oiT-KR-2dS"/>
+                                                <constraint firstItem="rNs-yK-2oH" firstAttribute="leading" secondItem="7FP-CP-w6D" secondAttribute="leading" id="sNy-TM-3wS"/>
                                                 <constraint firstItem="GTy-iS-eAP" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="topMargin" constant="-6" id="sO5-rN-qZk"/>
-                                                <constraint firstItem="7FP-CP-w6D" firstAttribute="leading" secondItem="rNs-yK-2oH" secondAttribute="leading" id="tSq-EU-5om"/>
                                                 <constraint firstItem="GTy-iS-eAP" firstAttribute="leading" secondItem="7FP-CP-w6D" secondAttribute="leading" id="zHe-QO-J5U"/>
                                             </constraints>
                                         </tableViewCellContentView>

@@ -14,6 +14,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
+    var rectOfLastRow = CGRect()
+    var lastCell: WarrantyTableViewCell!
 
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
@@ -181,6 +183,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         cell.warrantyImageView.contentMode = .scaleAspectFit
         
+        lastCell = cell
+        
         return cell
     }
     
@@ -289,7 +293,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     //MARK: Peek and Pop methods
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
         
-        guard let indexPath = warrantiesTableView.indexPathForRow(at: location),
+        // convert point from position in self.view to position in warrantiesTableView
+        let cellPostion = warrantiesTableView.convert(location, from: self.view)
+        
+        guard let indexPath = warrantiesTableView.indexPathForRow(at: cellPostion),
             let cell = warrantiesTableView.cellForRow(at: indexPath) else {
             return nil
         }
@@ -302,9 +309,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         
         if searchActive {
-            selectedRecord = filteredRecords[indexPath.row-1] 
+            selectedRecord = filteredRecords[indexPath.row]
         } else {
-            selectedRecord = records[indexPath.row-1] 
+            selectedRecord = records[indexPath.row]
         }
         
         detailViewController.record = selectedRecord
