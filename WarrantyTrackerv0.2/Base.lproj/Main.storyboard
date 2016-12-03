@@ -410,14 +410,17 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="105" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="X9G-na-xFK">
-                                <rect key="frame" x="0.0" y="108" width="375" height="515"/>
+                                <rect key="frame" x="0.0" y="108" width="375" height="559"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="559" id="c9d-PR-6pP"/>
+                                </constraints>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="WarrantyTableViewCell" rowHeight="105" id="1Mx-eG-FsG" customClass="WarrantyTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="375" height="105"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1Mx-eG-FsG" id="KEm-Vk-89d">
-                                            <rect key="frame" x="0.0" y="0.0" width="342" height="105"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="342" height="104"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rNs-yK-2oH">
@@ -489,31 +492,39 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Tzq-Jn-t4y">
-                                <rect key="frame" x="95" y="72" width="184" height="29"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="184" id="L6L-Tw-6Or"/>
-                                </constraints>
-                                <segments>
-                                    <segment title="Recent"/>
-                                    <segment title="Expiring"/>
-                                </segments>
-                                <connections>
-                                    <action selector="selectedSegmentChanged:" destination="8rJ-Kc-sve" eventType="valueChanged" id="DbL-08-8dF"/>
-                                </connections>
-                            </segmentedControl>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hvz-Hm-Y9i">
+                                <rect key="frame" x="0.0" y="64" width="375" height="36"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="X9G-na-xFK" firstAttribute="top" secondItem="Tzq-Jn-t4y" secondAttribute="bottom" constant="8" symbolic="YES" id="0Hc-Qx-C8J"/>
-                            <constraint firstItem="X9G-na-xFK" firstAttribute="bottom" secondItem="Djb-ko-YwX" secondAttribute="top" id="TE8-N2-6qr"/>
-                            <constraint firstItem="X9G-na-xFK" firstAttribute="leading" secondItem="QS5-Rx-YEW" secondAttribute="leading" id="U9W-91-lZr"/>
-                            <constraint firstItem="Tzq-Jn-t4y" firstAttribute="centerX" secondItem="QS5-Rx-YEW" secondAttribute="centerX" id="b4l-WJ-DWp"/>
-                            <constraint firstItem="Tzq-Jn-t4y" firstAttribute="top" secondItem="L7p-HK-0SC" secondAttribute="bottom" constant="8" id="qJR-Bp-8zS"/>
-                            <constraint firstItem="X9G-na-xFK" firstAttribute="centerX" secondItem="Tzq-Jn-t4y" secondAttribute="centerX" id="xDr-hQ-a5e"/>
+                            <constraint firstAttribute="bottom" secondItem="X9G-na-xFK" secondAttribute="bottom" id="LTA-5r-VVL"/>
+                            <constraint firstItem="X9G-na-xFK" firstAttribute="top" secondItem="Hvz-Hm-Y9i" secondAttribute="bottom" constant="8" symbolic="YES" id="OfQ-cH-393"/>
+                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="top" secondItem="L7p-HK-0SC" secondAttribute="bottom" id="Q1o-UX-jjF"/>
+                            <constraint firstAttribute="trailing" secondItem="Hvz-Hm-Y9i" secondAttribute="trailing" id="Ryj-1C-SyI"/>
+                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="trailing" secondItem="X9G-na-xFK" secondAttribute="trailing" id="bfJ-Ip-mVg"/>
+                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="leading" secondItem="QS5-Rx-YEW" secondAttribute="leading" id="o92-7E-2z2"/>
+                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="leading" secondItem="X9G-na-xFK" secondAttribute="leading" id="s9p-8U-3wr"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Smy-Hi-Pjy">
+                        <nil key="title"/>
+                        <barButtonItem key="leftBarButtonItem" systemItem="organize" id="V72-QC-Kh4"/>
+                        <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Tzq-Jn-t4y">
+                            <rect key="frame" x="96" y="8" width="184" height="29"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="184" id="L6L-Tw-6Or"/>
+                            </constraints>
+                            <segments>
+                                <segment title="Recent"/>
+                                <segment title="Expiring"/>
+                            </segments>
+                            <connections>
+                                <action selector="selectedSegmentChanged:" destination="8rJ-Kc-sve" eventType="valueChanged" id="qgq-f8-RsZ"/>
+                            </connections>
+                        </segmentedControl>
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="vB5-rQ-ocW">
                             <connections>
                                 <segue destination="9pv-A4-QxB" kind="show" id="cBA-kY-F5k"/>
@@ -521,12 +532,31 @@
                         </barButtonItem>
                     </navigationItem>
                     <connections>
-                        <outlet property="sortBySegmentControl" destination="Tzq-Jn-t4y" id="fcc-lN-2CG"/>
+                        <outlet property="searchDisplayController" destination="iB7-5D-Rt2" id="KHq-pR-TLv"/>
+                        <outlet property="searchView" destination="Hvz-Hm-Y9i" id="sWv-TA-W2F"/>
+                        <outlet property="settingsButton" destination="V72-QC-Kh4" id="dQe-uX-RaH"/>
+                        <outlet property="sortBySegmentControl" destination="Tzq-Jn-t4y" id="Z3h-Cd-U5z"/>
                         <outlet property="warrantiesTableView" destination="X9G-na-xFK" id="FLZ-3S-mBS"/>
                         <segue destination="V4F-5l-YAZ" kind="show" identifier="toCellDetails" id="NTB-Ct-SDx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4Nw-L8-lE0" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="B84-6v-zOC">
+                    <connections>
+                        <outlet property="delegate" destination="8rJ-Kc-sve" id="0ti-2f-mf9"/>
+                        <outlet property="searchContentsController" destination="8rJ-Kc-sve" id="zmx-ol-cb7"/>
+                        <outlet property="searchResultsDataSource" destination="8rJ-Kc-sve" id="P5i-zx-W8h"/>
+                        <outlet property="searchResultsDelegate" destination="8rJ-Kc-sve" id="wgE-Zl-VdX"/>
+                    </connections>
+                </searchDisplayController>
+                <searchDisplayController id="iB7-5D-Rt2">
+                    <connections>
+                        <outlet property="delegate" destination="8rJ-Kc-sve" id="hbq-Om-8TN"/>
+                        <outlet property="searchContentsController" destination="8rJ-Kc-sve" id="ixM-EO-muq"/>
+                        <outlet property="searchResultsDataSource" destination="8rJ-Kc-sve" id="HyZ-Wb-tBm"/>
+                        <outlet property="searchResultsDelegate" destination="8rJ-Kc-sve" id="Fcu-Vr-8jp"/>
+                    </connections>
+                </searchDisplayController>
             </objects>
             <point key="canvasLocation" x="1653.5999999999999" y="358.4707646176912"/>
         </scene>

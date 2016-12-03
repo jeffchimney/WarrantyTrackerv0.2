@@ -10,15 +10,17 @@
 import UIKit
 import CoreData
 
-class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate {
+class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate {
     
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
     var rectOfLastRow = CGRect()
     var lastCell: WarrantyTableViewCell!
 
+    @IBOutlet weak var searchView: UIView!
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
+    @IBOutlet weak var settingsButton: UIBarButtonItem!
     let cellIdentifier = "WarrantyTableViewCell"
     var fetchedRecords: [NSManagedObject] = []
     var records: [Record] = []
@@ -43,8 +45,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         searchController.dimsBackgroundDuringPresentation = false
         searchController.hidesNavigationBarDuringPresentation = false
+        searchController.searchBar.searchBarStyle = .minimal
+        searchController.searchBar.backgroundColor = UIColor.clear
+        //searchController.searchBar.barTintColor = UIColor.white
         definesPresentationContext = true
-        navigationItem.titleView = searchController.searchBar
+        //searchView.addSubview(searchController.searchBar)
+        
         searchController.searchBar.delegate = self
         
         // register for previewing with 3d touch
@@ -53,6 +59,16 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         } else {
             print("3D Touch Not Available")
         }
+        
+        // add search bar to top of table view
+        searchView.addSubview(searchController.searchBar)
+        
+        // add extra separator above table view
+        let px = 1 / UIScreen.main.scale
+        let frame = CGRect(x:0, y:0, width:warrantiesTableView.frame.size.width, height: px)
+        let line = UIView(frame: frame)
+        warrantiesTableView.tableHeaderView = line
+        line.backgroundColor = warrantiesTableView.separatorColor
         
         navigationController?.setToolbarHidden(true, animated: false)
     }
@@ -91,23 +107,11 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.warrantiesTableView.reloadData()
     }
     
-//    func delete(withDateTime date: NSDate) {
-//        guard let appDelegate =
-//            UIApplication.shared.delegate as? AppDelegate else {
-//                return
-//        }
-//        let managedContext =
-//            appDelegate.persistentContainer.viewContext
-//        let fetchRequest =
-//            NSFetchRequest<NSManagedObject>(entityName: "Record")
-//        fetchRequest.predicate = NSPredicate(format: "dateCreated==%@", date)
-//        let object = try! managedContext.fetch(fetchRequest)
-//        managedContext.delete(object[0]) // delete first returned object
-//    }
-    
     @IBAction func selectedSegmentChanged(_ sender: Any) {
-        warrantiesTableView.reloadData()
+        self.warrantiesTableView.reloadData()
     }
+    
+
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -196,20 +200,14 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-//    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-//        if editingStyle == .delete {
-//            
-//            if searchActive {
-//                let recordToRemove = filteredRecords[indexPath.row]
-//                let index = records.index(of: recordToRemove)
-//                records.remove(at: index!)
-//            } else {
-//                delete(record: sections[indexPath.section][indexPath.row])
-//                sections[indexPath.section].remove(at: indexPath.row)
-//            }
-//        
-//            tableView.deleteRows(at: [indexPath], with: .fade)
-//        }
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        UIView.animate(withDuration: 1.0, animations: {
+//            self.searchView.alpha = 0.0
+//            self.warrantiesTableView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+//        }, completion: {
+//            (value: Bool) in
+//            //do nothing after animation
+//        })
 //    }
     
     func delete(record: Record) {
