@@ -292,9 +292,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
         
         // convert point from position in self.view to position in warrantiesTableView
-        let cellPostion = warrantiesTableView.convert(location, from: self.view)
+        let cellPosition = warrantiesTableView.convert(location, from: self.view)
         
-        guard let indexPath = warrantiesTableView.indexPathForRow(at: cellPostion),
+        guard let indexPath = warrantiesTableView.indexPathForRow(at: cellPosition),
             let cell = warrantiesTableView.cellForRow(at: indexPath) else {
             return nil
         }
