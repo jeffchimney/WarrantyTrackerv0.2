@@ -314,7 +314,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         detailViewController.record = selectedRecord
         detailViewController.preferredContentSize =
-            CGSize(width: 0.0, height: 600)
+            CGSize(width: 0.0, height: 500)
         
         previewingContext.sourceRect = cell.frame
         

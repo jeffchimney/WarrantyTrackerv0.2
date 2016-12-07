@@ -78,6 +78,16 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             navigationController?.setToolbarHidden(false, animated: true)
             
+            UIView.animate(withDuration: 0.2, delay: 0, options: .autoreverse, animations: {() -> Void in
+                
+                let transform: CGAffineTransform = CGAffineTransform(rotationAngle: CGFloat(1))
+                self.itemImageView.transform = transform
+                
+            }, completion: {(finished: Bool) -> Void in
+                
+                let transform: CGAffineTransform = CGAffineTransform.identity
+                self.itemImageView.transform = transform
+            })
         }
     }
     
