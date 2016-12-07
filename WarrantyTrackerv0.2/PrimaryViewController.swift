@@ -10,12 +10,15 @@
 import UIKit
 import CoreData
 
-class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate {
+class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate, UIGestureRecognizerDelegate {
     
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
     var rectOfLastRow = CGRect()
     var lastCell: WarrantyTableViewCell!
+    var originalSearchViewCenter = CGPoint(x:0, y:0) // both of these are set in view did load
+    var originalTableViewCenter = CGPoint(x:0, y:0) //
+    var hidingSearchView = false
 
     @IBOutlet weak var searchView: UIView!
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
@@ -69,6 +72,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let line = UIView(frame: frame)
         warrantiesTableView.tableHeaderView = line
         line.backgroundColor = warrantiesTableView.separatorColor
+        
+        originalSearchViewCenter = searchView.center
+        originalTableViewCenter = warrantiesTableView.center
         
         navigationController?.setToolbarHidden(true, animated: false)
     }
@@ -200,15 +206,38 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-//        UIView.animate(withDuration: 1.0, animations: {
-//            self.searchView.alpha = 0.0
-//            self.warrantiesTableView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
-//        }, completion: {
-//            (value: Bool) in
-//            //do nothing after animation
-//        })
-//    }
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let delta = scrollView.contentOffset
+        
+        // move views up
+        if(delta.y > 0 && searchView.center.y > originalSearchViewCenter.y - searchView.frame.height) {
+            
+            hidingSearchView = true
+            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y/2)
+            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y/2)
+        } else if (delta.y < 0 && searchView.center.y < originalSearchViewCenter.y){
+            
+            hidingSearchView = false
+            // move views down
+            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y/2)
+            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y/2)
+        }
+    }
+    
+    // animate to where the view should be after the bounce to avoid weird positioning
+    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        if hidingSearchView { // animate to search view hidden
+            UIView.animate(withDuration: 0.5, animations: {
+                self.searchView.center = CGPoint(x: self.originalSearchViewCenter.x, y: self.originalSearchViewCenter.y + self.searchView.frame.height)
+                self.warrantiesTableView.center = CGPoint(x: self.originalTableViewCenter.x, y: self.originalTableViewCenter.y + self.searchView.frame.height)
+            })
+        } else { // animate to show search view
+            UIView.animate(withDuration: 0.5, animations: {
+                self.searchView.center = self.originalSearchViewCenter
+                self.warrantiesTableView.center = self.originalTableViewCenter
+            })
+        }
+    }
     
     func delete(record: Record) {
         
@@ -292,9 +321,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
         
         // convert point from position in self.view to position in warrantiesTableView
-        let cellPostion = warrantiesTableView.convert(location, from: self.view)
+        let cellPosition = warrantiesTableView.convert(location, from: self.view)
         
-        guard let indexPath = warrantiesTableView.indexPathForRow(at: cellPostion),
+        guard let indexPath = warrantiesTableView.indexPathForRow(at: cellPosition),
             let cell = warrantiesTableView.cellForRow(at: indexPath) else {
             return nil
         }
