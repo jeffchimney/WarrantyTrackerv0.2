@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import CoreData
 
-class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate {
+class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate, UITextViewDelegate {
 
     // variables passed from last view
     var record: Record!
@@ -22,10 +22,14 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     @IBOutlet weak var startDateLabel: UILabel!
     @IBOutlet weak var endDateLabel: UILabel!
     @IBOutlet weak var descriptionView: UITextView!
-    @IBOutlet weak var daysBeforeLabel: UILabel!
+    @IBOutlet weak var weeksBeforeLabel: UILabel!
     @IBOutlet weak var alertDateLabel: UILabel!
     @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var deleteButton: UIBarButtonItem!
+    @IBOutlet weak var weeksBeforeSegment: UISegmentedControl!
+    
+    var originalDescriptionViewCenter = CGPoint(x: 0, y: 0)
+    var originalWeeksBeforeEndDateCenter = CGPoint(x: 0, y: 0)
     
     var isEditingRecord = false
     
@@ -44,7 +48,10 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         startDateLabel.text = dateFormatter.string(from: record.warrantyStarts as! Date)
         endDateLabel.text = dateFormatter.string(from: record.warrantyEnds as! Date)
         descriptionView.text = record.descriptionString
-        daysBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date:"
+        descriptionView.textAlignment = .center
+        descriptionView.delegate = self
+        weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date:"
+        weeksBeforeSegment.alpha = 0
         
         deleteButton.tintColor = UIColor.red
         
@@ -64,6 +71,12 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         } else {
             print("3D Touch Not Available")
         }
+        
+        originalDescriptionViewCenter = descriptionView.center
+        originalWeeksBeforeEndDateCenter = weeksBeforeLabel.center
+        
+        // some gymnastics to get this label displaying properly... that arent working
+        //weeksBeforeLabel.center = CGPoint(x: weeksBeforeLabel.center.x, y: alertDateLabel.center.y)
     }
     
     @IBAction func editButtonPressed(_ sender: Any) {
@@ -72,23 +85,76 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             navigationController?.setToolbarHidden(true, animated: true)
+            
+            stopJiggling(viewToStop: itemImageView)
+            stopJiggling(viewToStop: receiptImageView)
+            
+            self.descriptionView.textColor = UIColor.black
+            self.descriptionView.isUserInteractionEnabled = false
+            self.startDateLabel.textColor = UIColor.black
+            self.endDateLabel.textColor = UIColor.black
+            
+            UIView.animate(withDuration: 0.5, animations: {
+                self.alertDateLabel.alpha = 1.0
+                self.weeksBeforeSegment.alpha = 0
+            }, completion: { finished in
+                UIView.animate(withDuration: 0.5, animations: {
+                    self.weeksBeforeLabel.center = CGPoint(x: self.weeksBeforeLabel.center.x, y: self.alertDateLabel.center.y)
+                })
+            })
+            
+            weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date:"
         } else {
             editButton.title = "Done"
             isEditingRecord = true
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             navigationController?.setToolbarHidden(false, animated: true)
             
-            UIView.animate(withDuration: 0.2, delay: 0, options: .autoreverse, animations: {() -> Void in
-                
-                let transform: CGAffineTransform = CGAffineTransform(rotationAngle: CGFloat(1))
-                self.itemImageView.transform = transform
-                
-            }, completion: {(finished: Bool) -> Void in
-                
-                let transform: CGAffineTransform = CGAffineTransform.identity
-                self.itemImageView.transform = transform
+            startJiggling(viewToShake: itemImageView)
+            startJiggling(viewToShake: receiptImageView)
+            
+            self.descriptionView.textColor = self.descriptionView.tintColor
+            self.descriptionView.isUserInteractionEnabled = true
+            self.startDateLabel.textColor = self.startDateLabel.tintColor
+            self.endDateLabel.textColor = self.endDateLabel.tintColor
+            
+            UIView.animate(withDuration: 0.5, animations: {
+                self.alertDateLabel.alpha = 0
+                self.weeksBeforeLabel.center = self.originalWeeksBeforeEndDateCenter
+            }, completion: { finished in
+                UIView.animate(withDuration: 0.5, animations: {
+                    self.weeksBeforeSegment.alpha = 1.0
+                })
             })
+            
+            weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date"
         }
+    }
+    
+    func startJiggling(viewToShake: UIImageView) {
+        let randomInt: Double = Double(arc4random_uniform(50))
+        let r: Double = (randomInt/500.0)+0.5
+        
+        let leftWobble = CGAffineTransform(rotationAngle: CGFloat(degreesToRadians(x: (1.0 * -1.0) - r )))
+        let rightWobble = CGAffineTransform(rotationAngle: CGFloat(degreesToRadians(x: 1.0 + r )))
+        
+        viewToShake.transform = leftWobble
+        
+        viewToShake.layer.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+        
+        UIView.animate(withDuration: 0.1, delay: 0, options: [UIViewAnimationOptions.allowUserInteraction, UIViewAnimationOptions.repeat, UIViewAnimationOptions.autoreverse], animations: {
+            viewToShake.animationRepeatCount = NSNotFound
+            viewToShake.transform = rightWobble
+        }, completion: nil)
+    }
+    
+    func stopJiggling(viewToStop: UIView) {
+        viewToStop.layer.removeAllAnimations()
+        viewToStop.transform = CGAffineTransform.identity
+    }
+    
+    func degreesToRadians(x: Double) -> Double {
+        return (M_PI * x)/180.0
     }
     
     @IBAction func deleteButtonPressed(_ sender: Any) {
@@ -105,6 +171,15 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         managedContext.delete(object[0]) // delete first returned object
         
         self.navigationController!.popToRootViewController(animated: true)
+    }
+    
+    // resign first responder on text view return
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            descriptionView.resignFirstResponder()
+            return false
+        }
+        return true
     }
     
     //MARK: Peek and Pop methods

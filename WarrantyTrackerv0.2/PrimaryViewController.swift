@@ -10,7 +10,7 @@
 import UIKit
 import CoreData
 
-class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate, UIGestureRecognizerDelegate {
+class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate {
     
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
@@ -213,26 +213,27 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         if(delta.y > 0 && searchView.center.y > originalSearchViewCenter.y - searchView.frame.height) {
             
             hidingSearchView = true
-            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y/2)
-            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y/2)
+            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y)
+            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y)
         } else if (delta.y < 0 && searchView.center.y < originalSearchViewCenter.y){
             
-            hidingSearchView = false
             // move views down
-            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y/2)
-            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y/2)
+            hidingSearchView = false
+            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y)
+            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y)
         }
     }
     
     // animate to where the view should be after the bounce to avoid weird positioning
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+        print(hidingSearchView)
         if hidingSearchView { // animate to search view hidden
-            UIView.animate(withDuration: 0.5, animations: {
-                self.searchView.center = CGPoint(x: self.originalSearchViewCenter.x, y: self.originalSearchViewCenter.y + self.searchView.frame.height)
-                self.warrantiesTableView.center = CGPoint(x: self.originalTableViewCenter.x, y: self.originalTableViewCenter.y + self.searchView.frame.height)
+            UIView.animate(withDuration: 0.4, animations: {
+                self.searchView.center = (self.navigationController?.navigationBar.center)!
+                self.warrantiesTableView.center = CGPoint(x: self.originalTableViewCenter.x, y: self.originalTableViewCenter.y - (self.searchView.frame.height + 8)) // the last number is the spacing between the two views
             })
         } else { // animate to show search view
-            UIView.animate(withDuration: 0.5, animations: {
+            UIView.animate(withDuration: 0.4, animations: {
                 self.searchView.center = self.originalSearchViewCenter
                 self.warrantiesTableView.center = self.originalTableViewCenter
             })
