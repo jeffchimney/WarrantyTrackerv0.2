@@ -228,12 +228,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
         print(hidingSearchView)
         if hidingSearchView { // animate to search view hidden
-            UIView.animate(withDuration: 0.4, animations: {
+            UIView.animate(withDuration: 0.1, animations: {
                 self.searchView.center = (self.navigationController?.navigationBar.center)!
                 self.warrantiesTableView.center = CGPoint(x: self.originalTableViewCenter.x, y: self.originalTableViewCenter.y - (self.searchView.frame.height + 8)) // the last number is the spacing between the two views
             })
         } else { // animate to show search view
-            UIView.animate(withDuration: 0.4, animations: {
+            UIView.animate(withDuration: 0.1, animations: {
                 self.searchView.center = self.originalSearchViewCenter
                 self.warrantiesTableView.center = self.originalTableViewCenter
             })

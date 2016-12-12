@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import CoreData
 
-class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate, UITextViewDelegate {
+class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UIPopoverPresentationControllerDelegate {
 
     // variables passed from last view
     var record: Record!
@@ -23,6 +23,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     @IBOutlet weak var endDateLabel: UILabel!
     @IBOutlet weak var descriptionView: UITextView!
     @IBOutlet weak var weeksBeforeLabel: UILabel!
+    @IBOutlet weak var weeksBeforeLabel2: UILabel!
     @IBOutlet weak var alertDateLabel: UILabel!
     @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var deleteButton: UIBarButtonItem!
@@ -50,8 +51,11 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         descriptionView.text = record.descriptionString
         descriptionView.textAlignment = .center
         descriptionView.delegate = self
-        weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date:"
+        weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date"
+        weeksBeforeLabel2.text = weeksBeforeLabel.text
+        weeksBeforeSegment.selectedSegmentIndex = record.weeksBeforeReminder-1
         weeksBeforeSegment.alpha = 0
+        weeksBeforeLabel2.alpha = 0
         
         deleteButton.tintColor = UIColor.red
         
@@ -75,12 +79,67 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         originalDescriptionViewCenter = descriptionView.center
         originalWeeksBeforeEndDateCenter = weeksBeforeLabel.center
         
-        // some gymnastics to get this label displaying properly... that arent working
-        //weeksBeforeLabel.center = CGPoint(x: weeksBeforeLabel.center.x, y: alertDateLabel.center.y)
+        let startDateTap = UITapGestureRecognizer(target: self, action: #selector(startDateTapped(sender:)))
+        let endDateTap = UITapGestureRecognizer(target: self, action: #selector(endDateTapped(sender:)))
+        startDateLabel.addGestureRecognizer(startDateTap)
+        endDateLabel.addGestureRecognizer(endDateTap)
+    }
+    
+    @IBAction func selectedSegmentChanged(_ sender: Any) {
+        weeksBeforeLabel2.text = String(weeksBeforeSegment.selectedSegmentIndex+1) + " weeks before end date"
+    }
+    
+    func startDateTapped(sender: UITapGestureRecognizer) {
+        navigationController?.setToolbarHidden(true, animated: true)
+        navigationController?.setNavigationBarHidden(true, animated: true)
+        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(blurEffectView)
+        
+        let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")
+        popController.modalPresentationStyle = UIModalPresentationStyle.popover
+        // set up the popover presentation controller
+        //popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.any
+        popController.popoverPresentationController?.delegate = self
+        popController.popoverPresentationController?.sourceView = self.view
+        popController.popoverPresentationController?.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY*1.5, width: 0, height: 0)
+        
+        // present the popover
+        self.present(popController, animated: true, completion: nil)
+    }
+    
+    func endDateTapped(sender: UITapGestureRecognizer) {
+        navigationController?.setToolbarHidden(true, animated: true)
+        navigationController?.setNavigationBarHidden(true, animated: true)
+        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
+        let blurEffectView = UIVisualEffectView(effect: blurEffect)
+        blurEffectView.frame = view.bounds
+        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(blurEffectView)
+        
+        let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")
+        popController.modalPresentationStyle = UIModalPresentationStyle.popover
+        // set up the popover presentation controller
+        //popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.any
+        popController.popoverPresentationController?.delegate = self
+        popController.popoverPresentationController?.sourceView = self.view
+        popController.popoverPresentationController?.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY*1.5, width: 0, height: 0)
+        
+        // present the popover
+        self.present(popController, animated: true, completion: nil)
+    }
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        // return UIModalPresentationStyle.FullScreen
+        return UIModalPresentationStyle.none
     }
     
     @IBAction func editButtonPressed(_ sender: Any) {
         if isEditingRecord {
+            startDateLabel.isUserInteractionEnabled = false
+            endDateLabel.isUserInteractionEnabled = false
             editButton.title = "Edit"
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
@@ -89,22 +148,28 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             stopJiggling(viewToStop: itemImageView)
             stopJiggling(viewToStop: receiptImageView)
             
+            weeksBeforeLabel.text = weeksBeforeLabel2.text
+            
             self.descriptionView.textColor = UIColor.black
             self.descriptionView.isUserInteractionEnabled = false
             self.startDateLabel.textColor = UIColor.black
             self.endDateLabel.textColor = UIColor.black
             
-            UIView.animate(withDuration: 0.5, animations: {
+            UIView.animate(withDuration: 0.3, animations: {
                 self.alertDateLabel.alpha = 1.0
+                self.weeksBeforeLabel.alpha = 1.0
                 self.weeksBeforeSegment.alpha = 0
+                self.weeksBeforeLabel2.alpha = 0
             }, completion: { finished in
-                UIView.animate(withDuration: 0.5, animations: {
+                UIView.animate(withDuration: 0.3, animations: {
                     self.weeksBeforeLabel.center = CGPoint(x: self.weeksBeforeLabel.center.x, y: self.alertDateLabel.center.y)
                 })
             })
             
-            weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date:"
+            weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date"
         } else {
+            startDateLabel.isUserInteractionEnabled = true
+            endDateLabel.isUserInteractionEnabled = true
             editButton.title = "Done"
             isEditingRecord = true
             navBar.setHidesBackButton(isEditingRecord, animated: true)
@@ -120,10 +185,11 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             
             UIView.animate(withDuration: 0.5, animations: {
                 self.alertDateLabel.alpha = 0
-                self.weeksBeforeLabel.center = self.originalWeeksBeforeEndDateCenter
+                self.weeksBeforeLabel.alpha = 0
             }, completion: { finished in
                 UIView.animate(withDuration: 0.5, animations: {
                     self.weeksBeforeSegment.alpha = 1.0
+                    self.weeksBeforeLabel2.alpha = 1.0
                 })
             })
             
