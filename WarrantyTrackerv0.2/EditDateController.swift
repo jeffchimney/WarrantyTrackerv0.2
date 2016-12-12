@@ -19,9 +19,7 @@ class EditDateController: UIViewController {
         datePicker.datePickerMode = UIDatePickerMode.date
     }
     
-    @IBAction func cancelButtonPressed(_ sender: Any) {
-    }
-    
-    @IBAction func acceptButtonPressed(_ sender: Any) {
+    override func viewWillDisappear(_ animated: Bool) {
+        // send data back to previous controller
     }
 }

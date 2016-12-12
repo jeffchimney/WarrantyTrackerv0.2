@@ -787,41 +787,26 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <datePicker contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" datePickerMode="dateAndTime" minuteInterval="1" translatesAutoresizingMaskIntoConstraints="NO" id="xhY-mv-SrR">
-                                <rect key="frame" x="0.0" y="225" width="375" height="216"/>
+                                <rect key="frame" x="0.0" y="-1" width="375" height="668"/>
                                 <date key="date" timeIntervalSinceReferenceDate="503261536.03718299">
                                     <!--2016-12-12 18:52:16 +0000-->
                                 </date>
                             </datePicker>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QcV-eH-Q4v">
-                                <rect key="frame" x="0.0" y="449" width="180" height="30"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="180" id="dzn-fy-1ZM"/>
-                                </constraints>
-                                <state key="normal" title="Cancel"/>
-                                <connections>
-                                    <action selector="cancelButtonPressed:" destination="YEU-FT-2m9" eventType="touchUpInside" id="Nb9-pH-PzN"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="i0U-9M-bML">
-                                <rect key="frame" x="193" y="449" width="180" height="30"/>
-                                <state key="normal" title="Update"/>
-                                <connections>
-                                    <action selector="acceptButtonPressed:" destination="YEU-FT-2m9" eventType="touchUpInside" id="3mu-tl-Usi"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="QcV-eH-Q4v" firstAttribute="top" secondItem="xhY-mv-SrR" secondAttribute="bottom" constant="8" symbolic="YES" id="Bcv-rj-slC"/>
-                            <constraint firstItem="xhY-mv-SrR" firstAttribute="leading" secondItem="QcV-eH-Q4v" secondAttribute="leading" id="HNP-7n-j8n"/>
-                            <constraint firstItem="xhY-mv-SrR" firstAttribute="centerY" secondItem="5SI-Kl-yuT" secondAttribute="centerY" id="IOJ-9k-XUb"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="i0U-9M-bML" secondAttribute="trailing" constant="-14" id="YoI-ar-dT1"/>
-                            <constraint firstItem="xhY-mv-SrR" firstAttribute="leading" secondItem="5SI-Kl-yuT" secondAttribute="leading" id="ZcC-7C-VVq"/>
-                            <constraint firstItem="QcV-eH-Q4v" firstAttribute="baseline" secondItem="i0U-9M-bML" secondAttribute="baseline" id="Ztx-cA-W0V"/>
-                            <constraint firstAttribute="trailing" secondItem="xhY-mv-SrR" secondAttribute="trailing" id="mpx-TD-cdg"/>
-                            <constraint firstItem="i0U-9M-bML" firstAttribute="leading" secondItem="QcV-eH-Q4v" secondAttribute="trailing" constant="13" id="oL1-e1-znm"/>
+                            <constraint firstAttribute="trailing" secondItem="xhY-mv-SrR" secondAttribute="trailing" id="46X-dI-Rus"/>
+                            <constraint firstItem="MvK-nc-FSo" firstAttribute="top" secondItem="xhY-mv-SrR" secondAttribute="bottom" id="RFo-IA-Vhv"/>
+                            <constraint firstItem="xhY-mv-SrR" firstAttribute="centerY" secondItem="5SI-Kl-yuT" secondAttribute="centerY" id="kg4-Bg-v3N"/>
+                            <constraint firstItem="xhY-mv-SrR" firstAttribute="centerY" secondItem="5SI-Kl-yuT" secondAttribute="centerY" id="qIA-kY-Pw9"/>
+                            <constraint firstItem="xhY-mv-SrR" firstAttribute="leading" secondItem="5SI-Kl-yuT" secondAttribute="leading" id="rjV-F5-sE1"/>
+                            <constraint firstItem="xhY-mv-SrR" firstAttribute="top" secondItem="kDg-Vp-7Oz" secondAttribute="bottom" id="s8B-fh-nPy"/>
+                            <constraint firstAttribute="trailing" secondItem="xhY-mv-SrR" secondAttribute="trailing" id="tiQ-HK-nsH"/>
+                            <constraint firstItem="xhY-mv-SrR" firstAttribute="leading" secondItem="5SI-Kl-yuT" secondAttribute="leading" id="u81-sl-1Am"/>
+                            <constraint firstItem="xhY-mv-SrR" firstAttribute="centerX" secondItem="5SI-Kl-yuT" secondAttribute="centerX" id="xVt-91-5Yo"/>
                         </constraints>
                     </view>
+                    <value key="contentSizeForViewInPopover" type="size" width="300" height="200"/>
                     <connections>
                         <outlet property="datePicker" destination="xhY-mv-SrR" id="tEf-Vs-iCd"/>
                     </connections>

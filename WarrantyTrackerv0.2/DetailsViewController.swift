@@ -90,50 +90,37 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     }
     
     func startDateTapped(sender: UITapGestureRecognizer) {
-        navigationController?.setToolbarHidden(true, animated: true)
-        navigationController?.setNavigationBarHidden(true, animated: true)
-        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
-        let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.frame = view.bounds
-        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(blurEffectView)
-        
+        // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
-        // set up the popover presentation controller
-        //popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.any
+        popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
         popController.popoverPresentationController?.delegate = self
-        popController.popoverPresentationController?.sourceView = self.view
-        popController.popoverPresentationController?.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY*1.5, width: 0, height: 0)
+        popController.popoverPresentationController?.sourceView = startDateLabel
+        popController.popoverPresentationController?.sourceRect = CGRect(x: self.startDateLabel.bounds.midX, y: self.startDateLabel.bounds.minY, width: 0, height: 0)
         
         // present the popover
         self.present(popController, animated: true, completion: nil)
     }
     
     func endDateTapped(sender: UITapGestureRecognizer) {
-        navigationController?.setToolbarHidden(true, animated: true)
-        navigationController?.setNavigationBarHidden(true, animated: true)
-        let blurEffect = UIBlurEffect(style: UIBlurEffectStyle.light)
-        let blurEffectView = UIVisualEffectView(effect: blurEffect)
-        blurEffectView.frame = view.bounds
-        blurEffectView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(blurEffectView)
-        
+        // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
-        // set up the popover presentation controller
-        //popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.any
+        popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
         popController.popoverPresentationController?.delegate = self
-        popController.popoverPresentationController?.sourceView = self.view
-        popController.popoverPresentationController?.sourceRect = CGRect(x: self.view.bounds.midX, y: self.view.bounds.midY*1.5, width: 0, height: 0)
+        popController.popoverPresentationController?.sourceView = endDateLabel
+        popController.popoverPresentationController?.sourceRect = CGRect(x: self.endDateLabel.bounds.midX, y: self.endDateLabel.bounds.minY, width: 0, height: 0)
         
         // present the popover
         self.present(popController, animated: true, completion: nil)
     }
     
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
-        // return UIModalPresentationStyle.FullScreen
         return UIModalPresentationStyle.none
+    }
+    
+    func presentationController(_ controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
+        return UINavigationController(rootViewController: controller.presentedViewController)
     }
     
     @IBAction func editButtonPressed(_ sender: Any) {
@@ -285,16 +272,6 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     
     // MARK: Prepare for segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if (segue.identifier == "toCellDetails") {
-//            if let nextViewController = segue.destination as? DetailsViewController {
-//                if (selectedRecord != nil) {
-//                    nextViewController.record = selectedRecord
-//                    nextViewController.itemImageData = selectedRecord.itemImage
-//                    nextViewController.receiptImageData = selectedRecord.receiptImage
-//                } else {
-//                    print("Selected Record was nil")
-//                }
-//            }
-        }
+        
     }
 }
