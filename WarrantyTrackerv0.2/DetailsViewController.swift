@@ -10,7 +10,11 @@ import Foundation
 import UIKit
 import CoreData
 
-class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UIPopoverPresentationControllerDelegate {
+public protocol DataBackDelegate: class {
+    func savePreferences (labelText:String, changeStartDate:Bool)
+}
+
+class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UIPopoverPresentationControllerDelegate, DataBackDelegate {
 
     // variables passed from last view
     var record: Record!
@@ -91,28 +95,51 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     
     func startDateTapped(sender: UITapGestureRecognizer) {
         // set up the popover presentation controller
-        let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")
+        let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")  as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
         popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
         popController.popoverPresentationController?.delegate = self
         popController.popoverPresentationController?.sourceView = startDateLabel
         popController.popoverPresentationController?.sourceRect = CGRect(x: self.startDateLabel.bounds.midX, y: self.startDateLabel.bounds.minY, width: 0, height: 0)
         
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        popController.pickedDate = dateFormatter.date(from: startDateLabel.text!)
+        popController.tappedStartDate = true
+        
         // present the popover
+        popController.delegate = self
         self.present(popController, animated: true, completion: nil)
     }
     
     func endDateTapped(sender: UITapGestureRecognizer) {
         // set up the popover presentation controller
-        let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")
+        let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker") as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
         popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
         popController.popoverPresentationController?.delegate = self
         popController.popoverPresentationController?.sourceView = endDateLabel
         popController.popoverPresentationController?.sourceRect = CGRect(x: self.endDateLabel.bounds.midX, y: self.endDateLabel.bounds.minY, width: 0, height: 0)
         
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        popController.pickedDate = dateFormatter.date(from: endDateLabel.text!)
+        popController.tappedStartDate = false
+        
+        navBar.title = record.title!
+        itemImageView.image = UIImage(data: record.itemImage as! Data)
+        
         // present the popover
+        popController.delegate = self
         self.present(popController, animated: true, completion: nil)
+    }
+    
+    func savePreferences (labelText:String, changeStartDate:Bool) {
+        if changeStartDate {
+            startDateLabel.text = labelText
+        } else {
+            endDateLabel.text = labelText
+        }
     }
     
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
