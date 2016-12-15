@@ -735,7 +735,8 @@
                         <outlet property="weeksBeforeLabel" destination="wkx-Ns-51p" id="19g-sm-HZy"/>
                         <outlet property="weeksBeforeLabel2" destination="EtK-W9-Yvg" id="jtL-QO-7xa"/>
                         <outlet property="weeksBeforeSegment" destination="smL-ew-XFl" id="esv-wd-fZJ"/>
-                        <segue destination="QTl-4U-hE1" kind="show" identifier="showImage" id="PBk-Ab-4wu"/>
+                        <segue destination="QTl-4U-hE1" kind="show" identifier="" id="PBk-Ab-4wu"/>
+                        <segue destination="Fpz-tQ-bwl" kind="show" identifier="editImage" id="tI9-ti-ClB"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Jre-FS-Xcn" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -772,7 +773,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oIe-zF-Mgh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3228" y="357.57121439280365"/>
+            <point key="canvasLocation" x="3193" y="1065"/>
         </scene>
         <!--Edit Date Controller-->
         <scene sceneID="aBT-Ht-TJy">
@@ -813,7 +814,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NDB-9c-afb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3228" y="1008.8455772113944"/>
+            <point key="canvasLocation" x="2502" y="1065"/>
         </scene>
         <!--First-->
         <scene sceneID="PCq-cE-Hge">
@@ -837,6 +838,67 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NUP-hS-AcI" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="749.27536231884062" y="359.51086956521743"/>
+        </scene>
+        <!--Title-->
+        <scene sceneID="7aC-DT-GYK">
+            <objects>
+                <viewController storyboardIdentifier="editPhotoViewController" id="Fpz-tQ-bwl" customClass="EditPhotoViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="P4N-nT-hOM"/>
+                        <viewControllerLayoutGuide type="bottom" id="DH1-qm-XAi"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="udQ-O8-4Yt">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="otk-5J-dtG">
+                                <rect key="frame" x="0.0" y="64" width="375" height="483"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="contactAdd" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x8p-yy-LGb">
+                                <rect key="frame" x="16" y="575" width="22" height="22"/>
+                                <connections>
+                                    <action selector="openPhotoLibraryButtonWithSender:" destination="Fpz-tQ-bwl" eventType="touchUpInside" id="0Xu-Ki-t4U"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HBQ-cF-z2k">
+                                <rect key="frame" x="149" y="571" width="77" height="30"/>
+                                <state key="normal" title="Take Photo"/>
+                                <connections>
+                                    <action selector="openCameraButtonWithSender:" destination="Fpz-tQ-bwl" eventType="touchUpInside" id="Jx1-Rx-9u4"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="otk-5J-dtG" secondAttribute="trailing" id="14v-Bl-mkC"/>
+                            <constraint firstItem="otk-5J-dtG" firstAttribute="leading" secondItem="udQ-O8-4Yt" secondAttribute="leading" id="DG5-Hj-rce"/>
+                            <constraint firstItem="x8p-yy-LGb" firstAttribute="centerY" secondItem="HBQ-cF-z2k" secondAttribute="centerY" id="HUy-z7-NPh"/>
+                            <constraint firstItem="x8p-yy-LGb" firstAttribute="leading" secondItem="udQ-O8-4Yt" secondAttribute="leadingMargin" id="a2s-aL-rkW"/>
+                            <constraint firstItem="otk-5J-dtG" firstAttribute="top" secondItem="P4N-nT-hOM" secondAttribute="bottom" id="ad4-5R-ckt"/>
+                            <constraint firstItem="otk-5J-dtG" firstAttribute="centerX" secondItem="HBQ-cF-z2k" secondAttribute="centerX" id="eF7-48-Kxn"/>
+                            <constraint firstItem="DH1-qm-XAi" firstAttribute="top" secondItem="HBQ-cF-z2k" secondAttribute="bottom" constant="22" id="lDv-nt-SsZ"/>
+                            <constraint firstItem="otk-5J-dtG" firstAttribute="top" secondItem="P4N-nT-hOM" secondAttribute="bottom" id="q3T-Xy-Bqb"/>
+                            <constraint firstItem="HBQ-cF-z2k" firstAttribute="top" secondItem="otk-5J-dtG" secondAttribute="bottom" constant="24" id="qyh-UB-GKL"/>
+                        </constraints>
+                    </view>
+                    <navigationItem key="navigationItem" title="Title" id="lWK-OD-bVc">
+                        <barButtonItem key="rightBarButtonItem" title="Save" id="PYQ-kj-GwZ">
+                            <connections>
+                                <action selector="saveButtonPressed:" destination="Fpz-tQ-bwl" id="oVA-d0-3jA"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="captureButton" destination="HBQ-cF-z2k" id="cFi-kk-Oln"/>
+                        <outlet property="imageView" destination="otk-5J-dtG" id="GRa-nV-gLe"/>
+                        <outlet property="libraryButton" destination="x8p-yy-LGb" id="HUw-rx-qi3"/>
+                        <outlet property="navBar" destination="lWK-OD-bVc" id="VgZ-an-yL1"/>
+                        <outlet property="saveButton" destination="PYQ-kj-GwZ" id="D7i-YS-Ydx"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="NcD-ix-lBO" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="3193" y="358"/>
         </scene>
     </scenes>
     <resources>

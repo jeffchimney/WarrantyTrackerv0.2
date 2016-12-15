@@ -17,6 +17,7 @@
 		BE1C11321DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11311DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift */; };
 		BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */; };
 		BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */; };
+		BE30DC2D1E020AE10022259E /* EditPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */; };
 		BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */; };
 		BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */; };
 		BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE69FF1C1DE4DD830052685E /* CoreData.framework */; };
@@ -60,6 +61,7 @@
 		BE1C11331DC921D200B0D493 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewReceiptViewController.swift; sourceTree = "<group>"; };
 		BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyBeginsEndsViewController.swift; sourceTree = "<group>"; };
+		BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPhotoViewController.swift; sourceTree = "<group>"; };
 		BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyDetailsViewController.swift; sourceTree = "<group>"; };
 		BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyTableViewCellController.swift; sourceTree = "<group>"; };
 		BE69FF1C1DE4DD830052685E /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -123,6 +125,7 @@
 				BE1C11131DC921D200B0D493 /* PrimaryViewController.swift */,
 				BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */,
 				BECB41461DFF297200689AA4 /* EditDateController.swift */,
+				BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */,
 				BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */,
 				BE1C11111DC921D200B0D493 /* NewItemViewController.swift */,
 				BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */,
@@ -308,6 +311,7 @@
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
 				BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */,
 				BECB41471DFF297200689AA4 /* EditDateController.swift in Sources */,
+				BE30DC2D1E020AE10022259E /* EditPhotoViewController.swift in Sources */,
 				BE1C11101DC921D200B0D493 /* AppDelegate.swift in Sources */,
 				BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */,
 				BE1C11121DC921D200B0D493 /* NewItemViewController.swift in Sources */,

@@ -37,6 +37,8 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     var originalWeeksBeforeEndDateCenter = CGPoint(x: 0, y: 0)
     
     var isEditingRecord = false
+    var tappedItem = false
+    var tappedReceipt = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -83,10 +85,17 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         originalDescriptionViewCenter = descriptionView.center
         originalWeeksBeforeEndDateCenter = weeksBeforeLabel.center
         
+        // set up tap recognizers
         let startDateTap = UITapGestureRecognizer(target: self, action: #selector(startDateTapped(sender:)))
         let endDateTap = UITapGestureRecognizer(target: self, action: #selector(endDateTapped(sender:)))
+        let itemViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
+        let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
         startDateLabel.addGestureRecognizer(startDateTap)
         endDateLabel.addGestureRecognizer(endDateTap)
+        itemImageView.isUserInteractionEnabled = true
+        receiptImageView.isUserInteractionEnabled = true
+        itemImageView.addGestureRecognizer(itemViewTap)
+        receiptImageView.addGestureRecognizer(receiptViewTap)
     }
     
     @IBAction func selectedSegmentChanged(_ sender: Any) {
@@ -132,6 +141,24 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         // present the popover
         popController.delegate = self
         self.present(popController, animated: true, completion: nil)
+    }
+    
+    func itemViewTapped(sender: UITapGestureRecognizer) {
+        // show controller to take photo
+        if isEditingRecord {
+            tappedItem = true
+            tappedReceipt = false
+            performSegue(withIdentifier: "editImage", sender: self)
+        }
+    }
+    
+    func receiptViewTapped(sender: UITapGestureRecognizer) {
+        // show controller to take photo
+        if isEditingRecord {
+            tappedReceipt = true
+            tappedItem = false
+            performSegue(withIdentifier: "editImage", sender: self)
+        }
     }
     
     func savePreferences (labelText:String, changeStartDate:Bool) {
@@ -181,6 +208,10 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             })
             
             weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date"
+            
+            // reset bools for tapped image views
+            tappedReceipt = false
+            tappedItem = false
         } else {
             startDateLabel.isUserInteractionEnabled = true
             endDateLabel.isUserInteractionEnabled = true
@@ -299,6 +330,14 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     
     // MARK: Prepare for segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        
+        if segue.identifier == "editImage" {
+            if let nextViewController = segue.destination as? EditPhotoViewController {
+                if tappedItem {
+                    nextViewController.navBar.title = "Item"
+                } else if tappedReceipt {
+                    nextViewController.navBar.title = "Receipt"
+                }
+            }
+        }
     }
 }
