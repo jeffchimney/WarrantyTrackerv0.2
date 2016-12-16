@@ -153,7 +153,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 filteredRecords.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
                 let record = filteredRecords[indexPath.row]
                 cell.title.text = record.title
-                cell.descriptionView.text = record.descriptionString
+                //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
                 cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
                 let recordImage = UIImage(data: record.itemImage as! Data)
@@ -162,7 +162,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 filteredRecords.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
                 let record = filteredRecords[indexPath.row]
                 cell.title.text = record.title
-                cell.descriptionView.text = record.descriptionString
+                //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
                 cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
                 let recordImage = UIImage(data: record.itemImage as! Data)
@@ -174,7 +174,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 records.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
                 let record = records[indexPath.row]
                 cell.title.text = record.title
-                cell.descriptionView.text = record.descriptionString
+                //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
                 cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
                 let recordImage = UIImage(data: record.itemImage as! Data)
@@ -183,15 +183,17 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 records.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedAscending})
                 let record = records[indexPath.row]
                 cell.title.text = record.title
-                cell.descriptionView.text = record.descriptionString
+                //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
                 cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
                 let recordImage = UIImage(data: record.itemImage as! Data)
                 cell.warrantyImageView.image = recordImage
             }
-
+            
         }
         cell.warrantyImageView.contentMode = .scaleAspectFit
+        cell.title.textColor = cell.tintColor
+        cell.backgroundColor = UIColor(colorLiteralRed: 189, green: 195, blue: 201, alpha: 1.0)
         
         lastCell = cell
         
