@@ -293,6 +293,8 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         return true
     }
     
+    @IBAction func unwindToEdit(with segue: UIStoryboardSegue) {}
+    
     //MARK: Peek and Pop methods
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
         

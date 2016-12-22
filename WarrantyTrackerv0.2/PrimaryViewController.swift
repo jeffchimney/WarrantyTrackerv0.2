@@ -19,8 +19,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var originalSearchViewCenter = CGPoint(x:0, y:0) // both of these are set in view did load
     var originalTableViewCenter = CGPoint(x:0, y:0) //
     var hidingSearchView = false
+    
+    var backToTopButton: UIButton!
 
-    @IBOutlet weak var searchView: UIView!
+    //@IBOutlet weak var searchView: UIView!
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
     @IBOutlet weak var settingsButton: UIBarButtonItem!
@@ -48,11 +50,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         searchController.dimsBackgroundDuringPresentation = false
         searchController.hidesNavigationBarDuringPresentation = false
-        searchController.searchBar.searchBarStyle = .minimal
-        searchController.searchBar.backgroundColor = UIColor.clear
-        //searchController.searchBar.barTintColor = UIColor.white
+        searchController.searchBar.searchBarStyle = .default
+        searchController.searchBar.backgroundColor = warrantiesTableView.tintColor
         definesPresentationContext = true
-        //searchView.addSubview(searchController.searchBar)
         
         searchController.searchBar.delegate = self
         
@@ -64,19 +64,40 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         
         // add search bar to top of table view
-        searchView.addSubview(searchController.searchBar)
+        //searchView.addSubview(searchController.searchBar)
+        warrantiesTableView.tableHeaderView = searchController.searchBar
         
         // add extra separator above table view
-        let px = 1 / UIScreen.main.scale
-        let frame = CGRect(x:0, y:0, width:warrantiesTableView.frame.size.width, height: px)
-        let line = UIView(frame: frame)
-        warrantiesTableView.tableHeaderView = line
-        line.backgroundColor = warrantiesTableView.separatorColor
+//        let px = 1 / UIScreen.main.scale
+//        let frame = CGRect(x:0, y:0, width:warrantiesTableView.frame.size.width, height: px)
+//        let line = UIView(frame: frame)
+//        warrantiesTableView.tableHeaderView = line
+//        line.backgroundColor = warrantiesTableView.separatorColor
         
-        originalSearchViewCenter = searchView.center
-        originalTableViewCenter = warrantiesTableView.center
+//        originalSearchViewCenter = searchView.center
+//        originalTableViewCenter = warrantiesTableView.center
         
         navigationController?.setToolbarHidden(true, animated: false)
+    }
+    
+    func configureButton()
+    {
+        backToTopButton = UIButton()
+        backToTopButton.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+        backToTopButton.layer.cornerRadius = 0.5 * backToTopButton.bounds.size.width
+        backToTopButton.layer.borderColor = warrantiesTableView.tintColor.cgColor
+        backToTopButton.layer.borderWidth = 2.0
+        backToTopButton.clipsToBounds = true
+        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .normal)
+        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .selected)
+        backToTopButton.center = CGPoint(x: warrantiesTableView.center.x, y: view.frame.height - 50)
+        backToTopButton.alpha = 0
+        backToTopButton.addTarget(self, action: #selector(backToTopButtonPressed(sender:)), for: .touchUpInside)
+        self.view.addSubview(backToTopButton)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        configureButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -209,37 +230,17 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let delta = scrollView.contentOffset
         
-        // move views up
-        if(delta.y > 0 && searchView.center.y > originalSearchViewCenter.y - searchView.frame.height) {
-            
-            hidingSearchView = true
-            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y)
-            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y)
-        } else if (delta.y < 0 && searchView.center.y < originalSearchViewCenter.y){
-            
-            // move views down
-            hidingSearchView = false
-            searchView.center = CGPoint(x: searchView.center.x, y: searchView.center.y - delta.y)
-            warrantiesTableView.center = CGPoint(x: warrantiesTableView.center.x, y: warrantiesTableView.center.y - delta.y)
-        }
-    }
-    
-    // animate to where the view should be after the bounce to avoid weird positioning
-    func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-        print(hidingSearchView)
-        if hidingSearchView { // animate to search view hidden
-            UIView.animate(withDuration: 0.1, animations: {
-                self.searchView.center = (self.navigationController?.navigationBar.center)!
-                self.warrantiesTableView.center = CGPoint(x: self.originalTableViewCenter.x, y: self.originalTableViewCenter.y - (self.searchView.frame.height + 8)) // the last number is the spacing between the two views
+        if (scrollView.contentOffset.y <= 0 && self.backToTopButton.alpha != 0) {
+            UIView.animate(withDuration: 0.5, animations: {
+                self.backToTopButton.alpha = 0
             })
-        } else { // animate to show search view
-            UIView.animate(withDuration: 0.1, animations: {
-                self.searchView.center = self.originalSearchViewCenter
-                self.warrantiesTableView.center = self.originalTableViewCenter
+        } else if (scrollView.contentOffset.y > 0 && self.backToTopButton.alpha == 0) {
+            UIView.animate(withDuration: 0.5, animations: {
+                self.backToTopButton.alpha = 0.5
             })
         }
+        
     }
     
     func delete(record: Record) {
@@ -318,7 +319,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         warrantiesTableView.reloadData()
     }
     
-    
+    func backToTopButtonPressed(sender: UIButton) {
+        //let indexPath = IndexPath(row: 0, section: 0)
+        //warrantiesTableView.scrollToRow(at: indexPath, at: UITableViewScrollPosition.top, animated: true)
+        UIView.animate(withDuration: 0.2, animations: {
+            self.warrantiesTableView.contentOffset.y = 0
+        })
+    }
     
     //MARK: Peek and Pop methods
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {

@@ -409,99 +409,79 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" misplaced="YES" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="1dD-ov-hZ0">
-                                <rect key="frame" x="0.0" y="116" width="375" height="559"/>
-                                <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="neD-St-QFR">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="559"/>
-                                        <subviews>
-                                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="105" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="X9G-na-xFK">
-                                                <rect key="frame" x="0.0" y="0.0" width="375" height="559"/>
-                                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="559" id="c9d-PR-6pP"/>
-                                                </constraints>
-                                                <prototypes>
-                                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="WarrantyTableViewCell" rowHeight="105" id="1Mx-eG-FsG" customClass="WarrantyTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
-                                                        <rect key="frame" x="0.0" y="28" width="375" height="105"/>
-                                                        <autoresizingMask key="autoresizingMask"/>
-                                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1Mx-eG-FsG" id="KEm-Vk-89d">
-                                                            <rect key="frame" x="0.0" y="0.0" width="342" height="105"/>
-                                                            <autoresizingMask key="autoresizingMask"/>
-                                                            <subviews>
-                                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="TIR-AI-Lp7">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="80" height="105"/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="width" constant="80" id="dJh-Ro-g9f"/>
-                                                                    </constraints>
-                                                                </imageView>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ends" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eek-Ry-K99">
-                                                                    <rect key="frame" x="316" y="64" width="26" height="14"/>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Starts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7FP-CP-w6D">
-                                                                    <rect key="frame" x="258" y="64" width="32" height="14"/>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GTy-iS-eAP">
-                                                                    <rect key="frame" x="88" y="26" width="254" height="30"/>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="25"/>
-                                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OjL-XL-sBi">
-                                                                    <rect key="frame" x="298" y="64" width="6" height="14"/>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                </label>
-                                                            </subviews>
-                                                            <constraints>
-                                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="centerY" secondItem="KEm-Vk-89d" secondAttribute="centerY" id="C6d-3Q-Sb2"/>
-                                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="top" id="Dmz-nH-TWA"/>
-                                                                <constraint firstAttribute="trailing" secondItem="GTy-iS-eAP" secondAttribute="trailing" id="FFa-wa-DTn"/>
-                                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="topMargin" constant="18" id="Go6-q6-1dc"/>
-                                                                <constraint firstItem="7FP-CP-w6D" firstAttribute="top" secondItem="GTy-iS-eAP" secondAttribute="bottom" constant="8" symbolic="YES" id="Tqj-HW-hId"/>
-                                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="trailing" secondItem="Eek-Ry-K99" secondAttribute="trailing" id="UTL-2Z-avp"/>
-                                                                <constraint firstItem="OjL-XL-sBi" firstAttribute="baseline" secondItem="Eek-Ry-K99" secondAttribute="baseline" id="cAS-cQ-lvl"/>
-                                                                <constraint firstItem="OjL-XL-sBi" firstAttribute="leading" secondItem="7FP-CP-w6D" secondAttribute="trailing" constant="8" symbolic="YES" id="gxb-q7-2cs"/>
-                                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="leading" secondItem="KEm-Vk-89d" secondAttribute="leading" id="oiT-KR-2dS"/>
-                                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="leading" secondItem="TIR-AI-Lp7" secondAttribute="trailing" constant="8" symbolic="YES" id="sVk-UP-N0E"/>
-                                                                <constraint firstItem="Eek-Ry-K99" firstAttribute="leading" secondItem="OjL-XL-sBi" secondAttribute="trailing" constant="12" id="vQ3-FI-kHg"/>
-                                                                <constraint firstItem="7FP-CP-w6D" firstAttribute="baseline" secondItem="OjL-XL-sBi" secondAttribute="baseline" id="xHW-xe-2f6"/>
-                                                            </constraints>
-                                                        </tableViewCellContentView>
-                                                        <connections>
-                                                            <outlet property="title" destination="GTy-iS-eAP" id="sfS-mO-UO5"/>
-                                                            <outlet property="warrantyEnds" destination="Eek-Ry-K99" id="8Lm-aO-aB3"/>
-                                                            <outlet property="warrantyImageView" destination="TIR-AI-Lp7" id="WoY-2n-2OJ"/>
-                                                            <outlet property="warrantyStarts" destination="7FP-CP-w6D" id="Pxy-1e-gEo"/>
-                                                        </connections>
-                                                    </tableViewCell>
-                                                </prototypes>
-                                            </tableView>
-                                        </subviews>
-                                    </stackView>
-                                </subviews>
-                            </stackView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hvz-Hm-Y9i">
-                                <rect key="frame" x="0.0" y="64" width="375" height="36"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="105" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="X9G-na-xFK">
+                                <rect key="frame" x="0.0" y="64" width="375" height="603"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                            </view>
+                                <prototypes>
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" accessoryType="disclosureIndicator" indentationWidth="10" reuseIdentifier="WarrantyTableViewCell" rowHeight="105" id="1Mx-eG-FsG" customClass="WarrantyTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="28" width="375" height="105"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                        <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="1Mx-eG-FsG" id="KEm-Vk-89d">
+                                            <rect key="frame" x="0.0" y="0.0" width="342" height="105"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="TIR-AI-Lp7">
+                                                    <rect key="frame" x="0.0" y="0.0" width="80" height="105"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="80" id="dJh-Ro-g9f"/>
+                                                    </constraints>
+                                                </imageView>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ends" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eek-Ry-K99">
+                                                    <rect key="frame" x="316" y="64" width="26" height="14"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Starts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7FP-CP-w6D">
+                                                    <rect key="frame" x="258" y="64" width="32" height="14"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GTy-iS-eAP">
+                                                    <rect key="frame" x="88" y="26" width="254" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                                    <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="-" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OjL-XL-sBi">
+                                                    <rect key="frame" x="298" y="64" width="6" height="14"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                                    <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
+                                            </subviews>
+                                            <constraints>
+                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="centerY" secondItem="KEm-Vk-89d" secondAttribute="centerY" id="C6d-3Q-Sb2"/>
+                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="top" id="Dmz-nH-TWA"/>
+                                                <constraint firstAttribute="trailing" secondItem="GTy-iS-eAP" secondAttribute="trailing" id="FFa-wa-DTn"/>
+                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="top" secondItem="KEm-Vk-89d" secondAttribute="topMargin" constant="18" id="Go6-q6-1dc"/>
+                                                <constraint firstItem="7FP-CP-w6D" firstAttribute="top" secondItem="GTy-iS-eAP" secondAttribute="bottom" constant="8" symbolic="YES" id="Tqj-HW-hId"/>
+                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="trailing" secondItem="Eek-Ry-K99" secondAttribute="trailing" id="UTL-2Z-avp"/>
+                                                <constraint firstItem="OjL-XL-sBi" firstAttribute="baseline" secondItem="Eek-Ry-K99" secondAttribute="baseline" id="cAS-cQ-lvl"/>
+                                                <constraint firstItem="OjL-XL-sBi" firstAttribute="leading" secondItem="7FP-CP-w6D" secondAttribute="trailing" constant="8" symbolic="YES" id="gxb-q7-2cs"/>
+                                                <constraint firstItem="TIR-AI-Lp7" firstAttribute="leading" secondItem="KEm-Vk-89d" secondAttribute="leading" id="oiT-KR-2dS"/>
+                                                <constraint firstItem="GTy-iS-eAP" firstAttribute="leading" secondItem="TIR-AI-Lp7" secondAttribute="trailing" constant="8" symbolic="YES" id="sVk-UP-N0E"/>
+                                                <constraint firstItem="Eek-Ry-K99" firstAttribute="leading" secondItem="OjL-XL-sBi" secondAttribute="trailing" constant="12" id="vQ3-FI-kHg"/>
+                                                <constraint firstItem="7FP-CP-w6D" firstAttribute="baseline" secondItem="OjL-XL-sBi" secondAttribute="baseline" id="xHW-xe-2f6"/>
+                                            </constraints>
+                                        </tableViewCellContentView>
+                                        <connections>
+                                            <outlet property="title" destination="GTy-iS-eAP" id="sfS-mO-UO5"/>
+                                            <outlet property="warrantyEnds" destination="Eek-Ry-K99" id="8Lm-aO-aB3"/>
+                                            <outlet property="warrantyImageView" destination="TIR-AI-Lp7" id="WoY-2n-2OJ"/>
+                                            <outlet property="warrantyStarts" destination="7FP-CP-w6D" id="Pxy-1e-gEo"/>
+                                        </connections>
+                                    </tableViewCell>
+                                </prototypes>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="trailing" secondItem="1dD-ov-hZ0" secondAttribute="trailing" id="Bcu-6Q-6Yb"/>
-                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="top" secondItem="L7p-HK-0SC" secondAttribute="bottom" id="HnF-Bk-JC5"/>
-                            <constraint firstItem="1dD-ov-hZ0" firstAttribute="top" secondItem="Hvz-Hm-Y9i" secondAttribute="bottom" constant="8" symbolic="YES" id="IRT-TM-kHK"/>
-                            <constraint firstAttribute="bottom" secondItem="1dD-ov-hZ0" secondAttribute="bottom" id="Nyk-AM-nup"/>
-                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="leading" secondItem="1dD-ov-hZ0" secondAttribute="leading" id="aan-9t-yTw"/>
-                            <constraint firstItem="Hvz-Hm-Y9i" firstAttribute="leading" secondItem="QS5-Rx-YEW" secondAttribute="leading" id="e6B-A8-YfH"/>
-                            <constraint firstAttribute="trailing" secondItem="Hvz-Hm-Y9i" secondAttribute="trailing" id="efT-Pr-ngm"/>
+                            <constraint firstAttribute="trailing" secondItem="X9G-na-xFK" secondAttribute="trailing" id="GeO-Lb-QFY"/>
+                            <constraint firstItem="X9G-na-xFK" firstAttribute="leading" secondItem="QS5-Rx-YEW" secondAttribute="leading" id="KkR-K7-z8s"/>
+                            <constraint firstAttribute="bottom" secondItem="X9G-na-xFK" secondAttribute="bottom" id="iso-QH-aqG"/>
+                            <constraint firstItem="X9G-na-xFK" firstAttribute="top" secondItem="L7p-HK-0SC" secondAttribute="bottom" id="ltJ-aX-7YF"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Smy-Hi-Pjy">
@@ -529,7 +509,6 @@
                     </navigationItem>
                     <connections>
                         <outlet property="searchDisplayController" destination="iB7-5D-Rt2" id="KHq-pR-TLv"/>
-                        <outlet property="searchView" destination="Hvz-Hm-Y9i" id="sWv-TA-W2F"/>
                         <outlet property="settingsButton" destination="V72-QC-Kh4" id="dQe-uX-RaH"/>
                         <outlet property="sortBySegmentControl" destination="Tzq-Jn-t4y" id="Z3h-Cd-U5z"/>
                         <outlet property="warrantiesTableView" destination="X9G-na-xFK" id="FLZ-3S-mBS"/>
@@ -816,6 +795,7 @@
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="9Jo-ag-TAG">
                         <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <color key="tintColor" red="0.19625166058540344" green="0.28142249584197998" blue="0.36662644147872925" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </toolbar>
                     <connections>
                         <segue destination="8rJ-Kc-sve" kind="relationship" relationship="rootViewController" id="7Fe-HE-c6g"/>
@@ -870,7 +850,7 @@
                     <navigationItem key="navigationItem" title="Title" id="lWK-OD-bVc">
                         <barButtonItem key="rightBarButtonItem" title="Save" id="PYQ-kj-GwZ">
                             <connections>
-                                <action selector="saveButtonPressed:" destination="Fpz-tQ-bwl" id="oVA-d0-3jA"/>
+                                <action selector="saveButtonPressed:" destination="Fpz-tQ-bwl" id="aPG-rd-CsZ"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -880,9 +860,11 @@
                         <outlet property="libraryButton" destination="x8p-yy-LGb" id="HUw-rx-qi3"/>
                         <outlet property="navBar" destination="lWK-OD-bVc" id="VgZ-an-yL1"/>
                         <outlet property="saveButton" destination="PYQ-kj-GwZ" id="D7i-YS-Ydx"/>
+                        <segue destination="XQE-H0-mzg" kind="unwind" identifier="unwindToEdit" unwindAction="unwindToEditWith:" id="EQZ-av-bd9"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="NcD-ix-lBO" sceneMemberID="firstResponder"/>
+                <exit id="XQE-H0-mzg" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="3193" y="358"/>
         </scene>

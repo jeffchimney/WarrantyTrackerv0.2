@@ -119,19 +119,27 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
-        
+        performSegue(withIdentifier: "unwindToEdit", sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if (segue.identifier == "toReceipt") {
-//            if let nextViewController = segue.destination as? NewReceiptViewController {
-//                if (imageView.image != nil) {
-//                    nextViewController.itemImageData = imageDataToSave
-//                } else {
-//                    print("Was nil")
-//                }
-//            }
-//        }
+        if (segue.identifier == "unwindToEdit") {
+            if let nextViewController = segue.destination as? DetailsViewController {
+                if navBar.title == "Item" {
+                    if (imageView.image != nil) { // set item image
+                        nextViewController.itemImageView.image = imageView.image
+                    } else {
+                        print("Was nil")
+                    }
+                } else {
+                    if (imageView.image != nil) { // set receipt image
+                        nextViewController.receiptImageView.image = imageView.image
+                    } else {
+                        print("Was nil")
+                    }
+                }
+            }
+        }
     }
 }
 
