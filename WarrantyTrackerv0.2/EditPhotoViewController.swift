@@ -29,7 +29,6 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
-        navBar.title = "Item"
         navigationController?.setToolbarHidden(true, animated: true)
         saveButton.isEnabled = false
     }

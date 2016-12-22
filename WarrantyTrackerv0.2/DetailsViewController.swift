@@ -63,8 +63,6 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         weeksBeforeSegment.alpha = 0
         weeksBeforeLabel2.alpha = 0
         
-        deleteButton.tintColor = UIColor.red
-        
         // configure alarm for event
         let daysToSubtract = Int(record.weeksBeforeReminder)*(-7)
         
@@ -96,10 +94,21 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         receiptImageView.isUserInteractionEnabled = true
         itemImageView.addGestureRecognizer(itemViewTap)
         receiptImageView.addGestureRecognizer(receiptViewTap)
+        
+        deleteButton.title = "Save"
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setToolbarHidden(false, animated: true)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        navigationController?.setToolbarHidden(true, animated: true)
     }
     
     @IBAction func selectedSegmentChanged(_ sender: Any) {
         weeksBeforeLabel2.text = String(weeksBeforeSegment.selectedSegmentIndex+1) + " weeks before end date"
+        weeksBeforeLabel.text = weeksBeforeLabel2.text
     }
     
     func startDateTapped(sender: UITapGestureRecognizer) {
@@ -179,12 +188,13 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     
     @IBAction func editButtonPressed(_ sender: Any) {
         if isEditingRecord {
+            deleteButton.title = "Save"
+            deleteButton.tintColor = startDateLabel.tintColor
             startDateLabel.isUserInteractionEnabled = false
             endDateLabel.isUserInteractionEnabled = false
             editButton.title = "Edit"
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
-            navigationController?.setToolbarHidden(true, animated: true)
             
             stopJiggling(viewToStop: itemImageView)
             stopJiggling(viewToStop: receiptImageView)
@@ -207,7 +217,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
                 })
             })
             
-            weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date"
+            weeksBeforeLabel.text = weeksBeforeLabel2.text
             
             // reset bools for tapped image views
             tappedReceipt = false
@@ -218,7 +228,8 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             editButton.title = "Done"
             isEditingRecord = true
             navBar.setHidesBackButton(isEditingRecord, animated: true)
-            navigationController?.setToolbarHidden(false, animated: true)
+            deleteButton.title = "Delete"
+            deleteButton.tintColor = UIColor.red
             
             startJiggling(viewToShake: itemImageView)
             startJiggling(viewToShake: receiptImageView)
@@ -238,7 +249,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
                 })
             })
             
-            weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date"
+            weeksBeforeLabel.text = weeksBeforeLabel2.text
         }
     }
     
@@ -279,7 +290,36 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             NSFetchRequest<NSManagedObject>(entityName: "Record")
         fetchRequest.predicate = NSPredicate(format: "dateCreated==%@", record.dateCreated!)
         let object = try! managedContext.fetch(fetchRequest)
-        managedContext.delete(object[0]) // delete first returned object
+        
+        if deleteButton.title == "Delete" { // delete first returned object
+            let record = object[0] as! Record
+            
+            record.recentlyDeleted = true
+            record.dateDeleted = Date() as NSDate?
+            do {
+                try managedContext.save()
+            } catch {
+                print("The record couldn't be updated.")
+            }
+        } else { // save or update the returned object
+            let record = object[0] as! Record
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d, yyyy"
+            
+            record.warrantyStarts = dateFormatter.date(from: startDateLabel.text!) as NSDate?
+            record.warrantyEnds = dateFormatter.date(from: endDateLabel.text!) as NSDate?
+            record.descriptionString = descriptionView.text!
+            record.weeksBeforeReminder = weeksBeforeSegment.selectedSegmentIndex+1
+            record.itemImage = UIImageJPEGRepresentation(itemImageView.image!, 1.0) as NSData?
+            record.receiptImage = UIImageJPEGRepresentation(receiptImageView.image!, 1.0) as NSData?
+            
+            do {
+                try managedContext.save()
+            } catch {
+                print("The record couldn't be saved.")
+            }
+        }
         
         self.navigationController!.popToRootViewController(animated: true)
     }

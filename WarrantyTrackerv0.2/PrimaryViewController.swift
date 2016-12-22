@@ -25,15 +25,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     //@IBOutlet weak var searchView: UIView!
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
-    @IBOutlet weak var settingsButton: UIBarButtonItem!
+    @IBOutlet weak var archiveButton: UIBarButtonItem!
     let cellIdentifier = "WarrantyTableViewCell"
     var fetchedRecords: [NSManagedObject] = []
     var records: [Record] = []
     var filteredRecords: [Record] = []
-    var recentlyDeletedRecords: [Record] = []
-    var expiredRecords: [Record] = []
     var sections: [[Record]] = [[]]
-    let sectionHeaders = ["Valid", "Recently Deleted", "Expired"]
     var selectedRecord: Record!
     let defaults = UserDefaults.standard
     
@@ -62,21 +59,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         } else {
             print("3D Touch Not Available")
         }
-        
-        // add search bar to top of table view
-        //searchView.addSubview(searchController.searchBar)
+
         warrantiesTableView.tableHeaderView = searchController.searchBar
-        
-        // add extra separator above table view
-//        let px = 1 / UIScreen.main.scale
-//        let frame = CGRect(x:0, y:0, width:warrantiesTableView.frame.size.width, height: px)
-//        let line = UIView(frame: frame)
-//        warrantiesTableView.tableHeaderView = line
-//        line.backgroundColor = warrantiesTableView.separatorColor
-        
-//        originalSearchViewCenter = searchView.center
-//        originalTableViewCenter = warrantiesTableView.center
-        
         navigationController?.setToolbarHidden(true, animated: false)
     }
     
@@ -121,13 +105,40 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         records = []
         for eachRecord in fetchedRecords {
             let record = eachRecord as! Record
+            let calendar = NSCalendar.current
             
             if record.recentlyDeleted {
-                recentlyDeletedRecords.append(record)
-            } else if record.expired {
-                expiredRecords.append(record)
+                // Replace the hour (time) of both dates with 00:00
+                let deletedDate = calendar.startOfDay(for: record.dateDeleted as! Date)
+                let currentDate = calendar.startOfDay(for: Date())
+                
+                let components = calendar.dateComponents([.day], from: deletedDate, to: currentDate)
+                
+                if components.day! > 30 { // This will return the number of day(s) between dates
+                    do {
+                        managedContext.delete(record)
+                        try managedContext.save()
+                    } catch {
+                        print("Record could not be deleted")
+                    }
+                }
             } else { // add to active records list
-                records.append(record)
+                // Replace the hour (time) of both dates with 00:00
+                let expiryDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
+                let currentDate = calendar.startOfDay(for: Date())
+                print(record.title!)
+                let components = calendar.dateComponents([.day], from: expiryDate, to: currentDate)
+                print(components.day!)
+                if components.day! > 0 { // This will return the number of day(s) between dates
+                    do {
+                        record.expired = true
+                        try managedContext.save()
+                    } catch {
+                        print("Record could not be deleted")
+                    }
+                } else {
+                    records.append(record)
+                }
             }
         }
         
@@ -190,7 +201,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 cell.warrantyImageView.image = recordImage
             }
         } else {
-            sections = [records, recentlyDeletedRecords, expiredRecords]
             if sortBySegmentControl.selectedSegmentIndex == 0 {
                 records.sort(by:{ $0.dateCreated?.compare($1.dateCreated as! Date) == .orderedDescending})
                 let record = records[indexPath.row]
@@ -278,8 +288,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
     }
-    
-    
     
     //MARK: Search bar delegate functions
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
