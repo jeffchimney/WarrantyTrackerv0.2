@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import CoreData
+import EventKit
 
 public protocol DataBackDelegate: class {
     func savePreferences (labelText:String, changeStartDate:Bool)
@@ -32,6 +33,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
     @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var deleteButton: UIBarButtonItem!
     @IBOutlet weak var weeksBeforeSegment: UISegmentedControl!
+    @IBOutlet weak var periodLabel: UILabel!
     
     var originalDescriptionViewCenter = CGPoint(x: 0, y: 0)
     var originalWeeksBeforeEndDateCenter = CGPoint(x: 0, y: 0)
@@ -96,6 +98,14 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         receiptImageView.addGestureRecognizer(receiptViewTap)
         
         deleteButton.title = "Save"
+        
+        let calendar = NSCalendar.current
+        // Replace the hour (time) of both dates with 00:00
+        let currentDate = calendar.startOfDay(for: Date())
+        let endDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
+        let daysLeft = calendar.dateComponents([.day], from: currentDate, to: endDate)
+        
+        periodLabel.text = "Warranty: (" + String(daysLeft.day!) + " days left)"
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -307,6 +317,8 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             
+            let previousStartDate = record.warrantyStarts
+            let previousEndDate = record.warrantyEnds
             record.warrantyStarts = dateFormatter.date(from: startDateLabel.text!) as NSDate?
             record.warrantyEnds = dateFormatter.date(from: endDateLabel.text!) as NSDate?
             record.descriptionString = descriptionView.text!
@@ -316,6 +328,35 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             
             do {
                 try managedContext.save()
+
+                let eventStore = EKEventStore()
+                let calendars = eventStore.calendars(for: .event)
+                
+                for calendar in calendars {
+                    if calendar.title == "WarrantyTracker" {
+                        let predicate = eventStore.predicateForEvents(withStart: previousStartDate as! Date, end: previousEndDate as! Date, calendars: [calendar])
+                        
+                        let events = eventStore.events(matching: predicate)
+                        
+                        for event in events {
+                            print(event.title)
+                            if event.title.contains(record.title!) {
+                                event.startDate = dateFormatter.date(from: endDateLabel.text!)!
+                                event.endDate = dateFormatter.date(from: endDateLabel.text!)!
+                                event.isAllDay = true
+                                
+                                if event.hasAlarms {
+                                    print(event.alarms!)
+                                }
+                                do {
+                                    try eventStore.save(event, span: .thisEvent, commit: true)
+                                } catch {
+                                    print("The event couldnt be updated")
+                                }
+                            }
+                        }
+                    }
+                }
             } catch {
                 print("The record couldn't be saved.")
             }

@@ -126,9 +126,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 // Replace the hour (time) of both dates with 00:00
                 let expiryDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
                 let currentDate = calendar.startOfDay(for: Date())
-                print(record.title!)
+
                 let components = calendar.dateComponents([.day], from: expiryDate, to: currentDate)
-                print(components.day!)
+
                 if components.day! > 0 { // This will return the number of day(s) between dates
                     do {
                         record.expired = true
