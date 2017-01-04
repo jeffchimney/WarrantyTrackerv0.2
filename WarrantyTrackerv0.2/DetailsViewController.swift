@@ -289,6 +289,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         return (M_PI * x)/180.0
     }
     
+    // delete button / save button depending on context.
     @IBAction func deleteButtonPressed(_ sender: Any) {
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {
@@ -317,8 +318,6 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             
-            let previousStartDate = record.warrantyStarts
-            let previousEndDate = record.warrantyEnds
             record.warrantyStarts = dateFormatter.date(from: startDateLabel.text!) as NSDate?
             record.warrantyEnds = dateFormatter.date(from: endDateLabel.text!) as NSDate?
             record.descriptionString = descriptionView.text!
@@ -334,26 +333,34 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
                 
                 for calendar in calendars {
                     if calendar.title == "WarrantyTracker" {
-                        let predicate = eventStore.predicateForEvents(withStart: previousStartDate as! Date, end: previousEndDate as! Date, calendars: [calendar])
+                        let event = eventStore.event(withIdentifier: record.eventIdentifier!)
+
+                        event?.startDate = dateFormatter.date(from: endDateLabel.text!)!
+                        let endDate = dateFormatter.date(from: endDateLabel.text!)!
+                        event?.endDate = endDate
+                        event?.isAllDay = true
                         
-                        let events = eventStore.events(matching: predicate)
+                        // remove old alarm and configure new alarm for event
+                        if (event?.hasAlarms)! {
+                            event?.alarms?.removeAll()
+                        }
                         
-                        for event in events {
-                            print(event.title)
-                            if event.title.contains(record.title!) {
-                                event.startDate = dateFormatter.date(from: endDateLabel.text!)!
-                                event.endDate = dateFormatter.date(from: endDateLabel.text!)!
-                                event.isAllDay = true
-                                
-                                if event.hasAlarms {
-                                    print(event.alarms!)
-                                }
-                                do {
-                                    try eventStore.save(event, span: .thisEvent, commit: true)
-                                } catch {
-                                    print("The event couldnt be updated")
-                                }
-                            }
+                        let daysToSubtract = (weeksBeforeSegment.selectedSegmentIndex+1)*(-7)
+                        
+                        var addingPeriod = DateComponents()
+                        addingPeriod.day = daysToSubtract
+                        addingPeriod.hour = 12
+                        
+                        let userCalendar = NSCalendar.current
+                        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate) // this is really subtracting...
+                        
+                        let alarm = EKAlarm(absoluteDate: alarmDate!)
+                        event?.addAlarm(alarm)
+                        
+                        do {
+                            try eventStore.save(event!, span: .thisEvent, commit: true)
+                        } catch {
+                            print("The event couldnt be updated")
                         }
                     }
                 }

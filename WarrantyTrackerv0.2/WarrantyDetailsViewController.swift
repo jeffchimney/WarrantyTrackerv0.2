@@ -115,12 +115,6 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
             newTag.tag = tag
             record.addToTags(newTag)
         }
-
-        do {
-            try managedContext.save()
-        } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
-        }
         
         // to find and use the calendar for events:
         let calendar = checkCalendar()
@@ -140,13 +134,6 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         
         let userCalendar = NSCalendar.current
         let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
-//        let dateformatter = DateFormatter()
-            
-//        dateformatter.dateStyle = DateFormatter.Style.medium
-//            
-//        dateformatter.timeStyle = DateFormatter.Style.short
-//            
-//        print(dateformatter.string(from: alarmDate!))
         
         let alarm = EKAlarm(absoluteDate: alarmDate!)
         newEvent.addAlarm(alarm)
@@ -154,6 +141,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         // try to save the event
         do {
             try eventStore.save(newEvent, span: .thisEvent, commit: true)
+            record.eventIdentifier = newEvent.eventIdentifier
             
             self.dismiss(animated: true, completion: nil)
         } catch {
@@ -162,6 +150,13 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
             alert.addAction(OKAction)
             
             self.present(alert, animated: true, completion: nil)
+        }
+        
+        // Save the created Record object
+        do {
+            try managedContext.save()
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
         }
         
         self.navigationController!.popToRootViewController(animated: true)
