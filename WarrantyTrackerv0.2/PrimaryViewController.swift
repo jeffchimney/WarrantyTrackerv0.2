@@ -40,8 +40,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         let defaults = UserDefaults.standard
         if (defaults.object(forKey: "FirstLaunch") == nil) {
             //go to sign up page
-            defaults.set(false, forKey: "FirstLaunch")
-            
             let storyboard = UIStoryboard(name: "Main", bundle: nil)
             let vc = storyboard.instantiateViewController(withIdentifier: "AccountQuestionViewController")
             

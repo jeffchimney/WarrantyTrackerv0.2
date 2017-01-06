@@ -9,8 +9,9 @@
 import Foundation
 import UIKit
 
-class AccountQuestionViewController: UIViewController {
+class AccountQuestionViewController: UIViewController, UIPopoverPresentationControllerDelegate {
     
+    @IBOutlet weak var infoButton: UIButton!
     var signingIn = false
     
     @IBAction func skipButtonPressed(_ sender: UIButton) {
@@ -32,7 +33,26 @@ class AccountQuestionViewController: UIViewController {
     }
     
     @IBAction func infoButtonPressed(_ sender: UIButton) {
-        
+        // set up the popover presentation controller
+        let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "whySignUp") as! WhySignUpController
+        popController.modalPresentationStyle = UIModalPresentationStyle.popover
+        popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.up
+        popController.popoverPresentationController?.delegate = self
+        popController.popoverPresentationController?.sourceView = infoButton
+        popController.popoverPresentationController?.sourceRect = CGRect(x: self.infoButton.bounds.midX, y: self.infoButton.bounds.maxY, width: 0, height: 0)
+
+        // present the popover
+        popoverPresentationController?.delegate = self
+        self.present(popController, animated: true, completion: nil)
+    }
+
+    // popover delegate methods
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
+    }
+    
+    func presentationController(_ controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
+        return UINavigationController(rootViewController: controller.presentedViewController)
     }
     
     // MARK: Prepare for segue
