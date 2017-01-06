@@ -22,6 +22,9 @@
 		BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */; };
 		BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE69FF1C1DE4DD830052685E /* CoreData.framework */; };
 		BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */; };
+		BE7EE2501E1EF406009ED090 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE7EE24F1E1EF406009ED090 /* CloudKit.framework */; };
+		BE7EE2521E1EFBF2009ED090 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */; };
+		BE7EE2541E1F1D55009ED090 /* AccountQuestionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */; };
 		BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */; };
 		BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */; };
 		BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */; };
@@ -67,6 +70,10 @@
 		BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyTableViewCellController.swift; sourceTree = "<group>"; };
 		BE69FF1C1DE4DD830052685E /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeletedAndExpiredController.swift; sourceTree = "<group>"; };
+		BE7EE24E1E1EF403009ED090 /* WarrantyTrackerv0.2.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WarrantyTrackerv0.2.entitlements; sourceTree = "<group>"; };
+		BE7EE24F1E1EF406009ED090 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
+		BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
+		BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountQuestionViewController.swift; sourceTree = "<group>"; };
 		BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
 		BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		BEB975C81DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WarrantyTracker.xcdatamodel; sourceTree = "<group>"; };
@@ -79,6 +86,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */,
+				BE7EE2501E1EF406009ED090 /* CloudKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,7 +131,10 @@
 		BE1C110E1DC921D200B0D493 /* WarrantyTrackerv0.2 */ = {
 			isa = PBXGroup;
 			children = (
+				BE7EE24E1E1EF403009ED090 /* WarrantyTrackerv0.2.entitlements */,
 				BE1C110F1DC921D200B0D493 /* AppDelegate.swift */,
+				BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */,
+				BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */,
 				BE1C11131DC921D200B0D493 /* PrimaryViewController.swift */,
 				BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */,
 				BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */,
@@ -165,6 +176,7 @@
 		BE69FF1B1DE4DD830052685E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BE7EE24F1E1EF406009ED090 /* CloudKit.framework */,
 				BE69FF1C1DE4DD830052685E /* CoreData.framework */,
 			);
 			name = Frameworks;
@@ -240,6 +252,14 @@
 						CreatedOnToolsVersion = 8.1;
 						DevelopmentTeam = JSZY8AYXNH;
 						ProvisioningStyle = Automatic;
+						SystemCapabilities = {
+							com.apple.Push = {
+								enabled = 1;
+							};
+							com.apple.iCloud = {
+								enabled = 1;
+							};
+						};
 					};
 					BE1C11211DC921D200B0D493 = {
 						CreatedOnToolsVersion = 8.1;
@@ -315,8 +335,10 @@
 				BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */,
 				BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */,
 				BECB41471DFF297200689AA4 /* EditDateController.swift in Sources */,
+				BE7EE2521E1EFBF2009ED090 /* SignUpViewController.swift in Sources */,
 				BE30DC2D1E020AE10022259E /* EditPhotoViewController.swift in Sources */,
 				BE1C11101DC921D200B0D493 /* AppDelegate.swift in Sources */,
+				BE7EE2541E1F1D55009ED090 /* AccountQuestionViewController.swift in Sources */,
 				BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */,
 				BE1C11121DC921D200B0D493 /* NewItemViewController.swift in Sources */,
 				BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */,
@@ -475,12 +497,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WarrantyTrackerv0.2/WarrantyTrackerv0.2.entitlements;
 				DEVELOPMENT_TEAM = JSZY8AYXNH;
 				INFOPLIST_FILE = WarrantyTrackerv0.2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.JeffsApps.UnderWarranty;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -488,12 +512,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = WarrantyTrackerv0.2/WarrantyTrackerv0.2.entitlements;
 				DEVELOPMENT_TEAM = JSZY8AYXNH;
 				INFOPLIST_FILE = WarrantyTrackerv0.2/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.JeffsApps.UnderWarranty;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

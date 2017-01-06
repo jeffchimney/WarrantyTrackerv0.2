@@ -36,6 +36,17 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        let defaults = UserDefaults.standard
+        if (defaults.object(forKey: "FirstLaunch") == nil) {
+            //go to sign up page
+            defaults.set(false, forKey: "FirstLaunch")
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "AccountQuestionViewController")
+            
+            self.present(vc, animated: true, completion: nil)
+        } // otherwise, carry on as normal.
 
         self.warrantiesTableView.delegate = self
         self.warrantiesTableView.dataSource = self
