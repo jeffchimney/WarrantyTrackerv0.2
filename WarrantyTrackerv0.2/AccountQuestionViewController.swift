@@ -18,6 +18,8 @@ class AccountQuestionViewController: UIViewController, UIPopoverPresentationCont
         // set userdefaults for first launch
         let defaults = UserDefaults.standard
         defaults.set(false, forKey: "FirstLaunch")
+        
+        performSegue(withIdentifier: "unwindToInitialController", sender: nil)
     }
     
     @IBAction func yesButtonPressed(_ sender: UIButton) {
