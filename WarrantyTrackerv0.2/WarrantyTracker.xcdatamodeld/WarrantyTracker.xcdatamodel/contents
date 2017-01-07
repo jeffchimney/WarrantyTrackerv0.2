@@ -15,6 +15,7 @@
         <attribute name="itemImage" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="receiptImage" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="recentlyDeleted" optional="YES" attributeType="Boolean" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="recordID" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="warrantyEnds" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="warrantyStarts" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -26,8 +27,8 @@
         <relationship name="record" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Record" inverseName="tags" inverseEntity="Record" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Record" positionX="-47" positionY="-225" width="128" height="255"/>
-        <element name="Tag" positionX="-117" positionY="80" width="128" height="75"/>
         <element name="Account" positionX="-81" positionY="-72" width="128" height="90"/>
+        <element name="Record" positionX="-47" positionY="-225" width="128" height="270"/>
+        <element name="Tag" positionX="-117" positionY="80" width="128" height="75"/>
     </elements>
 </model>

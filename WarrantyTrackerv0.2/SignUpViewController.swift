@@ -23,9 +23,15 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     var timesSignUpPressed = 0
     var timesSignInPressed = 0
     
+    var username = ""
+    var password = ""
+    
     override func viewDidLoad() {
         errorLabel.isHidden = true
         indicator.isHidden = true
+        
+        usernameField.delegate = self
+        passwordField.delegate = self
         
         if signingIn! {
             signInButton.setTitle("Sign In", for: .normal)
@@ -40,6 +46,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
                 return
         }
+        
+        username = usernameField.text!
+        password = passwordField.text!
+        
         if !signingIn! { // create new username password combo and save to cloud and locally
             
             let managedContext = appDelegate.persistentContainer.viewContext
@@ -48,8 +58,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         
             let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
             let accountRecord = CKRecord(recordType: "Accounts")
-            accountRecord.setValue(usernameField.text, forKey: "username")
-            accountRecord.setValue(passwordField.text, forKey: "password")
+            
+            accountRecord.setValue(username, forKey: "username")
+            accountRecord.setValue(password, forKey: "password")
+            
             
             let predicate = NSPredicate(format: "username = %@", argumentArray: [usernameField.text!])
             
@@ -110,13 +122,11 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                         // set userdefaults for first launch
                         let defaults = UserDefaults.standard
                         defaults.set(false, forKey: "FirstLaunch")
-                        
-                        // navigate to primary controller
-                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                        let vc = storyboard.instantiateViewController(withIdentifier: "baseNavController")
+                        defaults.set(self.username, forKey: "username")
+                        defaults.set(self.password, forKey: "password")
                         
                         DispatchQueue.main.async {
-                            self.present(vc, animated: true, completion: nil)
+                            self.performSegue(withIdentifier: "unwindToInitial", sender: nil)
                         }
                     }
                 }
@@ -173,13 +183,11 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                         // set userdefaults for first launch
                         let defaults = UserDefaults.standard
                         defaults.set(false, forKey: "FirstLaunch")
-                        
-                        // navigate to primary controller
-                        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                        let vc = storyboard.instantiateViewController(withIdentifier: "baseNavController")
-                        
+                        defaults.set(self.username, forKey: "username")
+                        defaults.set(self.password, forKey: "password")
+
                         DispatchQueue.main.async {
-                            self.present(vc, animated: true, completion: nil)
+                            self.performSegue(withIdentifier: "unwindToInitial", sender: nil)
                         }
                     }
                 }
@@ -197,7 +205,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        //textField.resignFirstResponder()
         
         //
         let nextTag=textField.tag+1;
@@ -210,6 +217,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         }
         else
         {
+            // trigger sign in
+            signInButton.sendActions(for: .touchUpInside)
             // Not found, so remove keyboard
             textField.resignFirstResponder()
         }

@@ -9,6 +9,7 @@
 
 import UIKit
 import CoreData
+import CloudKit
 
 class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate {
     
@@ -19,6 +20,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var originalSearchViewCenter = CGPoint(x:0, y:0) // both of these are set in view did load
     var originalTableViewCenter = CGPoint(x:0, y:0) //
     var hidingSearchView = false
+    var refreshControl: UIRefreshControl!
     
     var backToTopButton: UIButton!
 
@@ -36,18 +38,14 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let defaults = UserDefaults.standard
-        if (defaults.object(forKey: "FirstLaunch") == nil) {
-            //go to sign up page
-            let storyboard = UIStoryboard(name: "Main", bundle: nil)
-            let vc = storyboard.instantiateViewController(withIdentifier: "AccountQuestionViewController")
-            
-            self.present(vc, animated: true, completion: nil)
-        } // otherwise, carry on as normal.
 
         self.warrantiesTableView.delegate = self
         self.warrantiesTableView.dataSource = self
+        
+        refreshControl = UIRefreshControl()
+        refreshControl.backgroundColor = UIColor.white
+        refreshControl.addTarget(self, action: #selector(handleRefresh(refreshControl:)), for: UIControlEvents.valueChanged)
+        warrantiesTableView.addSubview(refreshControl)
         
         // sorted by recent by default
         sortBySegmentControl.selectedSegmentIndex = 0
@@ -68,9 +66,22 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         } else {
             print("3D Touch Not Available")
         }
-
         warrantiesTableView.tableHeaderView = searchController.searchBar
-        navigationController?.setToolbarHidden(true, animated: false)
+        navigationController?.isToolbarHidden = true
+        
+        let defaults = UserDefaults.standard
+        if (defaults.object(forKey: "FirstLaunch") == nil) {
+            //go to sign up page
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            let vc = storyboard.instantiateViewController(withIdentifier: "AccountQuestionViewController")
+            
+            self.present(vc, animated: true, completion: nil)
+        } // otherwise, carry on as normal.
+    }
+    
+    func handleRefresh(refreshControl: UIRefreshControl) {
+        self.warrantiesTableView.reloadData()
+        refreshControl.endRefreshing()
     }
     
     func configureButton()
@@ -150,15 +161,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
         }
-        
         self.warrantiesTableView.reloadData()
     }
     
     @IBAction func selectedSegmentChanged(_ sender: Any) {
         self.warrantiesTableView.reloadData()
     }
-    
-
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -298,6 +306,41 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
+    func getRecordsFromCloudKit() {
+        let defaults = UserDefaults.standard
+        let username = defaults.string(forKey: "username")
+        let password = defaults.string(forKey: "password")
+        
+        if username != nil { // user is logged in
+            let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+            let predicate = NSPredicate(format: "username = %@ AND password = %@", username!, password!)
+            let query = CKQuery(recordType: "Accounts", predicate: predicate)
+            
+            var accountRecord = CKRecord(recordType: "Accounts")
+            publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+                if error != nil {
+                    print("Error pulling from CloudKit")
+                } else {
+                    if (results?.count)! > 0 { // a record matching their username and password has been retrieved
+                        accountRecord = (results?[0])!
+                        
+                        let recordsPredicate = NSPredicate(format: "AssociatedAccount = %@", accountRecord.recordID)
+                        let recordsQuery = CKQuery(recordType: "Records", predicate: recordsPredicate)
+                        publicDatabase.perform(recordsQuery, inZoneWith: nil, completionHandler: { (results, error) in
+                            if error != nil {
+                                print("Error retrieving records from cloudkit")
+                            } else {
+                                if (results?.count)! > 0 {
+                                    // compare with core data records JEFF
+                                }
+                            }
+                        })
+                    }
+                }
+            })
+        }
+    }
+    
     //MARK: Search bar delegate functions
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         searchActive = false;
@@ -380,6 +423,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
         show(viewControllerToCommit, sender: self)
     }
+    
+    @IBAction func unwindToInitialController(segue: UIStoryboardSegue){}
     
     // MARK: Prepare for segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
