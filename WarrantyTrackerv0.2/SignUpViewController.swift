@@ -224,9 +224,4 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         }
         return false // We do not want UITextField to insert line-breaks.
     }
-    
-    // check changes in text fields to see if already exists
-    func checkUsernameMatch(username: String) {
-        
-    }
 }

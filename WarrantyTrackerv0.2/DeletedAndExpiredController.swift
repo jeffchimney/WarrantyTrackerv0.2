@@ -78,9 +78,6 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         }
     }
     
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! WarrantyTableViewCell
         
@@ -131,15 +128,26 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             if expiredRecords.count == 0 {
-                return 1
+                return 0
             } else {
                 return expiredRecords.count
             }
         } else {
             if deletedRecords.count == 0 {
-                return 1
+                return 0
             } else {
                 return deletedRecords.count
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            tableView.deleteRows(at: [indexPath], with: .fade)
+            if indexPath.section == 0 { // expired
+                expiredRecords.remove(at: indexPath.row)
+            } else { // recently deleted
+                deletedRecords.remove(at: indexPath.row)
             }
         }
     }
