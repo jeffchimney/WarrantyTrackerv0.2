@@ -26,6 +26,7 @@
 		BE7EE2501E1EF406009ED090 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE7EE24F1E1EF406009ED090 /* CloudKit.framework */; };
 		BE7EE2521E1EFBF2009ED090 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */; };
 		BE7EE2541E1F1D55009ED090 /* AccountQuestionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */; };
+		BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE81B6051E246D1E00EF71CC /* RecoverCardViewController.swift */; };
 		BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */; };
 		BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */; };
 		BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */; };
@@ -76,6 +77,7 @@
 		BE7EE24F1E1EF406009ED090 /* CloudKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CloudKit.framework; path = System/Library/Frameworks/CloudKit.framework; sourceTree = SDKROOT; };
 		BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountQuestionViewController.swift; sourceTree = "<group>"; };
+		BE81B6051E246D1E00EF71CC /* RecoverCardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecoverCardViewController.swift; sourceTree = "<group>"; };
 		BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
 		BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		BEB975C81DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WarrantyTracker.xcdatamodel; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@
 				BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */,
 				BE1C11131DC921D200B0D493 /* PrimaryViewController.swift */,
 				BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */,
+				BE81B6051E246D1E00EF71CC /* RecoverCardViewController.swift */,
 				BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */,
 				BECB41461DFF297200689AA4 /* EditDateController.swift */,
 				BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */,
@@ -332,6 +335,7 @@
 			files = (
 				BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */,
 				BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */,
+				BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */,
 				BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */,
 				BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,

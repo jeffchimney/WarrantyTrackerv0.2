@@ -9,7 +9,7 @@
 import UIKit
 import CoreData
 
-class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerPreviewingDelegate {
     
     let cellIdentifier = "WarrantyTableViewCell"
     var fetchedRecords: [NSManagedObject] = []
@@ -26,6 +26,13 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         tableView.dataSource = self
         
         tableView.reloadData()
+        
+        // register for previewing with 3d touch
+        if traitCollection.forceTouchCapability == .available {
+            registerForPreviewing(with: self, sourceView: view)
+        } else {
+            print("3D Touch Not Available")
+        }
         
         navigationController?.setToolbarHidden(true, animated: false)
     }
@@ -91,6 +98,7 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
                 cell.warrantyEnds.isHidden = true
                 cell.warrantyImageView.isHidden = true
                 cell.dashLabel.isHidden = true
+                cell.isUserInteractionEnabled = false
             } else {
                 expiredRecords.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds as! Date) == .orderedDescending})
                 let record = expiredRecords[indexPath.row]
@@ -107,6 +115,7 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
                 cell.warrantyEnds.isHidden = true
                 cell.warrantyImageView.isHidden = true
                 cell.dashLabel.isHidden = true
+                cell.isUserInteractionEnabled = false
             }else {
                 deletedRecords.sort(by:{ $0.dateDeleted?.compare($1.dateDeleted as! Date) == .orderedDescending})
                 let record = deletedRecords[indexPath.row]
@@ -128,28 +137,149 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
             if expiredRecords.count == 0 {
-                return 0
+                return 1
             } else {
                 return expiredRecords.count
             }
         } else {
             if deletedRecords.count == 0 {
-                return 0
+                return 1
             } else {
                 return deletedRecords.count
             }
         }
     }
     
-    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if editingStyle == .delete {
-            tableView.deleteRows(at: [indexPath], with: .fade)
-            if indexPath.section == 0 { // expired
-                expiredRecords.remove(at: indexPath.row)
-            } else { // recently deleted
-                deletedRecords.remove(at: indexPath.row)
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        
+        // recover record on press recover
+        let recover = UITableViewRowAction(style: .normal, title: "Recover") { action, index in
+            if indexPath.section == 1 { // recently deleted
+                self.setRecentlyDeletedFalse(for: self.deletedRecords[indexPath.row])
+                tableView.reloadData()
             }
         }
+        recover.backgroundColor = tableView.tintColor
+        
+        // delete record on press delete
+        let delete = UITableViewRowAction(style: .destructive, title: "Delete") { action, index in
+            if indexPath.section == 0 { // expired
+                
+                self.deleteFromCoreData(record: self.expiredRecords[indexPath.row])
+                self.expiredRecords.remove(at: indexPath.row)
+            } else { // recently deleted
+                self.deleteFromCoreData(record: self.deletedRecords[indexPath.row])
+                self.deletedRecords.remove(at: indexPath.row)
+            }
+            tableView.reloadData()
+        }
+        delete.backgroundColor = .red
+        
+        if indexPath.section == 1 {
+            return [delete, recover]
+        } else {
+            return [delete]
+        }
+    }
+    
+    func deleteFromCoreData(record: Record) {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        var returnedRecords: [NSManagedObject] = []
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        
+        do {
+            returnedRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for thisRecord in returnedRecords {
+            if record == thisRecord {
+                managedContext.delete(thisRecord)
+                do {
+                    try managedContext.save()
+                } catch {
+                    print("Error deleting record")
+                }
+            }
+        }
+    }
+    
+    func setRecentlyDeletedFalse(for record: Record) {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        var returnedRecords: [NSManagedObject] = []
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        
+        do {
+            returnedRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for thisRecord in returnedRecords {
+            if record == thisRecord {
+                let thisRecord = thisRecord as! Record
+                thisRecord.recentlyDeleted = false
+                deletedRecords.remove(at: deletedRecords.index(of: record)!)
+                tableView.reloadData()
+                do {
+                    try managedContext.save()
+                } catch {
+                    print("Error deleting record")
+                }
+            }
+        }
+    }
+    
+    //MARK: Peek and Pop methods
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        
+        // convert point from position in self.view to position in warrantiesTableView
+        let cellPosition = tableView.convert(location, from: self.view)
+        
+        guard let indexPath = tableView.indexPathForRow(at: cellPosition),
+            let cell = tableView.cellForRow(at: indexPath) else {
+                return nil
+        }
+        
+        guard let recoverViewController =
+            storyboard?.instantiateViewController(
+                withIdentifier: "recoverCardViewController") as?
+            RecoverCardViewController else {
+                return nil
+        }
+        
+        let selectedRecord = deletedRecords[indexPath.row]
+        
+        recoverViewController.record = selectedRecord
+            recoverViewController.preferredContentSize =
+            CGSize(width: 0.0, height: 500)
+        
+        previewingContext.sourceRect = cell.frame
+        
+        return recoverViewController
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        show(viewControllerToCommit, sender: self)
     }
 }
 
