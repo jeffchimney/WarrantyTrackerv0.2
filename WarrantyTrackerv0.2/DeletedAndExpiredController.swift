@@ -273,7 +273,7 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
             recoverViewController.preferredContentSize =
             CGSize(width: 0.0, height: 500)
         
-        previewingContext.sourceRect = cell.frame
+        previewingContext.sourceRect = view.convert(cell.frame, from: tableView)
         
         return recoverViewController
     }

@@ -415,7 +415,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         detailViewController.preferredContentSize =
             CGSize(width: 0.0, height: 500)
         
-        previewingContext.sourceRect = cell.frame
+        previewingContext.sourceRect = view.convert(cell.frame, from: warrantiesTableView)
         
         return detailViewController
     }

@@ -418,6 +418,48 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         show(viewControllerToCommit, sender: self)
     }
     
+    override var previewActionItems: [UIPreviewActionItem] {
+        
+        let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
+            self.setRecentlyDeletedTrue(for: self.record)
+        })
+        
+        return [delete]
+    }
+    
+    func setRecentlyDeletedTrue(for record: Record) {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        var returnedRecords: [NSManagedObject] = []
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        
+        do {
+            returnedRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for thisRecord in returnedRecords {
+            if record == thisRecord {
+                let thisRecord = thisRecord as! Record
+                thisRecord.recentlyDeleted = true
+                do {
+                    try managedContext.save()
+                } catch {
+                    print("Error deleting record")
+                }
+            }
+        }
+    }
+    
     // MARK: Prepare for segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "editImage" {
