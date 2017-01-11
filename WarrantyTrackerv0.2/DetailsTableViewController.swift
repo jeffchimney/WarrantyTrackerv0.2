@@ -46,7 +46,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         endDateLabel.text = dateFormatter.string(from: record.warrantyEnds as! Date)
         
         // calculate alarm for event
-        let daysToSubtract = Int(record.weeksBeforeReminder)*(-7)
+        let daysToSubtract = Int(-record.daysBeforeReminder)
         
         var addingPeriod = DateComponents()
         addingPeriod.day = daysToSubtract

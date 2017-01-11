@@ -59,14 +59,14 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         descriptionView.text = record.descriptionString
         descriptionView.textAlignment = .center
         descriptionView.delegate = self
-        weeksBeforeLabel.text = String(record.weeksBeforeReminder) + " weeks before end date"
+        weeksBeforeLabel.text = String(record.daysBeforeReminder) + " weeks before end date"
         weeksBeforeLabel2.text = weeksBeforeLabel.text
-        weeksBeforeSegment.selectedSegmentIndex = record.weeksBeforeReminder-1
+        weeksBeforeSegment.selectedSegmentIndex = record.daysBeforeReminder-1
         weeksBeforeSegment.alpha = 0
         weeksBeforeLabel2.alpha = 0
         
         // configure alarm for event
-        let daysToSubtract = Int(record.weeksBeforeReminder)*(-7)
+        let daysToSubtract = Int(record.daysBeforeReminder)*(-7)
         
         var addingPeriod = DateComponents()
         addingPeriod.day = daysToSubtract
@@ -321,7 +321,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             record.warrantyStarts = dateFormatter.date(from: startDateLabel.text!) as NSDate?
             record.warrantyEnds = dateFormatter.date(from: endDateLabel.text!) as NSDate?
             record.descriptionString = descriptionView.text!
-            record.weeksBeforeReminder = weeksBeforeSegment.selectedSegmentIndex+1
+            record.daysBeforeReminder = weeksBeforeSegment.selectedSegmentIndex+1
             record.itemImage = UIImageJPEGRepresentation(itemImageView.image!, 1.0) as NSData?
             record.receiptImage = UIImageJPEGRepresentation(receiptImageView.image!, 1.0) as NSData?
             

@@ -58,7 +58,6 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         }
         
         daysBeforePicker.delegate = self
-        daysBeforePicker.dataSource = ["1", "2"]
     }
     
     override func didReceiveMemoryWarning() {
@@ -147,7 +146,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
                 if hasWarranty { // pass along warranty dates
                     nextViewController.startDate = dateFormatter.date(from: selectedStartDate.text!)
                     nextViewController.endDate = dateFormatter.date(from: selectedEndDate.text!)
-                    //nextViewController.weeksBeforeReminder =
+                    nextViewController.daysBeforeReminder = Int(daysBeforePicker.selectedRow(inComponent: 0)+1)
                 }
             }
         }
