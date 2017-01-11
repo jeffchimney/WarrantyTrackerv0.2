@@ -279,7 +279,7 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
     }
     
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
-        show(viewControllerToCommit, sender: self)
+        //show(viewControllerToCommit, sender: self)
     }
 }
 

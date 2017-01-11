@@ -123,7 +123,7 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "unwindToEdit") {
-            if let nextViewController = segue.destination as? DetailsViewController {
+            if let nextViewController = segue.destination as? DetailsTableViewController {
                 if navBar.title == "Item" {
                     if (imageView.image != nil) { // set item image
                         nextViewController.itemImageView.image = imageView.image

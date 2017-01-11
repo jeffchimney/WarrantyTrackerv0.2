@@ -18,7 +18,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
     var receiptImageData: Data! = nil
     var startDate: Date? = nil
     var endDate: Date? = nil
-    var weeksBeforeReminder: Int!
+    var daysBeforeReminder: Int!
     var hasWarranty: Bool = true
     //
     
@@ -62,6 +62,8 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         descriptionTextField.tag = 1
         tagsTextField.tag = 2
         
+        titleTextField.becomeFirstResponder()
+        
         requestAccessToCalendar()
     }
     
@@ -103,7 +105,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         record.warrantyEnds = endDate as NSDate?
         record.itemImage = itemImageData as NSData?
         record.receiptImage = receiptImageData as NSData?
-        record.weeksBeforeReminder = Int32(weeksBeforeReminder)
+        record.daysBeforeReminder = Int32(daysBeforeReminder)
         record.hasWarranty = hasWarranty
         record.dateCreated = Date() as NSDate?
         record.recentlyDeleted = false
@@ -129,7 +131,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         newEvent.endDate = endDate!
         newEvent.isAllDay = true
         // configure alarm for event
-        let daysToSubtract = (weeksBeforeReminder+1)*(-7)
+        let daysToSubtract = -(daysBeforeReminder+1)
         
         var addingPeriod = DateComponents()
         addingPeriod.day = daysToSubtract
@@ -270,7 +272,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
                             ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
                             ckRecord.setObject(itemAsset, forKey: "itemData")
                             ckRecord.setObject(receiptAsset, forKey: "receiptData")
-                            ckRecord.setObject(cdRecord.weeksBeforeReminder as CKRecordValue?, forKey: "weeksBeforeReminder")
+                            ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
                             ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
                             ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
                             ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
@@ -340,11 +342,6 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         if (nextResponder != nil){
             // Found next responder, so set it.
             nextResponder?.becomeFirstResponder()
-        }
-        else
-        {
-            // Not found, so remove keyboard
-            textField.resignFirstResponder()
         }
         return false // We do not want UITextField to insert line-breaks.
     }

@@ -28,7 +28,11 @@ class RecoverCardViewController: UIViewController {
             self.setRecentlyDeletedFalse(for: self.record)
         })
         
-        return [delete, recover]
+        let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in
+            print("Cancel Action Selected")
+        }
+        
+        return [delete, recover, cancel]
     }
     
     func deleteFromCoreData(record: Record) {
@@ -61,6 +65,7 @@ class RecoverCardViewController: UIViewController {
                 }
             }
         }
+        
     }
     
     func setRecentlyDeletedFalse(for record: Record) {

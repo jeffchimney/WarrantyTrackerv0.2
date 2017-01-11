@@ -424,7 +424,11 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
             self.setRecentlyDeletedTrue(for: self.record)
         })
         
-        return [delete]
+        let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in
+            print("Cancel Action Selected")
+        }
+        
+        return [delete, cancel]
     }
     
     func setRecentlyDeletedTrue(for record: Record) {

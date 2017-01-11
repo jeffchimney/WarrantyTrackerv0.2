@@ -17,6 +17,7 @@
 		BE1C11321DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11311DC921D200B0D493 /* WarrantyTrackerv0_2UITests.swift */; };
 		BE1C11401DC9551600B0D493 /* NewReceiptViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */; };
 		BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */; };
+		BE2A0DB61E258B7400C31586 /* DetailsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE2A0DB51E258B7400C31586 /* DetailsTableViewController.swift */; };
 		BE30DC2D1E020AE10022259E /* EditPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */; };
 		BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */; };
 		BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */; };
@@ -67,6 +68,7 @@
 		BE1C11331DC921D200B0D493 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewReceiptViewController.swift; sourceTree = "<group>"; };
 		BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyBeginsEndsViewController.swift; sourceTree = "<group>"; };
+		BE2A0DB51E258B7400C31586 /* DetailsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsTableViewController.swift; sourceTree = "<group>"; };
 		BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPhotoViewController.swift; sourceTree = "<group>"; };
 		BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyDetailsViewController.swift; sourceTree = "<group>"; };
 		BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyTableViewCellController.swift; sourceTree = "<group>"; };
@@ -144,6 +146,7 @@
 				BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */,
 				BE81B6051E246D1E00EF71CC /* RecoverCardViewController.swift */,
 				BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */,
+				BE2A0DB51E258B7400C31586 /* DetailsTableViewController.swift */,
 				BECB41461DFF297200689AA4 /* EditDateController.swift */,
 				BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */,
 				BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */,
@@ -337,6 +340,7 @@
 				BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */,
 				BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */,
 				BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */,
+				BE2A0DB61E258B7400C31586 /* DetailsTableViewController.swift in Sources */,
 				BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
 				BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */,

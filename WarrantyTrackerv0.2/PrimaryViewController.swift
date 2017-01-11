@@ -400,8 +400,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         guard let detailViewController =
             storyboard?.instantiateViewController(
-                withIdentifier: "DetailsViewController") as?
-            DetailsViewController else {
+                withIdentifier: "DetailsTableViewController") as?
+            DetailsTableViewController else {
             return nil
         }
         
@@ -429,7 +429,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     // MARK: Prepare for segue
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "toCellDetails") {
-            if let nextViewController = segue.destination as? DetailsViewController {
+            if let nextViewController = segue.destination as? DetailsTableViewController {
                 if (selectedRecord != nil) {
                     nextViewController.record = selectedRecord
                 } else {

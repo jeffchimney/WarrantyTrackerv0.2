@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WarrantyBeginsEndsViewController: UIViewController {
+class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
     // variables that have been passed forward
     var itemImageData: Data! = nil
@@ -23,13 +23,15 @@ class WarrantyBeginsEndsViewController: UIViewController {
     @IBOutlet weak var warrantyBeginsLabel: UILabel!
     @IBOutlet weak var warrantyEndsLabel: UILabel!
     @IBOutlet weak var navBar: UINavigationItem!
-    @IBOutlet weak var numberOfWeeksSegment: UISegmentedControl!
+    //@IBOutlet weak var numberOfWeeksSegment: UISegmentedControl!
+    @IBOutlet weak var daysBeforePicker: UIPickerView!
     @IBOutlet weak var remindMeLabel1: UILabel!
     @IBOutlet weak var remindMeLabel2: UILabel!
     
     var startDatePicked = false
     var endDatePicked = false
     var hasWarranty = true
+    var pickerData: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,8 +50,15 @@ class WarrantyBeginsEndsViewController: UIViewController {
         nextButton.title = "Skip"
         
         remindMeLabel1.isHidden = true
-        numberOfWeeksSegment.isHidden = true
+        daysBeforePicker.isHidden = true
         remindMeLabel2.isHidden = true
+        
+        for index in 1...31 {
+            pickerData.append(String(index))
+        }
+        
+        daysBeforePicker.delegate = self
+        daysBeforePicker.dataSource = ["1", "2"]
     }
     
     override func didReceiveMemoryWarning() {
@@ -94,7 +103,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
             nextButton.title = "Next"
             
             remindMeLabel1.isHidden = false
-            numberOfWeeksSegment.isHidden = false
+            daysBeforePicker.isHidden = false
             remindMeLabel2.isHidden = false
         } else if startDatePicked == true && endDatePicked == true { // clear both dates and start over
             self.selectedStartDate.text = ""
@@ -107,6 +116,19 @@ class WarrantyBeginsEndsViewController: UIViewController {
             nextButton.title = "Skip"
         }
         
+    }
+    
+    //MARK: Picker View Data Sources and Delegates
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return pickerData.count
+    }
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return pickerData[row]
+    }
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -125,7 +147,7 @@ class WarrantyBeginsEndsViewController: UIViewController {
                 if hasWarranty { // pass along warranty dates
                     nextViewController.startDate = dateFormatter.date(from: selectedStartDate.text!)
                     nextViewController.endDate = dateFormatter.date(from: selectedEndDate.text!)
-                    nextViewController.weeksBeforeReminder = numberOfWeeksSegment.selectedSegmentIndex+1
+                    //nextViewController.weeksBeforeReminder =
                 }
             }
         }
