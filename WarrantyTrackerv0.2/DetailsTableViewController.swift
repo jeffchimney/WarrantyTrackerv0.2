@@ -34,6 +34,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     var tappedReceipt = false
     var rowsInNotesSection = 0
     var originalCellSize = 0
+    let generator = UIImpactFeedbackGenerator(style: .medium)
     
     override func viewDidLoad() {
         let dateFormatter = DateFormatter()
@@ -91,7 +92,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     func startJiggling(viewToShake: UIImageView) {
         let randomInt: Double = Double(arc4random_uniform(50))
-        let r: Double = (randomInt/500.0)+0.5
+        let r: Double = (randomInt/2000.0)+0.5
         
         let leftWobble = CGAffineTransform(rotationAngle: CGFloat(degreesToRadians(x: (1.0 * -1.0) - r )))
         let rightWobble = CGAffineTransform(rotationAngle: CGFloat(degreesToRadians(x: 1.0 + r )))
@@ -156,6 +157,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     func startDateTapped() {
+        generator.impactOccurred()
         // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")  as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
@@ -175,6 +177,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     func endDateTapped() {
+        generator.impactOccurred()
         // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker") as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
@@ -201,6 +204,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         if isEditingRecord {
             tappedItem = true
             tappedReceipt = false
+            generator.impactOccurred()
             performSegue(withIdentifier: "editImage", sender: self)
         }
     }
@@ -208,6 +212,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     func receiptViewTapped(sender: UITapGestureRecognizer) {
         // show controller to take photo
         if isEditingRecord {
+            generator.impactOccurred()
             tappedReceipt = true
             tappedItem = false
             performSegue(withIdentifier: "editImage", sender: self)
@@ -269,6 +274,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             if record == thisRecord {
                 let thisRecord = thisRecord as! Record
                 thisRecord.recentlyDeleted = true
+                thisRecord.dateDeleted = Date() as NSDate?
                 do {
                     try managedContext.save()
                 } catch {

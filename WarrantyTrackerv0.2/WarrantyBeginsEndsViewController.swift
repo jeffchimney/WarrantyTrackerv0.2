@@ -60,6 +60,10 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         daysBeforePicker.delegate = self
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        daysBeforePicker.selectRow(6, inComponent: 0, animated: false)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
