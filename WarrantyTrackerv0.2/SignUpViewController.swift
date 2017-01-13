@@ -338,9 +338,9 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         let keyboardFrame:NSValue = userInfo.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
         let keyboardRectangle = keyboardFrame.cgRectValue
         let keyboardHeight = keyboardRectangle.height
-        
+        print(keyboardHeight)
 //        UIView.animate(withDuration: 0.5, animations: {
-//            self.iconImageView.frame = CGRect(x: self.originalFrame.maxX/2, y: self.originalFrame.minY, width: self.originalFrame.width-keyboardHeight, height: self.originalFrame.height-keyboardHeight)
+//            self.iconImageView.center = CGPoint(x: self.iconImageView.center.x, y: self.iconImageView.center.y-keyboardHeight)
 //        })
     }
 }
