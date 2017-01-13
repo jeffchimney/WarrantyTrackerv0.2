@@ -9,7 +9,11 @@
 import UIKit
 import CoreData
 
-class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerPreviewingDelegate {
+public protocol ReloadDeletedTableViewDelegate: class {
+    func reloadLastControllerTableView()
+}
+
+class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerPreviewingDelegate, ReloadDeletedTableViewDelegate {
     
     let cellIdentifier = "WarrantyTableViewCell"
     var fetchedRecords: [NSManagedObject] = []
@@ -38,6 +42,28 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        getRecordsFromCloudKit()
+        tableView.reloadData()
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if section == 0 {
+            return "Expired"
+        } else {
+            return "Recently Deleted"
+        }
+    }
+    
+    func getRecordsFromCloudKit() {
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {
                 return
@@ -64,24 +90,6 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
             } else if record.expired {
                 expiredRecords.append(record)
             }
-        }
-        tableView.reloadData()
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
-    }
-    
-    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == 0 {
-            return "Expired"
-        } else {
-            return "Recently Deleted"
         }
     }
     
@@ -182,6 +190,13 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         }
     }
     
+    func reloadLastControllerTableView() {
+        deletedRecords = []
+        expiredRecords = []
+        getRecordsFromCloudKit()
+        tableView.reloadData()
+    }
+    
     func deleteFromCoreData(record: Record) {
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {
@@ -269,6 +284,7 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         
         let selectedRecord = deletedRecords[indexPath.row]
         
+        recoverViewController.recoverRecordDelegate = self
         recoverViewController.record = selectedRecord
             recoverViewController.preferredContentSize =
             CGSize(width: 0.0, height: 500)

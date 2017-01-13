@@ -14,6 +14,7 @@ class RecoverCardViewController: UIViewController {
     
     @IBOutlet weak var imageView: UIImageView!
     var record: Record!
+    var recoverRecordDelegate: ReloadDeletedTableViewDelegate?
     
     override func viewDidLoad() {
         imageView.image = UIImage(data: record.itemImage as! Data)
@@ -22,10 +23,12 @@ class RecoverCardViewController: UIViewController {
     override var previewActionItems: [UIPreviewActionItem] {
         let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
             self.deleteFromCoreData(record: self.record)
+            self.recoverRecordDelegate?.reloadLastControllerTableView()
         })
         
         let recover = UIPreviewAction(title: "Recover", style: .default, handler: {_,_ in
             self.setRecentlyDeletedFalse(for: self.record)
+            self.recoverRecordDelegate?.reloadLastControllerTableView()
         })
         
         let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in

@@ -12,6 +12,10 @@ import CoreData
 import CloudKit
 import EventKit
 
+public protocol DataBackDelegate: class {
+    func savePreferences (labelText:String, changeStartDate:Bool)
+}
+
 class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, DataBackDelegate {
     
     // variables passed from last view
@@ -35,6 +39,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     var rowsInNotesSection = 0
     var originalCellSize = 0
     let generator = UIImpactFeedbackGenerator(style: .medium)
+    
+    weak var reloadDelegate: ReloadTableViewDelegate?
     
     override func viewDidLoad() {
         let dateFormatter = DateFormatter()
@@ -241,6 +247,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
             self.setRecentlyDeletedTrue(for: self.record)
+            self.reloadDelegate?.reloadLastControllerTableView()
         })
         
         let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in

@@ -2,6 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="11759" systemVersion="16C67" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="Account" representedClassName="Account" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lastSynced" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="password" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
@@ -27,7 +28,7 @@
         <relationship name="record" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Record" inverseName="tags" inverseEntity="Record" syncable="YES"/>
     </entity>
     <elements>
-        <element name="Account" positionX="-81" positionY="-72" width="128" height="90"/>
+        <element name="Account" positionX="-81" positionY="-72" width="128" height="105"/>
         <element name="Record" positionX="-47" positionY="-225" width="128" height="270"/>
         <element name="Tag" positionX="-117" positionY="80" width="128" height="75"/>
     </elements>

@@ -50,7 +50,14 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         username = usernameField.text!
         password = passwordField.text!
         
+        usernameField.resignFirstResponder()
+        passwordField.resignFirstResponder()
+        
         if !signingIn! { // create new username password combo and save to cloud and locally
+            
+            errorLabel.text = "Creating Account..."
+            errorLabel.textColor = .black
+            errorLabel.isHidden = false
             
             let managedContext = appDelegate.persistentContainer.viewContext
             let accountEntity = NSEntityDescription.entity(forEntityName: "Account", in: managedContext)!
@@ -59,8 +66,11 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
             let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
             let accountRecord = CKRecord(recordType: "Accounts")
             
+            let dateCreated = Date() as NSDate
+            
             accountRecord.setValue(username, forKey: "username")
             accountRecord.setValue(password, forKey: "password")
+            accountRecord.setValue(dateCreated, forKey: "lastSynced")
             
             
             let predicate = NSPredicate(format: "username = %@", argumentArray: [usernameField.text!])
@@ -101,6 +111,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                             } else {
                                 account.username = self.usernameField.text
                                 account.password = self.passwordField.text
+                                account.lastSynced = dateCreated
                                 account.id = accountRecord.recordID.recordName
                             }
                         })
@@ -141,6 +152,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
             let predicate = NSPredicate(format: "username = %@ AND password = %@", usernameField.text!, passwordField.text!)
             let query = CKQuery(recordType: "Accounts", predicate: predicate)
             
+            errorLabel.text = "Signing in..."
+            errorLabel.textColor = .black
+            errorLabel.isHidden = false
+            
             publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
                 if error != nil {
                     DispatchQueue.main.async {
@@ -164,7 +179,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                     } else { // save the username and password locally and log in
                         account.username = self.usernameField.text
                         account.password = self.passwordField.text
-                        //account.id = accountRecord.recordID.recordName        set when record has been retrieved
+                        account.lastSynced = Date() as NSDate?
+                        account.id = results?[0].recordID.recordName
                         
                         // save locally
                         do {
@@ -185,14 +201,97 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                         defaults.set(false, forKey: "FirstLaunch")
                         defaults.set(self.username, forKey: "username")
                         defaults.set(self.password, forKey: "password")
-
+                        
                         DispatchQueue.main.async {
-                            self.performSegue(withIdentifier: "unwindToInitial", sender: nil)
+                            self.errorLabel.text = "Retrieving existing records..."
+                            self.errorLabel.textColor = .black
+                            self.errorLabel.isHidden = false
+                            self.getAllCloudKitRecordsWith(associatedAccount: (results?[0])!)
                         }
                     }
                 }
             })
         }
+    }
+    
+    func getAllCloudKitRecordsWith(associatedAccount: CKRecord) {
+        // cloudkit
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        let predicate = NSPredicate(format: "AssociatedAccount = %@", associatedAccount.recordID)
+        let query = CKQuery(recordType: "Records", predicate: predicate)
+        // coredata
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let recordEntity = NSEntityDescription.entity(forEntityName: "Record", in: managedContext)!
+
+        
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print(error.debugDescription)
+                DispatchQueue.main.async {
+                    self.errorLabel.text = "Error retrieving records."
+                    self.errorLabel.textColor = .red
+                    self.errorLabel.isHidden = false
+                    self.indicator.isHidden = true
+                    self.indicator.stopAnimating()
+                }
+                return
+            } else {
+                for result in results! {
+                    let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
+                    record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
+                    record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
+                    record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
+                    record.descriptionString = result.value(forKey: "descriptionString") as! String?
+                    record.eventIdentifier = result.value(forKey: "eventIdentifier") as! String?
+                    record.title = result.value(forKey: "title") as! String?
+                    record.warrantyStarts = result.value(forKey: "warrantyStarts") as! NSDate?
+                    record.warrantyEnds = result.value(forKey: "warrantyEnds") as! NSDate?
+                    // CKAssets need to be converted to NSData
+                    let itemImage = result.value(forKey: "itemData") as! CKAsset
+                    record.itemImage = NSData(contentsOf: itemImage.fileURL)
+                    let receiptImage = result.value(forKey: "receiptData") as! CKAsset
+                    record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
+                    // Bools stored as ints on CK.  Need to be converted
+                    let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
+                    if recentlyDeleted == 0 {
+                        record.recentlyDeleted = false
+                    } else {
+                        record.recentlyDeleted = true
+                    }
+                    let expired = result.value(forKey: "expired") as! Int64
+                    if expired == 0 {
+                        record.expired = false
+                    } else {
+                        record.expired = true
+                    }
+                    let hasWarranty = result.value(forKey: "hasWarranty") as! Int64
+                    if hasWarranty == 0 {
+                        record.hasWarranty = false
+                    } else {
+                        record.hasWarranty = true
+                    }
+                }
+                // save locally
+                do {
+                    try managedContext.save()
+                    DispatchQueue.main.async {
+                        self.performSegue(withIdentifier: "unwindToInitial", sender: nil)
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.errorLabel.text = "Connection error. Try again later."
+                        self.errorLabel.textColor = .red
+                        self.errorLabel.isHidden = false
+                        self.indicator.isHidden = true
+                        self.indicator.stopAnimating()
+                    }
+                    return
+                }
+            }
+        })
     }
     
     //MARK: Text Field Delegate Methods

@@ -11,11 +11,7 @@ import UIKit
 import CoreData
 import EventKit
 
-public protocol DataBackDelegate: class {
-    func savePreferences (labelText:String, changeStartDate:Bool)
-}
-
-class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UIPopoverPresentationControllerDelegate, DataBackDelegate {
+class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegate, UITextViewDelegate, UIGestureRecognizerDelegate, UIPopoverPresentationControllerDelegate {
 
     // variables passed from last view
     var record: Record!
@@ -136,7 +132,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         popController.tappedStartDate = true
         
         // present the popover
-        popController.delegate = self
+        //popController.delegate = self
         self.present(popController, animated: true, completion: nil)
     }
     
@@ -158,7 +154,7 @@ class DetailsViewController: UIViewController, UIViewControllerPreviewingDelegat
         itemImageView.image = UIImage(data: record.itemImage as! Data)
         
         // present the popover
-        popController.delegate = self
+        //popController.delegate = self
         self.present(popController, animated: true, completion: nil)
     }
     

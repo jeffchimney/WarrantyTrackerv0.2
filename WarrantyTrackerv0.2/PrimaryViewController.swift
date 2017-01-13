@@ -11,7 +11,11 @@ import UIKit
 import CoreData
 import CloudKit
 
-class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate {
+public protocol ReloadTableViewDelegate: class {
+    func reloadLastControllerTableView()
+}
+
+class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate, ReloadTableViewDelegate {
     
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
@@ -80,8 +84,89 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func handleRefresh(refreshControl: UIRefreshControl) {
-        self.warrantiesTableView.reloadData()
-        refreshControl.endRefreshing()
+        // coredata
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let recordEntity = NSEntityDescription.entity(forEntityName: "Record", in: managedContext)!
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Account")
+        
+        var accountRecords: [NSManagedObject] = []
+        do {
+            accountRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        let account = accountRecords[0] as! Account
+        
+        // cloudkit
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        let predicate = NSPredicate(format: "AssociatedAccount = %@", CKRecordID(recordName: account.id!))
+        let query = CKQuery(recordType: "Records", predicate: predicate)
+        
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                DispatchQueue.main.async {
+                    print(error.debugDescription)
+                    self.refreshControl.endRefreshing()
+                }
+                return
+            } else {
+                for result in results! {
+                    let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
+                    record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
+                    record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
+                    record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
+                    record.descriptionString = result.value(forKey: "descriptionString") as! String?
+                    record.eventIdentifier = result.value(forKey: "eventIdentifier") as! String?
+                    record.title = result.value(forKey: "title") as! String?
+                    record.warrantyStarts = result.value(forKey: "warrantyStarts") as! NSDate?
+                    record.warrantyEnds = result.value(forKey: "warrantyEnds") as! NSDate?
+                    // CKAssets need to be converted to NSData
+                    let itemImage = result.value(forKey: "itemData") as! CKAsset
+                    record.itemImage = NSData(contentsOf: itemImage.fileURL)
+                    let receiptImage = result.value(forKey: "receiptData") as! CKAsset
+                    record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
+                    // Bools stored as ints on CK.  Need to be converted
+                    let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
+                    if recentlyDeleted == 0 {
+                        record.recentlyDeleted = false
+                    } else {
+                        record.recentlyDeleted = true
+                    }
+                    let expired = result.value(forKey: "expired") as! Int64
+                    if expired == 0 {
+                        record.expired = false
+                    } else {
+                        record.expired = true
+                    }
+                    let hasWarranty = result.value(forKey: "hasWarranty") as! Int64
+                    if hasWarranty == 0 {
+                        record.hasWarranty = false
+                    } else {
+                        record.hasWarranty = true
+                    }
+                }
+                // save locally
+                do {
+                    try managedContext.save()
+                    DispatchQueue.main.async {
+                        self.warrantiesTableView.reloadData()
+                        refreshControl.endRefreshing()
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        print("Connection error. Try again later.")
+                        self.refreshControl.endRefreshing()
+                    }
+                   
+                    return
+                }
+            }
+        })
     }
     
     func configureButton()
@@ -105,62 +190,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
+        getRecordsFromCoreData()
         
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        do {
-            fetchedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        //get your object from CoreData
-        records = []
-        for eachRecord in fetchedRecords {
-            let record = eachRecord as! Record
-            let calendar = NSCalendar.current
-            
-            if record.recentlyDeleted {
-                // Replace the hour (time) of both dates with 00:00
-                let deletedDate = calendar.startOfDay(for: record.dateDeleted as! Date)
-                let currentDate = calendar.startOfDay(for: Date())
-                
-                let components = calendar.dateComponents([.day], from: deletedDate, to: currentDate)
-                
-                if components.day! > 30 { // This will return the number of day(s) between dates
-                    do {
-                        managedContext.delete(record)
-                        try managedContext.save()
-                    } catch {
-                        print("Record could not be deleted")
-                    }
-                }
-            } else { // add to active records list
-                // Replace the hour (time) of both dates with 00:00
-                let expiryDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
-                let currentDate = calendar.startOfDay(for: Date())
-
-                let components = calendar.dateComponents([.day], from: expiryDate, to: currentDate)
-
-                if components.day! > 0 { // This will return the number of day(s) between dates
-                    do {
-                        record.expired = true
-                        try managedContext.save()
-                    } catch {
-                        print("Record could not be deleted")
-                    }
-                } else {
-                    records.append(record)
-                }
-            }
-        }
         self.warrantiesTableView.reloadData()
     }
     
@@ -256,6 +287,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
+    func reloadLastControllerTableView() {
+        DispatchQueue.main.async() {
+            self.getRecordsFromCoreData()
+            self.warrantiesTableView.reloadData()
+        }
+    }
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
         if (scrollView.contentOffset.y <= 0 && self.backToTopButton.alpha != 0) {
@@ -302,6 +340,66 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 try managedContext.save()
             } catch {
                 print("Could not save. \(error), \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func getRecordsFromCoreData() {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        
+        do {
+            fetchedRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        //get your object from CoreData
+        records = []
+        for eachRecord in fetchedRecords {
+            let record = eachRecord as! Record
+            let calendar = NSCalendar.current
+            
+            if record.recentlyDeleted {
+                // Replace the hour (time) of both dates with 00:00
+                let deletedDate = calendar.startOfDay(for: record.dateDeleted as! Date)
+                let currentDate = calendar.startOfDay(for: Date())
+                
+                let components = calendar.dateComponents([.day], from: deletedDate, to: currentDate)
+                
+                if components.day! > 30 { // This will return the number of day(s) between dates
+                    do {
+                        managedContext.delete(record)
+                        try managedContext.save()
+                    } catch {
+                        print("Record could not be deleted")
+                    }
+                }
+            } else { // add to active records list
+                // Replace the hour (time) of both dates with 00:00
+                let expiryDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
+                let currentDate = calendar.startOfDay(for: Date())
+                
+                let components = calendar.dateComponents([.day], from: expiryDate, to: currentDate)
+                
+                if components.day! > 0 { // This will return the number of day(s) between dates
+                    do {
+                        record.expired = true
+                        try managedContext.save()
+                    } catch {
+                        print("Record could not be deleted")
+                    }
+                } else {
+                    records.append(record)
+                }
             }
         }
     }
@@ -411,6 +509,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             selectedRecord = records[indexPath.row]
         }
         
+        detailViewController.reloadDelegate = self
         detailViewController.record = selectedRecord
         detailViewController.preferredContentSize =
             CGSize(width: 0.0, height: 500)
