@@ -18,6 +18,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var signInButton: UIButton!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
+    @IBOutlet weak var iconImageView: UIImageView!
     
     var signingIn: Bool!
     var timesSignUpPressed = 0
@@ -25,6 +26,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
     
     var username = ""
     var password = ""
+    
+    var originalFrame = CGRect()
     
     override func viewDidLoad() {
         errorLabel.isHidden = true
@@ -38,6 +41,12 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         } else {
             signInButton.setTitle("Sign Up", for: .normal)
         }
+        
+         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        originalFrame = iconImageView.frame
     }
     
     @IBAction func signUpButtonPressed(_ sender: Any) {
@@ -322,5 +331,16 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
             textField.resignFirstResponder()
         }
         return false // We do not want UITextField to insert line-breaks.
+    }
+    
+    func keyboardWillShow(notification:NSNotification) {
+        let userInfo:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardFrame:NSValue = userInfo.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
+        let keyboardRectangle = keyboardFrame.cgRectValue
+        let keyboardHeight = keyboardRectangle.height
+        
+//        UIView.animate(withDuration: 0.5, animations: {
+//            self.iconImageView.frame = CGRect(x: self.originalFrame.maxX/2, y: self.originalFrame.minY, width: self.originalFrame.width-keyboardHeight, height: self.originalFrame.height-keyboardHeight)
+//        })
     }
 }
