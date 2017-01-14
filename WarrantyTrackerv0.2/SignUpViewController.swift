@@ -250,6 +250,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
             } else {
                 for result in results! {
                     let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
+                    //hello
                     record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
                     record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
                     record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
