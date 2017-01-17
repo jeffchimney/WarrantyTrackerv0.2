@@ -22,13 +22,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     var record: Record!
     //
     
-    @IBOutlet weak var itemImageView: UIImageView!
-    @IBOutlet weak var receiptImageView: UIImageView!
-    @IBOutlet weak var startDateLabel: UILabel!
-    @IBOutlet weak var endDateLabel: UILabel!
-    @IBOutlet weak var scheduledAlertLabel: UILabel!
-    @IBOutlet weak var daysRemainingLabel: UILabel!
-    @IBOutlet weak var descriptionLabel: UILabel!
+    var notesCellsArray = [""]
+    
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var deleteButton: UIBarButtonItem!
     @IBOutlet weak var editButton: UIBarButtonItem!
@@ -43,42 +38,10 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     weak var reloadDelegate: ReloadTableViewDelegate?
     
     override func viewDidLoad() {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MMM d, yyyy"
-        
         navBar.title = record.title!
-        itemImageView.image = UIImage(data: record.itemImage as! Data)
-        receiptImageView.image = UIImage(data: record.receiptImage as! Data)
-        startDateLabel.text = dateFormatter.string(from: record.warrantyStarts as! Date)
-        endDateLabel.text = dateFormatter.string(from: record.warrantyEnds as! Date)
         
-        // calculate alarm for event
-        let daysToSubtract = Int(-record.daysBeforeReminder)
-        
-        var addingPeriod = DateComponents()
-        addingPeriod.day = daysToSubtract
-        addingPeriod.hour = 12
-        
-        let userCalendar = NSCalendar.current
-        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: record.warrantyEnds as! Date) // this is really subtracting...
-        scheduledAlertLabel.text = dateFormatter.string(from: alarmDate!)
-        
-        let calendar = NSCalendar.current
-        // Replace the hour (time) of both dates with 00:00
-        let currentDate = calendar.startOfDay(for: Date())
-        let endDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
-        let daysLeft = calendar.dateComponents([.day], from: currentDate, to: endDate)
-        
-        daysRemainingLabel.text = String(daysLeft.day!)
-        descriptionLabel.text = record.descriptionString
-        
-        // item view gesture recognizer setup
-        let itemViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
-        let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
-        itemImageView.isUserInteractionEnabled = true
-        receiptImageView.isUserInteractionEnabled = true
-        itemImageView.addGestureRecognizer(itemViewTap)
-        receiptImageView.addGestureRecognizer(receiptViewTap)
+        tableView.dataSource = self
+        tableView.delegate = self
         
         // register for previewing with 3d touch
 //        if traitCollection.forceTouchCapability == .available {
@@ -127,54 +90,70 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     // DURING EDITING /////////////////////////////////////////////////////////////////////////
     
     @IBAction func editButtonPressed(_ sender: Any) {
+        let imageCell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
+        let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
+        let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
+        
         if isEditingRecord {
             deleteButton.title = "Save"
-            deleteButton.tintColor = startDateLabel.tintColor
-            startDateLabel.isUserInteractionEnabled = false
-            endDateLabel.isUserInteractionEnabled = false
+            deleteButton.tintColor = tableView.tintColor
+            startDateCell.isUserInteractionEnabled = false
+            endDateCell.isUserInteractionEnabled = false
             editButton.title = "Edit"
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             
-            stopJiggling(viewToStop: itemImageView)
-            stopJiggling(viewToStop: receiptImageView)
+            stopJiggling(viewToStop: imageCell.itemImageView)
+            stopJiggling(viewToStop: imageCell.receiptImageView)
             
-            self.startDateLabel.textColor = UIColor.black
-            self.endDateLabel.textColor = UIColor.black
+            startDateCell.detail.textColor = UIColor.black
+            endDateCell.detail.textColor = UIColor.black
             
             // reset bools for tapped image views
             tappedReceipt = false
             tappedItem = false
+            
+            notesCellsArray.removeLast()
+            tableView.beginUpdates()
+            tableView.deleteRows(at: [IndexPath(row: notesCellsArray.count, section: 2)], with: UITableViewRowAnimation.fade)
+            tableView.endUpdates()
         } else {
-            startDateLabel.isUserInteractionEnabled = true
-            endDateLabel.isUserInteractionEnabled = true
+            startDateCell.isUserInteractionEnabled = true
+            endDateCell.isUserInteractionEnabled = true
             editButton.title = "Done"
             isEditingRecord = true
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             deleteButton.title = "Delete"
             deleteButton.tintColor = UIColor.red
             
-            startJiggling(viewToShake: itemImageView)
-            startJiggling(viewToShake: receiptImageView)
+            startJiggling(viewToShake: imageCell.itemImageView)
+            startJiggling(viewToShake: imageCell.receiptImageView)
             
-            self.startDateLabel.textColor = self.startDateLabel.tintColor
-            self.endDateLabel.textColor = self.endDateLabel.tintColor
+            startDateCell.detail.textColor = tableView.tintColor
+            endDateCell.detail.textColor = tableView.tintColor
+            
+            notesCellsArray.append("")
+            print(notesCellsArray.count)
+            tableView.beginUpdates()
+            tableView.insertRows(at: [IndexPath(row: notesCellsArray.count-1, section: 2)], with: UITableViewRowAnimation.fade)
+            tableView.endUpdates()
         }
     }
     
     func startDateTapped() {
         generator.impactOccurred()
+        let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
         // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")  as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
         popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
         popController.popoverPresentationController?.delegate = self
-        popController.popoverPresentationController?.sourceView = startDateLabel
-        popController.popoverPresentationController?.sourceRect = CGRect(x: self.startDateLabel.bounds.midX, y: self.startDateLabel.bounds.minY, width: 0, height: 0)
+        popController.popoverPresentationController?.sourceView = startDateCell.detail
+        popController.popoverPresentationController?.sourceRect = CGRect(x: startDateCell.detail.bounds.midX, y: startDateCell.detail.bounds.minY, width: 0, height: 0)
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
-        popController.pickedDate = dateFormatter.date(from: startDateLabel.text!)
+        popController.pickedDate = dateFormatter.date(from: startDateCell.detail.text!)
         popController.tappedStartDate = true
         
         // present the popover
@@ -184,21 +163,19 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     func endDateTapped() {
         generator.impactOccurred()
+        let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
         // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker") as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
         popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
         popController.popoverPresentationController?.delegate = self
-        popController.popoverPresentationController?.sourceView = endDateLabel
-        popController.popoverPresentationController?.sourceRect = CGRect(x: self.endDateLabel.bounds.midX, y: self.endDateLabel.bounds.minY, width: 0, height: 0)
+        popController.popoverPresentationController?.sourceView = endDateCell.detail
+        popController.popoverPresentationController?.sourceRect = CGRect(x: endDateCell.detail.bounds.midX, y: endDateCell.detail.bounds.minY, width: 0, height: 0)
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
-        popController.pickedDate = dateFormatter.date(from: endDateLabel.text!)
+        popController.pickedDate = dateFormatter.date(from: endDateCell.detail.text!)
         popController.tappedStartDate = false
-        
-        navBar.title = record.title!
-        itemImageView.image = UIImage(data: record.itemImage as! Data)
         
         // present the popover
         popController.delegate = self
@@ -227,9 +204,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     func savePreferences (labelText:String, changeStartDate:Bool) {
         if changeStartDate {
-            startDateLabel.text = labelText
+            let cell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
+            cell.detail.text = labelText
         } else {
-            endDateLabel.text = labelText
+            let cell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
+            cell.detail.text = labelText
         }
     }
     
@@ -319,12 +298,17 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             
-            record.warrantyStarts = dateFormatter.date(from: startDateLabel.text!) as NSDate?
-            record.warrantyEnds = dateFormatter.date(from: endDateLabel.text!) as NSDate?
-            record.descriptionString = descriptionLabel.text
+            let imageCell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
+            let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
+            let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
+            let descriptionCell = tableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! NotesTableViewCell
+            
+            record.warrantyStarts = dateFormatter.date(from: startDateCell.detail.text!) as NSDate?
+            record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
+            record.descriptionString = descriptionCell.title.text
             //record.weeksBeforeReminder = weeksBeforeSegment.selectedSegmentIndex+1
-            record.itemImage = UIImageJPEGRepresentation(itemImageView.image!, 1.0) as NSData?
-            record.receiptImage = UIImageJPEGRepresentation(receiptImageView.image!, 1.0) as NSData?
+            record.itemImage = UIImageJPEGRepresentation(imageCell.itemImageView.image!, 1.0) as NSData?
+            record.receiptImage = UIImageJPEGRepresentation(imageCell.receiptImageView.image!, 1.0) as NSData?
             
             do {
                 try managedContext.save()
@@ -336,8 +320,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     if calendar.title == "WarrantyTracker" {
                         let event = eventStore.event(withIdentifier: record.eventIdentifier!)
                         
-                        event?.startDate = dateFormatter.date(from: endDateLabel.text!)!
-                        let endDate = dateFormatter.date(from: endDateLabel.text!)!
+                        event?.startDate = dateFormatter.date(from: endDateCell.detail.text!)!
+                        let endDate = dateFormatter.date(from: endDateCell.detail.text!)!
                         event?.endDate = endDate
                         event?.isAllDay = true
                         
@@ -373,12 +357,143 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         self.navigationController!.popToRootViewController(animated: true)
     }
     
+    func textButtonTapped(sender: Any) {
+        
+    }
+    
+    func imageButtonTapped(sender: Any) {
+        
+    }
+    
     // MARK: Table View Delegate Methods
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.section == 2 {
             // count rows in Notes section
             rowsInNotesSection += 1
-            print(rowsInNotesSection)
+            //print(rowsInNotesSection)
+        }
+    }
+    
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return 3
+    }
+    
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if section == 0 {
+            return 1
+        }
+        if section == 1 {
+            return 4
+        }
+        if section == 2 {
+            return notesCellsArray.count
+        }
+        else {
+            return 0
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        if section == 0 {
+            return "Images"
+        }
+        if section == 1 {
+            return "Info"
+        }
+        if section == 2 {
+            return "Notes"
+        }
+        else {
+            return ""
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // Images Cell
+        if indexPath.section == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "imagesCell", for: indexPath) as! ImagesTableViewCell
+            
+            cell.itemImageView.image = UIImage(data: record.itemImage as! Data)
+            cell.receiptImageView.image = UIImage(data: record.receiptImage as! Data)
+            
+            // item view gesture recognizer setup
+            let itemViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
+            let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
+            cell.itemImageView.isUserInteractionEnabled = true
+            cell.receiptImageView.isUserInteractionEnabled = true
+            cell.itemImageView.addGestureRecognizer(itemViewTap)
+            cell.receiptImageView.addGestureRecognizer(receiptViewTap)
+            
+            return cell
+        }
+        // Info Cells
+        if indexPath.section == 1 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "infoCell", for: indexPath) as! InfoTableViewCell
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM d, yyyy"
+            
+            if indexPath.row == 0 {
+                cell.title.text = "Start Date"
+                cell.detail.text = dateFormatter.string(from: record.warrantyStarts as! Date)
+            }
+            if indexPath.row == 1 {
+                cell.title.text = "End Date"
+                cell.detail.text = dateFormatter.string(from: record.warrantyEnds as! Date)
+            }
+            if indexPath.row == 2 {
+                
+                // calculate alarm for event
+                let daysToSubtract = Int(-record.daysBeforeReminder)
+                
+                var addingPeriod = DateComponents()
+                addingPeriod.day = daysToSubtract
+                addingPeriod.hour = 12
+                
+                let userCalendar = NSCalendar.current
+                let alarmDate = userCalendar.date(byAdding: addingPeriod, to: record.warrantyEnds as! Date) // this is really subtracting...
+                
+                cell.title.text = "Scheduled Alert"
+                cell.detail.text = dateFormatter.string(from: alarmDate!)
+            }
+            if indexPath.row == 3 {
+                let calendar = NSCalendar.current
+                // Replace the hour (time) of both dates with 00:00
+                let currentDate = calendar.startOfDay(for: Date())
+                let endDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
+                let daysLeft = calendar.dateComponents([.day], from: currentDate, to: endDate)
+                
+                cell.title.text = "Days Remaining"
+                cell.detail.text = String(daysLeft.day!)
+            }
+            
+            return cell
+        }
+        // Notes cells
+        if indexPath.section == 2 {
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "notesCell", for: indexPath) as! NotesTableViewCell
+            
+                cell.title.text = record.descriptionString
+                return cell
+            } else if indexPath.row+1 < notesCellsArray.count {
+                print(String(indexPath.row) + " < " + String(notesCellsArray.count))
+                let cell = tableView.dequeueReusableCell(withIdentifier: "notesCell", for: indexPath) as! NotesTableViewCell
+                
+                cell.title.text = record.descriptionString
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
+                cell.hiddenAddButton.isHidden = true
+                cell.textButton.addTarget(self, action: #selector(textButtonTapped(sender:)), for: .touchUpInside)
+                cell.imageButton.addTarget(self, action: #selector(imageButtonTapped(sender:)), for: .touchUpInside)
+                return cell
+            }
+        }
+        // shouldnt get called.
+        else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
+            return cell
         }
     }
     
@@ -392,32 +507,48 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 if indexPath.row == 1 { // end date tapped
                     endDateTapped()
                 }
-                if indexPath.row == 2 { // end date tapped
+                if indexPath.row == 2 {
                 
                 }
             }
             
             // NOTES
-            if indexPath.section == 2 {
-                for index in 0...rowsInNotesSection {
-                    if indexPath.row == index {
-                        let selectedCell = tableView.cellForRow(at: indexPath)
-                        let cellLabel = selectedCell?.contentView.subviews[0] as! UILabel
-                        cellLabel.numberOfLines = 0
-                    }
-                }
-            }
+//            if indexPath.section == 2 {
+//                for index in 0...rowsInNotesSection {
+//                    if indexPath.row == index {
+//                        let selectedCell = tableView.cellForRow(at: indexPath)
+//                        let cellLabel = selectedCell?.contentView.subviews[0] as! UILabel
+//                        cellLabel.numberOfLines = 0
+//                    }
+//                }
+//            }
         }
         
         // NOTES
-        if indexPath.section == 2 {
-            for index in 0...rowsInNotesSection {
-                if indexPath.row == index {
-                    let selectedCell = tableView.cellForRow(at: indexPath)
-                    let cellLabel = selectedCell?.contentView.subviews[0] as! UILabel
-                    
-                }
-            }
+//        if indexPath.section == 2 {
+//            for index in 0...rowsInNotesSection {
+//                if indexPath.row == index {
+//                    let selectedCell = tableView.cellForRow(at: indexPath) as! NotesTableViewCell
+//                    let cellLabel = selectedCell.contentView.subviews[0] as! UILabel
+//                    
+//                }
+//            }
+//        }
+    }
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 0 {
+            return 240
+        } else {
+            return 55
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 0 {
+            return 240
+        } else {
+            return 55
         }
     }
     

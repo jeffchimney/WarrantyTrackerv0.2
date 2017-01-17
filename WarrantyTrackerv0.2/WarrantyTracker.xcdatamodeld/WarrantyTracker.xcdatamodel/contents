@@ -6,6 +6,13 @@
         <attribute name="password" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
+    <entity name="Note" representedClassName="Note" syncable="YES" codeGenerationType="class">
+        <attribute name="imageData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="noteString" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <relationship name="record" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Record" inverseName="notes" inverseEntity="Record" syncable="YES"/>
+    </entity>
     <entity name="Record" representedClassName="Record" syncable="YES" codeGenerationType="class">
         <attribute name="dateCreated" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="dateDeleted" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -21,6 +28,7 @@
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="warrantyEnds" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="warrantyStarts" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="notes" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Note" inverseName="record" inverseEntity="Note" syncable="YES"/>
         <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Tag" inverseName="record" inverseEntity="Tag" syncable="YES"/>
     </entity>
     <entity name="Tag" representedClassName="Tag" syncable="YES" codeGenerationType="class">
@@ -29,7 +37,8 @@
     </entity>
     <elements>
         <element name="Account" positionX="-81" positionY="-72" width="128" height="105"/>
-        <element name="Record" positionX="-47" positionY="-225" width="128" height="270"/>
+        <element name="Record" positionX="-47" positionY="-225" width="128" height="285"/>
         <element name="Tag" positionX="-117" positionY="80" width="128" height="75"/>
+        <element name="Note" positionX="-81" positionY="-72" width="128" height="120"/>
     </elements>
 </model>
