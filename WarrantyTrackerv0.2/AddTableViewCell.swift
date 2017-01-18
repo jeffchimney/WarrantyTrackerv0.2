@@ -41,7 +41,9 @@ class AddTableViewCell: UITableViewCell {
             
             imageButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
             imageButton.layer.cornerRadius = 20
-            imageButton.setImage(UIImage(named: "camera"), for: .normal)
+            //imageButton.setImage(UIImage(named: "camera"), for: .normal)
+            imageButton.setTitle("I", for: .normal)
+            imageButton.setTitleColor(.white, for: .normal)
             imageButton.backgroundColor = self.tintColor
             imageButton.center = CGPoint(x: -20, y: self.frame.height/2)
             

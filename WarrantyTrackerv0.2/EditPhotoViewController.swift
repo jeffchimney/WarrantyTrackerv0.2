@@ -127,14 +127,21 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
                 if navBar.title == "Item" {
                     if (imageView.image != nil) { // set item image
                         let cell = nextViewController.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
-                        cell.itemImageView.image = imageView.image
+                        //cell.itemImageView.image = imageView.image
+                    } else {
+                        print("Was nil")
+                    }
+                } else if navBar.title == "Receipt" {
+                    if (imageView.image != nil) { // set receipt image
+                        let cell = nextViewController.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
+                        //cell.receiptImageView.image = imageView.image
                     } else {
                         print("Was nil")
                     }
                 } else {
                     if (imageView.image != nil) { // set receipt image
                         let cell = nextViewController.tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
-                        cell.receiptImageView.image = imageView.image
+                        //cell.receiptImageView.image = imageView.image
                     } else {
                         print("Was nil")
                     }

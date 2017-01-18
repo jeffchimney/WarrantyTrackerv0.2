@@ -8,7 +8,6 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
         <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
-        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -1318,30 +1317,20 @@
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="240"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="D8h-Pn-EKf">
-                                            <rect key="frame" x="0.0" y="0.0" width="180" height="239"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="180" id="0PY-48-8R6"/>
-                                            </constraints>
-                                        </imageView>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="zwJ-ZH-46Q">
-                                            <rect key="frame" x="195" y="0.0" width="180" height="239"/>
-                                        </imageView>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aJf-gi-qM6">
+                                            <rect key="frame" x="0.0" y="0.0" width="375" height="240"/>
+                                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        </view>
                                     </subviews>
                                     <constraints>
-                                        <constraint firstItem="D8h-Pn-EKf" firstAttribute="width" secondItem="zwJ-ZH-46Q" secondAttribute="height" multiplier="180:239" id="91A-PC-gS7"/>
-                                        <constraint firstAttribute="trailing" secondItem="zwJ-ZH-46Q" secondAttribute="trailing" id="N8Q-xE-Vkb"/>
-                                        <constraint firstAttribute="bottom" secondItem="D8h-Pn-EKf" secondAttribute="bottom" id="QBL-z9-R1Q"/>
-                                        <constraint firstItem="D8h-Pn-EKf" firstAttribute="leading" secondItem="uMx-6g-i1Z" secondAttribute="leading" id="ZTM-cv-NuH"/>
-                                        <constraint firstItem="D8h-Pn-EKf" firstAttribute="bottom" secondItem="zwJ-ZH-46Q" secondAttribute="bottom" id="aRX-zv-DGW"/>
-                                        <constraint firstItem="D8h-Pn-EKf" firstAttribute="top" secondItem="zwJ-ZH-46Q" secondAttribute="top" id="gBq-ys-mgP"/>
-                                        <constraint firstItem="zwJ-ZH-46Q" firstAttribute="leading" secondItem="D8h-Pn-EKf" secondAttribute="trailing" constant="15" id="q6S-gV-vks"/>
-                                        <constraint firstItem="D8h-Pn-EKf" firstAttribute="top" secondItem="uMx-6g-i1Z" secondAttribute="top" id="vA0-VB-BNY"/>
+                                        <constraint firstItem="aJf-gi-qM6" firstAttribute="top" secondItem="uMx-6g-i1Z" secondAttribute="top" id="Nhj-XY-FfX"/>
+                                        <constraint firstItem="aJf-gi-qM6" firstAttribute="centerY" secondItem="uMx-6g-i1Z" secondAttribute="centerY" id="Rvz-qA-uzi"/>
+                                        <constraint firstItem="aJf-gi-qM6" firstAttribute="leading" secondItem="uMx-6g-i1Z" secondAttribute="leading" id="f09-f2-QeE"/>
+                                        <constraint firstAttribute="trailing" secondItem="aJf-gi-qM6" secondAttribute="trailing" id="wHI-RO-4LI"/>
                                     </constraints>
                                 </tableViewCellContentView>
                                 <connections>
-                                    <outlet property="itemImageView" destination="D8h-Pn-EKf" id="y90-kS-sbp"/>
-                                    <outlet property="receiptImageView" destination="zwJ-ZH-46Q" id="7ZD-aj-66B"/>
+                                    <outlet property="cellCarouselView" destination="aJf-gi-qM6" id="Kb1-6A-mZz"/>
                                 </connections>
                             </tableViewCell>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" restorationIdentifier="infoCell" selectionStyle="none" indentationWidth="10" reuseIdentifier="infoCell" textLabel="w7V-Q1-VFN" detailTextLabel="ekW-TU-8qF" rowHeight="50" style="IBUITableViewCellStyleValue1" id="jH8-4f-gsc" customClass="InfoTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
@@ -1401,7 +1390,7 @@
                                 <rect key="frame" x="0.0" y="368" width="375" height="50"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="ex8-kY-eAc" id="THz-zG-7er">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="49"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="contactAdd" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HgV-MJ-c5E">
@@ -1425,6 +1414,22 @@
                                     <outlet property="addCellButton" destination="HgV-MJ-c5E" id="JN2-dp-dey"/>
                                     <outlet property="hiddenAddButton" destination="0fb-iW-QgC" id="jHl-oc-Gsi"/>
                                 </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="imageNoteCell" rowHeight="240" id="mwe-td-j37" customClass="AddTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="418" width="375" height="240"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="mwe-td-j37" id="6gf-E7-krC">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="240"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="textNoteCell" rowHeight="100" id="MCg-t3-1oM" customClass="AddTableViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="658" width="375" height="100"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="MCg-t3-1oM" id="0jf-Ti-Eg2">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="100"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                </tableViewCellContentView>
                             </tableViewCell>
                         </prototypes>
                         <sections/>

@@ -16,7 +16,7 @@ public protocol DataBackDelegate: class {
     func savePreferences (labelText:String, changeStartDate:Bool)
 }
 
-class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, DataBackDelegate {
+class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate {
     
     // variables passed from last view
     var record: Record!
@@ -34,6 +34,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     var rowsInNotesSection = 0
     var originalCellSize = 0
     let generator = UIImpactFeedbackGenerator(style: .medium)
+    var numberAssociatedPhotos = 0
     
     weak var reloadDelegate: ReloadTableViewDelegate?
     
@@ -42,6 +43,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         tableView.dataSource = self
         tableView.delegate = self
+        
+        numberAssociatedPhotos = 2 + 1 //+ record.images.count // item and receipt images, plus add picture view, plus any other images.
         
         // register for previewing with 3d touch
 //        if traitCollection.forceTouchCapability == .available {
@@ -90,7 +93,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     // DURING EDITING /////////////////////////////////////////////////////////////////////////
     
     @IBAction func editButtonPressed(_ sender: Any) {
-        let imageCell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
+        //let imageCell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
         let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
         let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
         
@@ -103,8 +106,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             
-            stopJiggling(viewToStop: imageCell.itemImageView)
-            stopJiggling(viewToStop: imageCell.receiptImageView)
+            //stopJiggling(viewToStop: imageCell.itemImageView)
+            //stopJiggling(viewToStop: imageCell.receiptImageView)
             
             startDateCell.detail.textColor = UIColor.black
             endDateCell.detail.textColor = UIColor.black
@@ -126,8 +129,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             deleteButton.title = "Delete"
             deleteButton.tintColor = UIColor.red
             
-            startJiggling(viewToShake: imageCell.itemImageView)
-            startJiggling(viewToShake: imageCell.receiptImageView)
+            //startJiggling(viewToShake: imageCell.itemImageView)
+            //startJiggling(viewToShake: imageCell.receiptImageView)
             
             startDateCell.detail.textColor = tableView.tintColor
             endDateCell.detail.textColor = tableView.tintColor
@@ -200,6 +203,13 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             tappedItem = false
             performSegue(withIdentifier: "editImage", sender: self)
         }
+    }
+    
+    func addButtonTapped(sender: Any) {
+        generator.impactOccurred()
+        tappedItem = false
+        tappedReceipt = false
+        performSegue(withIdentifier: "editImage", sender: self)
     }
     
     func savePreferences (labelText:String, changeStartDate:Bool) {
@@ -298,7 +308,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             
-            let imageCell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
+            //let imageCell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
             let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
             let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
             let descriptionCell = tableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! NotesTableViewCell
@@ -307,8 +317,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
             record.descriptionString = descriptionCell.title.text
             //record.weeksBeforeReminder = weeksBeforeSegment.selectedSegmentIndex+1
-            record.itemImage = UIImageJPEGRepresentation(imageCell.itemImageView.image!, 1.0) as NSData?
-            record.receiptImage = UIImageJPEGRepresentation(imageCell.receiptImageView.image!, 1.0) as NSData?
+            //record.itemImage = UIImageJPEGRepresentation(imageCell.itemImageView.image!, 1.0) as NSData?
+            //record.receiptImage = UIImageJPEGRepresentation(imageCell.receiptImageView.image!, 1.0) as NSData?
             
             do {
                 try managedContext.save()
@@ -411,18 +421,23 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Images Cell
         if indexPath.section == 0 {
+            let carousel = iCarousel(frame: CGRect(x: 0, y: 0, width: 375, height: 240))
+            carousel.dataSource = self
+            carousel.type = .coverFlow
+            
             let cell = tableView.dequeueReusableCell(withIdentifier: "imagesCell", for: indexPath) as! ImagesTableViewCell
             
-            cell.itemImageView.image = UIImage(data: record.itemImage as! Data)
-            cell.receiptImageView.image = UIImage(data: record.receiptImage as! Data)
+            cell.cellCarouselView.addSubview(carousel)
+            //cell.itemImageView.image = UIImage(data: record.itemImage as! Data)
+            //cell.receiptImageView.image = UIImage(data: record.receiptImage as! Data)
             
             // item view gesture recognizer setup
             let itemViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
             let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
-            cell.itemImageView.isUserInteractionEnabled = true
-            cell.receiptImageView.isUserInteractionEnabled = true
-            cell.itemImageView.addGestureRecognizer(itemViewTap)
-            cell.receiptImageView.addGestureRecognizer(receiptViewTap)
+            //cell.itemImageView.isUserInteractionEnabled = true
+            //cell.receiptImageView.isUserInteractionEnabled = true
+            //cell.itemImageView.addGestureRecognizer(itemViewTap)
+            //cell.receiptImageView.addGestureRecognizer(receiptViewTap)
             
             return cell
         }
@@ -473,12 +488,20 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         if indexPath.section == 2 {
             if indexPath.row == 0 {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "notesCell", for: indexPath) as! NotesTableViewCell
+                
+                cell.noteImageView.layer.cornerRadius = 20//cell.noteImageView.frame.width/2
+                cell.noteImageView.layer.masksToBounds = false
+                cell.noteImageView.clipsToBounds = true
             
                 cell.title.text = record.descriptionString
                 return cell
             } else if indexPath.row+1 < notesCellsArray.count {
                 print(String(indexPath.row) + " < " + String(notesCellsArray.count))
                 let cell = tableView.dequeueReusableCell(withIdentifier: "notesCell", for: indexPath) as! NotesTableViewCell
+    
+                cell.noteImageView.layer.cornerRadius = 20//cell.noteImageView.frame.width/2
+                cell.noteImageView.layer.masksToBounds = false
+                cell.noteImageView.clipsToBounds = true
                 
                 cell.title.text = record.descriptionString
                 return cell
@@ -552,6 +575,48 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         }
     }
     
+    // MARK: iCarousel Delegates
+    func numberOfItems(in carousel: iCarousel) -> Int {
+        return numberAssociatedPhotos
+    }
+    
+    func carousel(_ carousel: iCarousel, viewForItemAt index: Int, reusing view: UIView?) -> UIView {
+        let imageView: UIImageView
+        
+        if view != nil {
+            imageView = view as! UIImageView
+        } else {
+            imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
+        }
+        
+        if index == 0 {
+            imageView.image = UIImage(data: record.itemImage as! Data)
+        }
+        if index == 1 {
+            imageView.image = UIImage(data: record.receiptImage as! Data)
+        }
+        if index == numberAssociatedPhotos-1 {
+            let addView = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
+            
+            let addButton = UIButton()
+            addButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
+            addButton.layer.cornerRadius = 20
+            addButton.setTitle("+", for: .normal)
+            addButton.titleLabel?.font = UIFont(name: (addButton.titleLabel?.font.fontName)!, size: 30)
+            addButton.backgroundColor = self.tableView.tintColor
+            addButton.center = CGPoint(x: addView.frame.width/2, y: addView.frame.height/2)
+            addButton.addTarget(self, action: #selector(addButtonTapped(sender:)), for: .touchUpInside)
+            addView.addSubview(addButton)
+            return addView
+        }
+        
+        return imageView
+    }
+    
+    func carousel(_ carousel: iCarousel, didSelectItemAt index: Int) {
+        
+    }
+    
     // MARK: Segues
     @IBAction func unwindToEdit(with segue: UIStoryboardSegue) {}
     
@@ -562,6 +627,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     nextViewController.navBar.title = "Item"
                 } else if tappedReceipt {
                     nextViewController.navBar.title = "Receipt"
+                } else {
+                    // tapped "add" button on carousel
+                    nextViewController.navBar.title = "New Picture"
                 }
             }
         }

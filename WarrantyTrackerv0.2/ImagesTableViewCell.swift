@@ -11,7 +11,8 @@ import UIKit
 
 class ImagesTableViewCell: UITableViewCell {
     
-    @IBOutlet weak var itemImageView: UIImageView!
-    @IBOutlet weak var receiptImageView: UIImageView!
+    //@IBOutlet weak var itemImageView: UIImageView!
+    //@IBOutlet weak var receiptImageView: UIImageView!
+    @IBOutlet weak var cellCarouselView: UIView!
     
 }
