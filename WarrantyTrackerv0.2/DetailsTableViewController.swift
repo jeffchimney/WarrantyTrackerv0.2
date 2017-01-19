@@ -23,6 +23,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     //
     
     var notesCellsArray = [""]
+    var imageCarousel: iCarousel!
     
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var deleteButton: UIBarButtonItem!
@@ -106,8 +107,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             
-            //stopJiggling(viewToStop: imageCell.itemImageView)
-            //stopJiggling(viewToStop: imageCell.receiptImageView)
+            for index in 0...numberAssociatedPhotos - 2 {
+                stopJiggling(viewToStop: imageCarousel!.itemView(at: index) as! UIImageView)
+            }
             
             startDateCell.detail.textColor = UIColor.black
             endDateCell.detail.textColor = UIColor.black
@@ -129,8 +131,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             deleteButton.title = "Delete"
             deleteButton.tintColor = UIColor.red
             
-            //startJiggling(viewToShake: imageCell.itemImageView)
-            //startJiggling(viewToShake: imageCell.receiptImageView)
+            for index in 0...numberAssociatedPhotos - 2 {
+                startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+            }
             
             startDateCell.detail.textColor = tableView.tintColor
             endDateCell.detail.textColor = tableView.tintColor
@@ -200,6 +203,16 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         if isEditingRecord {
             generator.impactOccurred()
             tappedReceipt = true
+            tappedItem = false
+            performSegue(withIdentifier: "editImage", sender: self)
+        }
+    }
+    
+    func imageViewTapped(sender: UITapGestureRecognizer) {
+        // show controller to take photo
+        if isEditingRecord {
+            generator.impactOccurred()
+            tappedReceipt = false
             tappedItem = false
             performSegue(withIdentifier: "editImage", sender: self)
         }
@@ -421,13 +434,13 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Images Cell
         if indexPath.section == 0 {
-            let carousel = iCarousel(frame: CGRect(x: 0, y: 0, width: 375, height: 240))
-            carousel.dataSource = self
-            carousel.type = .coverFlow
+            imageCarousel = iCarousel(frame: CGRect(x: 0, y: 0, width: 375, height: 240))
+            imageCarousel.dataSource = self
+            imageCarousel.type = .coverFlow
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "imagesCell", for: indexPath) as! ImagesTableViewCell
             
-            cell.cellCarouselView.addSubview(carousel)
+            cell.cellCarouselView.addSubview(imageCarousel)
             //cell.itemImageView.image = UIImage(data: record.itemImage as! Data)
             //cell.receiptImageView.image = UIImage(data: record.receiptImage as! Data)
             
@@ -591,11 +604,20 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         if index == 0 {
             imageView.image = UIImage(data: record.itemImage as! Data)
-        }
-        if index == 1 {
+            imageView.isUserInteractionEnabled = true
+            let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
+            imageView.addGestureRecognizer(imageViewTap)
+        } else if index == 1 {
             imageView.image = UIImage(data: record.receiptImage as! Data)
-        }
-        if index == numberAssociatedPhotos-1 {
+            imageView.isUserInteractionEnabled = true
+            let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
+            imageView.addGestureRecognizer(imageViewTap)
+        } else if index == 1 && index < numberAssociatedPhotos - 1 {
+            imageView.image = UIImage(data: record.receiptImage as! Data) // needs to change to extra image
+            imageView.isUserInteractionEnabled = true
+            let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
+            imageView.addGestureRecognizer(imageViewTap)
+        } else {
             let addView = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
             
             let addButton = UIButton()
@@ -613,15 +635,35 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         return imageView
     }
     
-    func carousel(_ carousel: iCarousel, didSelectItemAt index: Int) {
-        
-    }
-    
     // MARK: Segues
     @IBAction func unwindToEdit(with segue: UIStoryboardSegue) {}
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "editImage" {
+            if let nextViewController = segue.destination as? EditPhotoViewController {
+                if tappedItem {
+                    nextViewController.navBar.title = "Item"
+                } else if tappedReceipt {
+                    nextViewController.navBar.title = "Receipt"
+                } else {
+                    // tapped "add" button on carousel
+                    nextViewController.navBar.title = "New Picture"
+                }
+            }
+        }
+        if segue.identifier == "editReceipt" {
+            if let nextViewController = segue.destination as? EditPhotoViewController {
+                if tappedItem {
+                    nextViewController.navBar.title = "Item"
+                } else if tappedReceipt {
+                    nextViewController.navBar.title = "Receipt"
+                } else {
+                    // tapped "add" button on carousel
+                    nextViewController.navBar.title = "New Picture"
+                }
+            }
+        }
+        if segue.identifier == "editAdditionalImage" {
             if let nextViewController = segue.destination as? EditPhotoViewController {
                 if tappedItem {
                     nextViewController.navBar.title = "Item"

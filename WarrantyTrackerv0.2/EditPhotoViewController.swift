@@ -16,6 +16,7 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var libraryButton: UIButton!
+    var indexTapped: Int!
     
     var imageDataToSave: Data!
     let imagePicker = UIImagePickerController()
