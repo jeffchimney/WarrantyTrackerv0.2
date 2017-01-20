@@ -15,8 +15,11 @@ import EventKit
 public protocol DataBackDelegate: class {
     func savePreferences (labelText:String, changeStartDate:Bool)
 }
+public protocol AddNotesCellDelegate: class {
+    func addNotesButtonPressed()
+}
 
-class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate {
+class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate {
     
     // variables passed from last view
     var record: Record!
@@ -223,6 +226,79 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         tappedItem = false
         tappedReceipt = false
         performSegue(withIdentifier: "editImage", sender: self)
+    }
+    
+    func addNotesButtonPressed() {
+        //self.tableView.isUserInteractionEnabled = false
+        
+        // set up the view that will blur the background
+        navigationController?.isNavigationBarHidden = true
+        navigationController?.isToolbarHidden = true
+        let blurEffect = UIBlurEffect(style: .light)
+        let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+        blurredEffectView.frame = self.view.bounds
+        self.view.addSubview(blurredEffectView)
+        
+        // set up the view that will hold the note's title
+        let titleView = UIView(frame: CGRect(x: 0, y: -self.view.bounds.height*0.1, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.1))
+        titleView.layer.cornerRadius = 15
+        titleView.backgroundColor = .white
+        titleView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*0.25)
+        titleView.alpha = 0.8
+        
+        let titleTextView = UITextView(frame: titleView.bounds)
+        titleTextView.text = "Title"
+        titleTextView.layer.cornerRadius = 15
+        titleTextView.textAlignment = .center
+        titleTextView.isUserInteractionEnabled = true
+        titleTextView.textColor = tableView.tintColor
+        titleView.addSubview(titleTextView)
+        
+        if (titleTextView.text.isEmpty || titleTextView.bounds.size.equalTo(CGSize.zero)) {
+            return;
+        }
+        
+        let textViewSize = titleTextView.frame.size;
+        let fixedWidth = textViewSize.width;
+        let expectSize = titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT)));
+        // resize font to fit text view height
+        var expectFont = titleTextView.font;
+        if (expectSize.height > textViewSize.height) {
+            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height > textViewSize.height) {
+                expectFont = titleTextView.font!.withSize(titleTextView.font!.pointSize - 1)
+                titleTextView.font = expectFont
+            }
+        }
+        else {
+            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height < textViewSize.height) {
+                expectFont = titleTextView.font;
+                titleTextView.font = titleTextView.font!.withSize(titleTextView.font!.pointSize + 1)
+            }
+            titleTextView.font = expectFont;
+        }
+        
+        self.view.addSubview(titleView)
+        
+        // set up the view that will hold the body of the text.
+        let bodyView = UIView(frame: CGRect(x: 0, y: self.view.bounds.height*1.5, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.5))
+        bodyView.layer.cornerRadius = 15
+        bodyView.backgroundColor = .white
+        bodyView.center = CGPoint(x: self.view.center.x, y: titleView.bounds.maxY + bodyView.frame.height*0.75)
+        bodyView.alpha = 0.8
+        
+        let bodyTextView = UITextView(frame: titleView.bounds)
+        bodyTextView.text = "Title"
+        bodyTextView.layer.cornerRadius = 15
+        bodyTextView.font = bodyTextView.font?.withSize(20)
+        bodyTextView.isUserInteractionEnabled = true
+        bodyView.addSubview(bodyTextView)
+        
+        self.view.addSubview(bodyView)
+        
+        UIView.animate(withDuration: 0.8, delay: 0.5, usingSpringWithDamping: 0.5, initialSpringVelocity: 6, options: [], animations: {
+            titleTextView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*0.25)
+            bodyView.center = CGPoint(x: self.view.center.x, y: titleView.bounds.maxY + bodyView.frame.height*0.75)
+        }, completion: nil)
     }
     
     func savePreferences (labelText:String, changeStartDate:Bool) {
@@ -523,6 +599,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 cell.hiddenAddButton.isHidden = true
                 cell.textButton.addTarget(self, action: #selector(textButtonTapped(sender:)), for: .touchUpInside)
                 cell.imageButton.addTarget(self, action: #selector(imageButtonTapped(sender:)), for: .touchUpInside)
+                cell.addNotesDelegate = self
                 return cell
             }
         }
