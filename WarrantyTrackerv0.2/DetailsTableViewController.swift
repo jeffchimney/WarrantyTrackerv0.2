@@ -32,6 +32,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     @IBOutlet weak var deleteButton: UIBarButtonItem!
     @IBOutlet weak var editButton: UIBarButtonItem!
     
+    var isAddingNote = false
     var isEditingRecord = false
     var tappedItem = false
     var tappedReceipt = false
@@ -231,74 +232,81 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     func addNotesButtonPressed() {
         //self.tableView.isUserInteractionEnabled = false
         
-        // set up the view that will blur the background
-        navigationController?.isNavigationBarHidden = true
-        navigationController?.isToolbarHidden = true
-        let blurEffect = UIBlurEffect(style: .light)
-        let blurredEffectView = UIVisualEffectView(effect: blurEffect)
-        blurredEffectView.frame = self.view.bounds
-        self.view.addSubview(blurredEffectView)
+//        // set up the view that will blur the background
+//        navigationController?.isNavigationBarHidden = true
+//        navigationController?.isToolbarHidden = true
+//        let blurEffect = UIBlurEffect(style: .prominent)
+//        let blurredEffectView = UIVisualEffectView(effect: blurEffect)
+//        blurredEffectView.frame = self.view.bounds
+//        self.view.addSubview(blurredEffectView)
+//        
+//        // set up the view that will hold the note's title
+//        let titleView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.1))
+//        titleView.layer.cornerRadius = 15
+//        titleView.backgroundColor = .white
+//        titleView.center = CGPoint(x: self.view.center.x, y: -self.view.center.y*0.25)
+//        titleView.alpha = 0.9
+//        
+//        let titleTextView = UITextView(frame: titleView.bounds)
+//        titleTextView.text = "Title"
+//        titleTextView.layer.cornerRadius = 15
+//        titleTextView.textAlignment = .center
+//        titleTextView.isUserInteractionEnabled = true
+//        titleTextView.textColor = tableView.tintColor
+//        titleView.addSubview(titleTextView)
+//        
+//        if (titleTextView.text.isEmpty || titleTextView.bounds.size.equalTo(CGSize.zero)) {
+//            return;
+//        }
+//        
+//        let textViewSize = titleTextView.frame.size;
+//        let fixedWidth = textViewSize.width;
+//        let expectSize = titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT)));
+//        // resize font to fit text view height
+//        var expectFont = titleTextView.font;
+//        if (expectSize.height > textViewSize.height) {
+//            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height > textViewSize.height) {
+//                expectFont = titleTextView.font!.withSize(titleTextView.font!.pointSize - 1)
+//                titleTextView.font = expectFont
+//            }
+//        }
+//        else {
+//            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height < textViewSize.height) {
+//                expectFont = titleTextView.font;
+//                titleTextView.font = titleTextView.font!.withSize(titleTextView.font!.pointSize + 1)
+//            }
+//            titleTextView.font = expectFont;
+//        }
+//        
+//        self.view.addSubview(titleView)
+//        
+//        // set up the view that will hold the body of the text.
+//        let bodyView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.5))
+//        bodyView.layer.cornerRadius = 15
+//        bodyView.backgroundColor = .white
+//        bodyView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*3)
+//        bodyView.alpha = 0.9
+//        
+//        let bodyTextView = UITextView(frame: titleView.bounds)
+//        bodyTextView.text = "Title"
+//        bodyTextView.layer.cornerRadius = 15
+//        bodyTextView.font = bodyTextView.font?.withSize(20)
+//        bodyTextView.isUserInteractionEnabled = true
+//        bodyView.addSubview(bodyTextView)
+//        
+//        self.view.addSubview(bodyView)
+//        
+//        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 4, options: [], animations: {
+//            titleView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*0.25)
+//            bodyView.center = CGPoint(x: self.view.center.x, y: titleView.bounds.maxY + bodyView.frame.height*0.75)
+//        }, completion: nil)
+        isAddingNote = true
         
-        // set up the view that will hold the note's title
-        let titleView = UIView(frame: CGRect(x: 0, y: -self.view.bounds.height*0.1, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.1))
-        titleView.layer.cornerRadius = 15
-        titleView.backgroundColor = .white
-        titleView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*0.25)
-        titleView.alpha = 0.8
-        
-        let titleTextView = UITextView(frame: titleView.bounds)
-        titleTextView.text = "Title"
-        titleTextView.layer.cornerRadius = 15
-        titleTextView.textAlignment = .center
-        titleTextView.isUserInteractionEnabled = true
-        titleTextView.textColor = tableView.tintColor
-        titleView.addSubview(titleTextView)
-        
-        if (titleTextView.text.isEmpty || titleTextView.bounds.size.equalTo(CGSize.zero)) {
-            return;
-        }
-        
-        let textViewSize = titleTextView.frame.size;
-        let fixedWidth = textViewSize.width;
-        let expectSize = titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT)));
-        // resize font to fit text view height
-        var expectFont = titleTextView.font;
-        if (expectSize.height > textViewSize.height) {
-            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height > textViewSize.height) {
-                expectFont = titleTextView.font!.withSize(titleTextView.font!.pointSize - 1)
-                titleTextView.font = expectFont
-            }
-        }
-        else {
-            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height < textViewSize.height) {
-                expectFont = titleTextView.font;
-                titleTextView.font = titleTextView.font!.withSize(titleTextView.font!.pointSize + 1)
-            }
-            titleTextView.font = expectFont;
-        }
-        
-        self.view.addSubview(titleView)
-        
-        // set up the view that will hold the body of the text.
-        let bodyView = UIView(frame: CGRect(x: 0, y: self.view.bounds.height*1.5, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.5))
-        bodyView.layer.cornerRadius = 15
-        bodyView.backgroundColor = .white
-        bodyView.center = CGPoint(x: self.view.center.x, y: titleView.bounds.maxY + bodyView.frame.height*0.75)
-        bodyView.alpha = 0.8
-        
-        let bodyTextView = UITextView(frame: titleView.bounds)
-        bodyTextView.text = "Title"
-        bodyTextView.layer.cornerRadius = 15
-        bodyTextView.font = bodyTextView.font?.withSize(20)
-        bodyTextView.isUserInteractionEnabled = true
-        bodyView.addSubview(bodyTextView)
-        
-        self.view.addSubview(bodyView)
-        
-        UIView.animate(withDuration: 0.8, delay: 0.5, usingSpringWithDamping: 0.5, initialSpringVelocity: 6, options: [], animations: {
-            titleTextView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*0.25)
-            bodyView.center = CGPoint(x: self.view.center.x, y: titleView.bounds.maxY + bodyView.frame.height*0.75)
-        }, completion: nil)
+        let indexPath = IndexPath(row: tableView.numberOfRows(inSection: 2)-1, section: 2)
+        tableView.beginUpdates()
+        tableView.deleteRows(at: [indexPath], with: .fade)
+        tableView.insertRows(at: [indexPath], with: .fade)
+        tableView.endUpdates()
     }
     
     func savePreferences (labelText:String, changeStartDate:Bool) {
@@ -485,7 +493,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             return 4
         }
         if section == 2 {
-            return notesCellsArray.count
+            if isAddingNote {
+                return notesCellsArray.count
+            } else {
+                return notesCellsArray.count
+            }
         }
         else {
             return 0
@@ -595,12 +607,24 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 cell.title.text = record.descriptionString
                 return cell
             } else {
-                let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
-                cell.hiddenAddButton.isHidden = true
-                cell.textButton.addTarget(self, action: #selector(textButtonTapped(sender:)), for: .touchUpInside)
-                cell.imageButton.addTarget(self, action: #selector(imageButtonTapped(sender:)), for: .touchUpInside)
-                cell.addNotesDelegate = self
+                if isAddingNote {
+                    let cell = tableView.dequeueReusableCell(withIdentifier: "notesCell", for: indexPath) as! NotesTableViewCell
+                    
+                    cell.noteImageView.layer.cornerRadius = 20//cell.noteImageView.frame.width/2
+                    cell.noteImageView.layer.masksToBounds = false
+                    cell.noteImageView.clipsToBounds = true
+                    
+                    cell.title.text = record.descriptionString
+                    isAddingNote = false
+                    return cell
+                } else {
+                    let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
+                    cell.hiddenAddButton.isHidden = true
+                    cell.textButton.addTarget(self, action: #selector(textButtonTapped(sender:)), for: .touchUpInside)
+                    cell.imageButton.addTarget(self, action: #selector(imageButtonTapped(sender:)), for: .touchUpInside)
+                    cell.addNotesDelegate = self
                 return cell
+                }
             }
         }
         // shouldnt get called.
