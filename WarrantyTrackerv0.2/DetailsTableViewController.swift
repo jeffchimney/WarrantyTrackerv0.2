@@ -51,6 +51,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         numberAssociatedPhotos = 2 + 1 //+ record.images.count // item and receipt images, plus add picture view, plus any other images.
         
+        tableView.rowHeight = UITableViewAutomaticDimension
+        
         // register for previewing with 3d touch
 //        if traitCollection.forceTouchCapability == .available {
 //            registerForPreviewing(with: self, sourceView: view)
@@ -305,6 +307,10 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         let indexPath = IndexPath(row: tableView.numberOfRows(inSection: 2)-1, section: 2)
         tableView.beginUpdates()
         tableView.deleteRows(at: [indexPath], with: .fade)
+        notesCellsArray.removeFirst()
+        tableView.endUpdates()
+        tableView.beginUpdates()
+        notesCellsArray.append("")
         tableView.insertRows(at: [indexPath], with: .fade)
         tableView.endUpdates()
     }
@@ -608,13 +614,12 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 return cell
             } else {
                 if isAddingNote {
-                    let cell = tableView.dequeueReusableCell(withIdentifier: "notesCell", for: indexPath) as! NotesTableViewCell
+                    let cell = tableView.dequeueReusableCell(withIdentifier: "addingNoteCell", for: indexPath) as! AddingNoteTableViewCell
+                    cell.titleTextView.text = "Title"
+                    cell.titleTextView.textColor = .lightGray
+                    cell.bodyTextView.text = "Note..."
+                    cell.bodyTextView.textColor = .lightGray
                     
-                    cell.noteImageView.layer.cornerRadius = 20//cell.noteImageView.frame.width/2
-                    cell.noteImageView.layer.masksToBounds = false
-                    cell.noteImageView.clipsToBounds = true
-                    
-                    cell.title.text = record.descriptionString
                     isAddingNote = false
                     return cell
                 } else {
@@ -676,6 +681,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
             return 240
+        } else if indexPath.section == 2  && indexPath.row == notesCellsArray.count-1 && isAddingNote {
+            print(isAddingNote)
+            return 150
         } else {
             return 55
         }
@@ -684,6 +692,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
             return 240
+        }  else if indexPath.section == 2 && indexPath.row == notesCellsArray.count-1 && isAddingNote {
+            print(isAddingNote)
+            return 150
         } else {
             return 55
         }

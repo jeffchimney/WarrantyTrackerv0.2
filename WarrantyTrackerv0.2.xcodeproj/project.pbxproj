@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BE0870EE1E3697D100FA3736 /* AddingNoteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE0870ED1E3697D100FA3736 /* AddingNoteTableViewCell.swift */; };
 		BE1C11101DC921D200B0D493 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C110F1DC921D200B0D493 /* AppDelegate.swift */; };
 		BE1C11121DC921D200B0D493 /* NewItemViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11111DC921D200B0D493 /* NewItemViewController.swift */; };
 		BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE1C11131DC921D200B0D493 /* PrimaryViewController.swift */; };
@@ -57,6 +58,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		BE0870ED1E3697D100FA3736 /* AddingNoteTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddingNoteTableViewCell.swift; sourceTree = "<group>"; };
 		BE1C110C1DC921D200B0D493 /* WarrantyTrackerv0.2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WarrantyTrackerv0.2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		BE1C110F1DC921D200B0D493 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		BE1C11111DC921D200B0D493 /* NewItemViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewItemViewController.swift; sourceTree = "<group>"; };
@@ -205,6 +207,7 @@
 				BE56CE471E2D50FE006870E7 /* InfoTableViewCell.swift */,
 				BE56CE491E2D5909006870E7 /* ImagesTableViewCell.swift */,
 				BE3D35931E2D6FA6009B3ED1 /* AddTableViewCell.swift */,
+				BE0870ED1E3697D100FA3736 /* AddingNoteTableViewCell.swift */,
 			);
 			name = TableViewCells;
 			sourceTree = "<group>";
@@ -372,6 +375,7 @@
 				BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */,
 				BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */,
 				BE2A0DB61E258B7400C31586 /* DetailsTableViewController.swift in Sources */,
+				BE0870EE1E3697D100FA3736 /* AddingNoteTableViewCell.swift in Sources */,
 				BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
 				BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */,
