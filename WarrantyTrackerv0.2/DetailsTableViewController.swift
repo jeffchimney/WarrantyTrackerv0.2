@@ -26,13 +26,14 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     //
     
     var notesCellsArray = [""]
+    var notes: [Note] = []
     var imageCarousel: iCarousel!
     
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var deleteButton: UIBarButtonItem!
     @IBOutlet weak var editButton: UIBarButtonItem!
     
-    var isAddingNote = false
+    var keyboardHeight: CGFloat = 0
     var isEditingRecord = false
     var tappedItem = false
     var tappedReceipt = false
@@ -51,7 +52,32 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         numberAssociatedPhotos = 2 + 1 //+ record.images.count // item and receipt images, plus add picture view, plus any other images.
         
-        tableView.rowHeight = UITableViewAutomaticDimension
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        
+        // Get associated notes
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Note")
+        
+        var noteRecords: [NSManagedObject] = []
+        do {
+            noteRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for note in noteRecords {
+            let thisNote = note as! Note
+            
+            if thisNote.record?.recordID == record!.recordID {
+                notes.append(thisNote)
+            }
+        }
+        tableView.reloadData()
         
         // register for previewing with 3d touch
 //        if traitCollection.forceTouchCapability == .available {
@@ -147,7 +173,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             notesCellsArray.append("")
             print(notesCellsArray.count)
             tableView.beginUpdates()
-            tableView.insertRows(at: [IndexPath(row: notesCellsArray.count-1, section: 2)], with: UITableViewRowAnimation.fade)
+            tableView.insertRows(at: [IndexPath(row: notesCellsArray.count, section: 2)], with: UITableViewRowAnimation.fade)
             tableView.endUpdates()
         }
     }
@@ -232,87 +258,35 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     func addNotesButtonPressed() {
-        //self.tableView.isUserInteractionEnabled = false
+        performSegue(withIdentifier: "toCreateNote", sender: self)
+    }
+    
+    func keyboardWillShow(notification:NSNotification) {
+        let userInfo:NSDictionary = notification.userInfo! as NSDictionary
+        let keyboardFrame:NSValue = userInfo.value(forKey: UIKeyboardFrameEndUserInfoKey) as! NSValue
+        let keyboardRectangle = keyboardFrame.cgRectValue
+        keyboardHeight = keyboardRectangle.height
+    }
+    
+    func addBottomBorder(to view: UIView) {
+        let border = CALayer()
+        let width = CGFloat(2.0)
+        border.borderColor = UIColor.lightGray.cgColor
+        border.frame = CGRect(x: 0, y: view.frame.size.height - width, width:  view.frame.size.width, height: view.frame.size.height)
         
-//        // set up the view that will blur the background
-//        navigationController?.isNavigationBarHidden = true
-//        navigationController?.isToolbarHidden = true
-//        let blurEffect = UIBlurEffect(style: .prominent)
-//        let blurredEffectView = UIVisualEffectView(effect: blurEffect)
-//        blurredEffectView.frame = self.view.bounds
-//        self.view.addSubview(blurredEffectView)
-//        
-//        // set up the view that will hold the note's title
-//        let titleView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.1))
-//        titleView.layer.cornerRadius = 15
-//        titleView.backgroundColor = .white
-//        titleView.center = CGPoint(x: self.view.center.x, y: -self.view.center.y*0.25)
-//        titleView.alpha = 0.9
-//        
-//        let titleTextView = UITextView(frame: titleView.bounds)
-//        titleTextView.text = "Title"
-//        titleTextView.layer.cornerRadius = 15
-//        titleTextView.textAlignment = .center
-//        titleTextView.isUserInteractionEnabled = true
-//        titleTextView.textColor = tableView.tintColor
-//        titleView.addSubview(titleTextView)
-//        
-//        if (titleTextView.text.isEmpty || titleTextView.bounds.size.equalTo(CGSize.zero)) {
-//            return;
-//        }
-//        
-//        let textViewSize = titleTextView.frame.size;
-//        let fixedWidth = textViewSize.width;
-//        let expectSize = titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT)));
-//        // resize font to fit text view height
-//        var expectFont = titleTextView.font;
-//        if (expectSize.height > textViewSize.height) {
-//            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height > textViewSize.height) {
-//                expectFont = titleTextView.font!.withSize(titleTextView.font!.pointSize - 1)
-//                titleTextView.font = expectFont
-//            }
-//        }
-//        else {
-//            while (titleTextView.sizeThatFits(CGSize(width: fixedWidth, height: CGFloat(MAXFLOAT))).height < textViewSize.height) {
-//                expectFont = titleTextView.font;
-//                titleTextView.font = titleTextView.font!.withSize(titleTextView.font!.pointSize + 1)
-//            }
-//            titleTextView.font = expectFont;
-//        }
-//        
-//        self.view.addSubview(titleView)
-//        
-//        // set up the view that will hold the body of the text.
-//        let bodyView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width*0.9, height: self.view.bounds.height*0.5))
-//        bodyView.layer.cornerRadius = 15
-//        bodyView.backgroundColor = .white
-//        bodyView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*3)
-//        bodyView.alpha = 0.9
-//        
-//        let bodyTextView = UITextView(frame: titleView.bounds)
-//        bodyTextView.text = "Title"
-//        bodyTextView.layer.cornerRadius = 15
-//        bodyTextView.font = bodyTextView.font?.withSize(20)
-//        bodyTextView.isUserInteractionEnabled = true
-//        bodyView.addSubview(bodyTextView)
-//        
-//        self.view.addSubview(bodyView)
-//        
-//        UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 4, options: [], animations: {
-//            titleView.center = CGPoint(x: self.view.center.x, y: self.view.center.y*0.25)
-//            bodyView.center = CGPoint(x: self.view.center.x, y: titleView.bounds.maxY + bodyView.frame.height*0.75)
-//        }, completion: nil)
-        isAddingNote = true
-        
-        let indexPath = IndexPath(row: tableView.numberOfRows(inSection: 2)-1, section: 2)
-        tableView.beginUpdates()
-        tableView.deleteRows(at: [indexPath], with: .fade)
-        notesCellsArray.removeFirst()
-        tableView.endUpdates()
-        tableView.beginUpdates()
-        notesCellsArray.append("")
-        tableView.insertRows(at: [indexPath], with: .fade)
-        tableView.endUpdates()
+        border.borderWidth = width
+        view.layer.addSublayer(border)
+        view.layer.masksToBounds = true
+    }
+    
+    func translateDown(view: UIView) {
+        tableView.isScrollEnabled = true
+        UIView.animate(withDuration: 0.5, animations: {
+            view.center = CGPoint(x: self.view.center.x, y: self.view.center.y*3)
+        }, completion: { completed in
+            view.removeFromSuperview()
+            
+        })
     }
     
     func savePreferences (labelText:String, changeStartDate:Bool) {
@@ -499,10 +473,10 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             return 4
         }
         if section == 2 {
-            if isAddingNote {
-                return notesCellsArray.count
+            if isEditingRecord {
+                return notes.count + 2
             } else {
-                return notesCellsArray.count
+                return notes.count + 1
             }
         }
         else {
@@ -602,34 +576,26 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             
                 cell.title.text = record.descriptionString
                 return cell
-            } else if indexPath.row+1 < notesCellsArray.count {
-                print(String(indexPath.row) + " < " + String(notesCellsArray.count))
+            } else if indexPath.row < notes.count+1 {
+                print(String(indexPath.row) + " <= " + String(notes.count))
                 let cell = tableView.dequeueReusableCell(withIdentifier: "notesCell", for: indexPath) as! NotesTableViewCell
     
                 cell.noteImageView.layer.cornerRadius = 20//cell.noteImageView.frame.width/2
                 cell.noteImageView.layer.masksToBounds = false
                 cell.noteImageView.clipsToBounds = true
-                
-                cell.title.text = record.descriptionString
+                if isEditingRecord {
+                    cell.title.text = notes[indexPath.row-2].title
+                } else {
+                    cell.title.text = notes[indexPath.row-1].title
+                }
                 return cell
             } else {
-                if isAddingNote {
-                    let cell = tableView.dequeueReusableCell(withIdentifier: "addingNoteCell", for: indexPath) as! AddingNoteTableViewCell
-                    cell.titleTextView.text = "Title"
-                    cell.titleTextView.textColor = .lightGray
-                    cell.bodyTextView.text = "Note..."
-                    cell.bodyTextView.textColor = .lightGray
-                    
-                    isAddingNote = false
-                    return cell
-                } else {
-                    let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
-                    cell.hiddenAddButton.isHidden = true
-                    cell.textButton.addTarget(self, action: #selector(textButtonTapped(sender:)), for: .touchUpInside)
-                    cell.imageButton.addTarget(self, action: #selector(imageButtonTapped(sender:)), for: .touchUpInside)
-                    cell.addNotesDelegate = self
+                let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
+                cell.hiddenAddButton.isHidden = true
+                cell.textButton.addTarget(self, action: #selector(textButtonTapped(sender:)), for: .touchUpInside)
+                cell.imageButton.addTarget(self, action: #selector(imageButtonTapped(sender:)), for: .touchUpInside)
+                cell.addNotesDelegate = self
                 return cell
-                }
             }
         }
         // shouldnt get called.
@@ -681,9 +647,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
             return 240
-        } else if indexPath.section == 2  && indexPath.row == notesCellsArray.count-1 && isAddingNote {
-            print(isAddingNote)
-            return 150
         } else {
             return 55
         }
@@ -692,9 +655,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 {
             return 240
-        }  else if indexPath.section == 2 && indexPath.row == notesCellsArray.count-1 && isAddingNote {
-            print(isAddingNote)
-            return 150
         } else {
             return 55
         }
@@ -748,7 +708,12 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     // MARK: Segues
-    @IBAction func unwindToEdit(with segue: UIStoryboardSegue) {}
+    @IBAction func unwindToEdit(with segue: UIStoryboardSegue) {
+        
+        if segue.identifier == "unwindFromCreateNote" {
+            tableView.reloadData()
+        }
+    }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "editImage" {
@@ -784,6 +749,18 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 } else {
                     // tapped "add" button on carousel
                     nextViewController.navBar.title = "New Picture"
+                }
+            }
+        }
+        if segue.identifier == "toCreateNote" {
+            if let nextViewController = segue.destination as? NoteViewController {
+                if isEditingRecord {
+                    nextViewController.navBar.title = "Create Note"
+                    nextViewController.record = record
+                } else {
+                    // tapped "add" button on carousel
+                    nextViewController.navBar.title = "Note"
+                    nextViewController.record = record
                 }
             }
         }

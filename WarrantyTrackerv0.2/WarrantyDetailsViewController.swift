@@ -111,57 +111,62 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         record.recentlyDeleted = false
         record.expired = false
         
-        saveRecordToCloudKit(cdRecord: record)
+        let defaults = UserDefaults.standard
+        let username = defaults.string(forKey: "username")
         
-        // add tags
-        for tag in tagArray {
-            let newTag = NSManagedObject(entity: tagEntity, insertInto: managedContext) as! Tag
+        if username != nil {
+            saveRecordToCloudKit(cdRecord: record, context: managedContext, rEntity: recordEntity, tEntity: tagEntity)
+        } else {
+            // add tags
+            for tag in tagArray {
+                let newTag = NSManagedObject(entity: tagEntity, insertInto: managedContext) as! Tag
+                
+                newTag.tag = tag
+                record.addToTags(newTag)
+            }
             
-            newTag.tag = tag
-            record.addToTags(newTag)
-        }
-        
-        // to find and use the calendar for events:
-        let calendar = checkCalendar()
-        let newEvent = EKEvent(eventStore: eventStore)
-        newEvent.calendar = calendar
-        newEvent.title = titleTextField.text! + " Warranty Expires"
-        newEvent.notes = "Is your item still working properly?  Its warranty expires today."
-        newEvent.startDate = endDate!
-        newEvent.endDate = endDate!
-        newEvent.isAllDay = true
-        // configure alarm for event
-        let daysToSubtract = -(daysBeforeReminder+1)
-        
-        var addingPeriod = DateComponents()
-        addingPeriod.day = daysToSubtract
-        addingPeriod.hour = 12
-        
-        let userCalendar = NSCalendar.current
-        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
-        
-        let alarm = EKAlarm(absoluteDate: alarmDate!)
-        newEvent.addAlarm(alarm)
-        
-        // try to save the event
-        do {
-            try eventStore.save(newEvent, span: .thisEvent, commit: true)
-            record.eventIdentifier = newEvent.eventIdentifier
+            // to find and use the calendar for events:
+            let calendar = checkCalendar()
+            let newEvent = EKEvent(eventStore: eventStore)
+            newEvent.calendar = calendar
+            newEvent.title = titleTextField.text! + " Warranty Expires"
+            newEvent.notes = "Is your item still working properly?  Its warranty expires today."
+            newEvent.startDate = endDate!
+            newEvent.endDate = endDate!
+            newEvent.isAllDay = true
+            // configure alarm for event
+            let daysToSubtract = -(daysBeforeReminder+1)
             
-            self.dismiss(animated: true, completion: nil)
-        } catch {
-            let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
-            let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-            alert.addAction(OKAction)
+            var addingPeriod = DateComponents()
+            addingPeriod.day = daysToSubtract
+            addingPeriod.hour = 12
             
-            self.present(alert, animated: true, completion: nil)
-        }
-        
-        // Save the created Record object
-        do {
-            try managedContext.save()
-        } catch let error as NSError {
-            print("Could not save. \(error), \(error.userInfo)")
+            let userCalendar = NSCalendar.current
+            let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
+            
+            let alarm = EKAlarm(absoluteDate: alarmDate!)
+            newEvent.addAlarm(alarm)
+            
+            // try to save the event
+            do {
+                try eventStore.save(newEvent, span: .thisEvent, commit: true)
+                record.eventIdentifier = newEvent.eventIdentifier
+                
+                self.dismiss(animated: true, completion: nil)
+            } catch {
+                let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
+                let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                alert.addAction(OKAction)
+                
+                self.present(alert, animated: true, completion: nil)
+            }
+            
+            // Save the created Record object
+            do {
+                try managedContext.save()
+            } catch let error as NSError {
+                print("Could not save. \(error), \(error.userInfo)")
+            }
         }
         
         self.navigationController!.popToRootViewController(animated: true)
@@ -231,84 +236,132 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         })
     }
     
-    func saveRecordToCloudKit(cdRecord: Record) {
+    func saveRecordToCloudKit(cdRecord: Record, context: NSManagedObjectContext, rEntity: NSEntityDescription, tEntity: NSEntityDescription) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        
         let defaults = UserDefaults.standard
         let username = defaults.string(forKey: "username")
         let password = defaults.string(forKey: "password")
-        
-        if username != nil {
-        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
             
-            let predicate = NSPredicate(format: "username = %@ AND password = %@", username!, password!)
-            let query = CKQuery(recordType: "Accounts", predicate: predicate)
-            var accountRecord = CKRecord(recordType: "Accounts")
-            publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
-                if error != nil {
-                    print("Error retrieving from cloudkit")
-                } else {
-                    if (results?.count)! > 0 {
-                        accountRecord = (results?[0])!
+        let predicate = NSPredicate(format: "username = %@ AND password = %@", username!, password!)
+        let query = CKQuery(recordType: "Accounts", predicate: predicate)
+        var accountRecord = CKRecord(recordType: "Accounts")
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print("Error retrieving from cloudkit")
+            } else {
+                if (results?.count)! > 0 {
+                    accountRecord = (results?[0])!
+                    
+                    let ckRecord = CKRecord(recordType: "Records")
+                    let reference = CKReference(recordID: accountRecord.recordID, action: CKReferenceAction.deleteSelf)
+                    
+                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
+                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
+                    
+                    
+                    do {
+                        try self.itemImageData.write(to: url, options: NSData.WritingOptions.atomicWrite)
+                        try self.receiptImageData.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
                         
-                        let ckRecord = CKRecord(recordType: "Records")
-                        let reference = CKReference(recordID: accountRecord.recordID, action: CKReferenceAction.deleteSelf)
+                        let itemAsset = CKAsset(fileURL: url)
+                        let receiptAsset = CKAsset(fileURL: receiptURL)
                         
-                        let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                        let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                        let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-                        let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
+                        ckRecord.setObject(reference, forKey: "AssociatedAccount")
+                        ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
+                        ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
+                        ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
+                        ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
+                        ckRecord.setObject(itemAsset, forKey: "itemData")
+                        ckRecord.setObject(receiptAsset, forKey: "receiptData")
+                        ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
+                        ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
+                        ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
+                        ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
+                        ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
                         
-                        
-                        do {
-                            try self.itemImageData.write(to: url, options: NSData.WritingOptions.atomicWrite)
-                            try self.receiptImageData.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
-                            
-                            let itemAsset = CKAsset(fileURL: url)
-                            let receiptAsset = CKAsset(fileURL: receiptURL)
-                            
-                            ckRecord.setObject(reference, forKey: "AssociatedAccount")
-                            ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
-                            ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
-                            ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
-                            ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
-                            ckRecord.setObject(itemAsset, forKey: "itemData")
-                            ckRecord.setObject(receiptAsset, forKey: "receiptData")
-                            ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
-                            ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
-                            ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
-                            ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
-                            ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
-                            
-                            publicDatabase.save(ckRecord, completionHandler: { (record, error) in
-                                if error != nil {
-                                    print(error!)
-                                    return
-                                }
-                                print("Successfully added record")
-                                for tag in self.tagArray {
-                                    let ckTagRecord = CKRecord(recordType: "Tags")
-                                    ckTagRecord.setObject(tag as CKRecordValue?, forKey: "tag")
-                                    let tagReference = CKReference(recordID: (record?.recordID)!, action: CKReferenceAction.deleteSelf)
-                                    ckTagRecord.setObject(tagReference, forKey: "associatedRecord")
-                                    
-                                    publicDatabase.save(ckTagRecord, completionHandler: { (tagRecord, error) in
-                                        if error != nil {
-                                            print("Error saving tag to cloudkit")
-                                        } else {
-                                            print("Successfully added tag")
-                                        }
-                                    })
-                                }
+                        publicDatabase.save(ckRecord, completionHandler: { (record, error) in
+                            if error != nil {
+                                print(error!)
+                                return
+                            }
+                            print("Successfully added record")
+                            for tag in self.tagArray {
+                                let ckTagRecord = CKRecord(recordType: "Tags")
+                                ckTagRecord.setObject(tag as CKRecordValue?, forKey: "tag")
+                                let tagReference = CKReference(recordID: (record?.recordID)!, action: CKReferenceAction.deleteSelf)
+                                ckTagRecord.setObject(tagReference, forKey: "associatedRecord")
                                 
-                                cdRecord.recordID = record?.recordID.recordName
-                            })
-                        } catch {
-                            print("Problems writing to URL")
-                        }
-                        
+                                publicDatabase.save(ckTagRecord, completionHandler: { (tagRecord, error) in
+                                    if error != nil {
+                                        print("Error saving tag to cloudkit")
+                                    } else {
+                                        print("Successfully added tag")
+                                    }
+                                })
+                            }
+                            
+                            cdRecord.recordID = record?.recordID.recordName
+                            // add tags
+                            for tag in self.tagArray {
+                                let newTag = NSManagedObject(entity: tEntity, insertInto: context) as! Tag
+                                
+                                newTag.tag = tag
+                                cdRecord.addToTags(newTag)
+                            }
+                            
+                            // to find and use the calendar for events:
+                            let calendar = self.checkCalendar()
+                            let newEvent = EKEvent(eventStore: self.eventStore)
+                            newEvent.calendar = calendar
+                            newEvent.title = self.titleTextField.text! + " Warranty Expires"
+                            newEvent.notes = "Is your item still working properly?  Its warranty expires today."
+                            newEvent.startDate = self.endDate!
+                            newEvent.endDate = self.endDate!
+                            newEvent.isAllDay = true
+                            // configure alarm for event
+                            let daysToSubtract = -(self.daysBeforeReminder+1)
+                            
+                            var addingPeriod = DateComponents()
+                            addingPeriod.day = daysToSubtract
+                            addingPeriod.hour = 12
+                            
+                            let userCalendar = NSCalendar.current
+                            let alarmDate = userCalendar.date(byAdding: addingPeriod, to: self.endDate!) // this is really subtracting...
+                            
+                            let alarm = EKAlarm(absoluteDate: alarmDate!)
+                            newEvent.addAlarm(alarm)
+                            
+                            // try to save the event
+                            do {
+                                try self.eventStore.save(newEvent, span: .thisEvent, commit: true)
+                                cdRecord.eventIdentifier = newEvent.eventIdentifier
+                                
+                                self.dismiss(animated: true, completion: nil)
+                            } catch {
+                                let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
+                                let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                                alert.addAction(OKAction)
+                                
+                                self.present(alert, animated: true, completion: nil)
+                            }
+                            
+                            // Save the created Record object
+                            do {
+                                try context.save()
+                            } catch let error as NSError {
+                                print("Could not save. \(error), \(error.userInfo)")
+                            }
+                        })
+                    } catch {
+                        print("Problems writing to URL")
                     }
+                    
                 }
-            })
-        }
+            }
+        })
     }
     
     func loadCalendars() {
