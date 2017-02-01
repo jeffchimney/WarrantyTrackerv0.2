@@ -8,6 +8,8 @@
 
 import UIKit
 import AVFoundation
+import CoreData
+import CloudKit
 
 class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     
@@ -17,6 +19,8 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var libraryButton: UIButton!
     var indexTapped: Int!
+    var addingNewImage: Bool!
+    var record: Record!
     
     var imageDataToSave: Data!
     let imagePicker = UIImagePickerController()
@@ -36,33 +40,35 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     
     override func viewWillAppear(_ animated: Bool) {
         
-        session = AVCaptureSession()
-        session!.sessionPreset = AVCaptureSessionPresetPhoto
-        let backCamera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
-        
-        var error: NSError?
-        var input: AVCaptureDeviceInput!
-        do {
-            input = try AVCaptureDeviceInput(device: backCamera)
-        } catch let error1 as NSError {
-            error = error1
-            input = nil
-            print(error!.localizedDescription)
-        }
-        
-        if error == nil && session!.canAddInput(input) {
-            session!.addInput(input)
+        if !imagePicked {
+            session = AVCaptureSession()
+            session!.sessionPreset = AVCaptureSessionPresetPhoto
+            let backCamera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
             
-            stillImageOutput = AVCaptureStillImageOutput()
-            stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+            var error: NSError?
+            var input: AVCaptureDeviceInput!
+            do {
+                input = try AVCaptureDeviceInput(device: backCamera)
+            } catch let error1 as NSError {
+                error = error1
+                input = nil
+                print(error!.localizedDescription)
+            }
             
-            if session!.canAddOutput(stillImageOutput) {
-                session!.addOutput(stillImageOutput)
-                videoPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
-                videoPreviewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
-                videoPreviewLayer!.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
-                imageView.layer.addSublayer(videoPreviewLayer!)
-                session!.startRunning()
+            if error == nil && session!.canAddInput(input) {
+                session!.addInput(input)
+                
+                stillImageOutput = AVCaptureStillImageOutput()
+                stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+                
+                if session!.canAddOutput(stillImageOutput) {
+                    session!.addOutput(stillImageOutput)
+                    videoPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+                    videoPreviewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
+                    videoPreviewLayer!.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
+                    imageView.layer.addSublayer(videoPreviewLayer!)
+                    session!.startRunning()
+                }
             }
         }
     }
@@ -120,6 +126,67 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     
     @IBAction func saveButtonPressed(_ sender: Any) {
         performSegue(withIdentifier: "unwindToEdit", sender: self)
+    }
+    
+    func saveImageToCloudKit() {
+        let defaults = UserDefaults.standard
+        let username = defaults.string(forKey: "username")
+        if username != nil {
+            let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+            
+            let predicate = NSPredicate(format: "recordID = %@", CKRecordID(recordName: record.recordID!))
+            let query = CKQuery(recordType: "Records", predicate: predicate)
+            var recordRecord = CKRecord(recordType: "Records")
+            publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+                if error != nil {
+                    print("Error retrieving from cloudkit")
+                } else {
+                    if (results?.count)! > 0 {
+                        recordRecord = (results?[0])!
+                        
+                        let ckNote = CKRecord(recordType: "Images")
+                        let reference = CKReference(recordID: recordRecord.recordID, action: CKReferenceAction.deleteSelf)
+                        
+                        ckNote.setObject(reference, forKey: "associatedRecord")
+                        ckNote.setObject(self.noteTitle.text as CKRecordValue?, forKey: "title")
+                        ckNote.setObject(self.noteBody.text as CKRecordValue?, forKey: "noteString")
+                        
+                        publicDatabase.save(ckNote, completionHandler: { (record, error) in
+                            if error != nil {
+                                print(error!)
+                                return
+                            }
+                        })
+                        
+                    }
+                }
+            })
+        }
+    }
+    
+    func saveImageLocally() {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext)!
+        let note = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
+        
+        note.title = noteTitle.text
+        note.noteString = noteBody.text
+        note.record = record!
+        
+        do {
+            try managedContext.save()
+            print("Saved note to CoreData")
+        } catch {
+            print("Problems saving note to CoreData")
+        }
+        
+        performSegue(withIdentifier: "unwindFromCreateNote", sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

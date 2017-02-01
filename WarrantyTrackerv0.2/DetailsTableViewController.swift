@@ -24,9 +24,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     // variables passed from last view
     var record: Record!
     //
-    
-    var notesCellsArray = [""]
+
     var notes: [Note] = []
+    var images: [Image] = []
     var imageCarousel: iCarousel!
     
     @IBOutlet weak var navBar: UINavigationItem!
@@ -89,6 +89,12 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     override func viewWillAppear(_ animated: Bool) {
         navigationController?.setToolbarHidden(false, animated: true)
+        
+        if isEditingRecord {
+            for index in 0...numberAssociatedPhotos - 2 {
+                startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+            }
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -150,9 +156,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             tappedReceipt = false
             tappedItem = false
             
-            notesCellsArray.removeLast()
             tableView.beginUpdates()
-            tableView.deleteRows(at: [IndexPath(row: notesCellsArray.count, section: 2)], with: UITableViewRowAnimation.fade)
+            tableView.deleteRows(at: [IndexPath(row: notes.count + 1, section: 2)], with: UITableViewRowAnimation.fade)
             tableView.endUpdates()
         } else {
             startDateCell.isUserInteractionEnabled = true
@@ -170,10 +175,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             startDateCell.detail.textColor = tableView.tintColor
             endDateCell.detail.textColor = tableView.tintColor
             
-            notesCellsArray.append("")
-            print(notesCellsArray.count)
             tableView.beginUpdates()
-            tableView.insertRows(at: [IndexPath(row: notesCellsArray.count, section: 2)], with: UITableViewRowAnimation.fade)
+            tableView.insertRows(at: [IndexPath(row: notes.count + 1, section: 2)], with: UITableViewRowAnimation.fade)
             tableView.endUpdates()
         }
     }
@@ -444,14 +447,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         self.navigationController!.popToRootViewController(animated: true)
     }
     
-    func textButtonTapped(sender: Any) {
-        
-    }
-    
-    func imageButtonTapped(sender: Any) {
-        
-    }
-    
     // MARK: Table View Delegate Methods
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.section == 2 {
@@ -513,8 +508,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             //cell.receiptImageView.image = UIImage(data: record.receiptImage as! Data)
             
             // item view gesture recognizer setup
-            let itemViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
-            let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
+            //let itemViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
+            //let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
             //cell.itemImageView.isUserInteractionEnabled = true
             //cell.receiptImageView.isUserInteractionEnabled = true
             //cell.itemImageView.addGestureRecognizer(itemViewTap)
@@ -591,9 +586,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 return cell
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
-                cell.hiddenAddButton.isHidden = true
-                cell.textButton.addTarget(self, action: #selector(textButtonTapped(sender:)), for: .touchUpInside)
-                cell.imageButton.addTarget(self, action: #selector(imageButtonTapped(sender:)), for: .touchUpInside)
                 cell.addNotesDelegate = self
                 return cell
             }
@@ -682,8 +674,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         } else if index == 1 {
             imageView.image = UIImage(data: record.receiptImage as! Data)
             imageView.isUserInteractionEnabled = true
-            let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
-            imageView.addGestureRecognizer(imageViewTap)
+            let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
+            imageView.addGestureRecognizer(receiptViewTap)
         } else if index == 1 && index < numberAssociatedPhotos - 1 {
             imageView.image = UIImage(data: record.receiptImage as! Data) // needs to change to extra image
             imageView.isUserInteractionEnabled = true
@@ -718,42 +710,23 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "editImage" {
             if let nextViewController = segue.destination as? EditPhotoViewController {
+                nextViewController.record = record
                 if tappedItem {
                     nextViewController.navBar.title = "Item"
+                    nextViewController.addingNewImage = false
                 } else if tappedReceipt {
                     nextViewController.navBar.title = "Receipt"
+                    nextViewController.addingNewImage = false
                 } else {
                     // tapped "add" button on carousel
                     nextViewController.navBar.title = "New Picture"
-                }
-            }
-        }
-        if segue.identifier == "editReceipt" {
-            if let nextViewController = segue.destination as? EditPhotoViewController {
-                if tappedItem {
-                    nextViewController.navBar.title = "Item"
-                } else if tappedReceipt {
-                    nextViewController.navBar.title = "Receipt"
-                } else {
-                    // tapped "add" button on carousel
-                    nextViewController.navBar.title = "New Picture"
-                }
-            }
-        }
-        if segue.identifier == "editAdditionalImage" {
-            if let nextViewController = segue.destination as? EditPhotoViewController {
-                if tappedItem {
-                    nextViewController.navBar.title = "Item"
-                } else if tappedReceipt {
-                    nextViewController.navBar.title = "Receipt"
-                } else {
-                    // tapped "add" button on carousel
-                    nextViewController.navBar.title = "New Picture"
+                    nextViewController.addingNewImage = true
                 }
             }
         }
         if segue.identifier == "toCreateNote" {
             if let nextViewController = segue.destination as? NoteViewController {
+                nextViewController.record = record
                 if isEditingRecord {
                     nextViewController.navBar.title = "Create Note"
                     nextViewController.record = record
