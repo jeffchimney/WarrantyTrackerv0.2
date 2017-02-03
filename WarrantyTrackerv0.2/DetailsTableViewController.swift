@@ -26,7 +26,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     //
 
     var notes: [Note] = []
-    var images: [Image] = []
+    var images: [UIImage] = []
     var imageCarousel: iCarousel!
     
     @IBOutlet weak var navBar: UINavigationItem!
@@ -40,7 +40,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     var rowsInNotesSection = 0
     var originalCellSize = 0
     let generator = UIImpactFeedbackGenerator(style: .medium)
-    var numberAssociatedPhotos = 0
     
     weak var reloadDelegate: ReloadTableViewDelegate?
     
@@ -50,7 +49,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         tableView.dataSource = self
         tableView.delegate = self
         
-        numberAssociatedPhotos = 2 + 1 //+ record.images.count // item and receipt images, plus add picture view, plus any other images.
+        images.append(UIImage(data: record.itemImage as! Data)!)
+        images.append(UIImage(data: record.receiptImage as! Data)!)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
@@ -77,6 +77,26 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 notes.append(thisNote)
             }
         }
+        
+        // Get associated images
+        let imageFetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Image")
+        
+        var imageRecords: [NSManagedObject] = []
+        do {
+            imageRecords = try managedContext.fetch(imageFetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for image in imageRecords {
+            let thisImage = image as! Image
+            
+            if thisImage.record?.recordID == record!.recordID {
+                images.append(UIImage(data: thisImage.image as! Data)!)
+            }
+        }
+    
         tableView.reloadData()
         
         // register for previewing with 3d touch
@@ -91,7 +111,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         navigationController?.setToolbarHidden(false, animated: true)
         
         if isEditingRecord {
-            for index in 0...numberAssociatedPhotos - 2 {
+            for index in 0...images.count-1 {
                 startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
             }
         }
@@ -145,7 +165,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             
-            for index in 0...numberAssociatedPhotos - 2 {
+            for index in 0...images.count-1 {
                 stopJiggling(viewToStop: imageCarousel!.itemView(at: index) as! UIImageView)
             }
             
@@ -168,7 +188,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             deleteButton.title = "Delete"
             deleteButton.tintColor = UIColor.red
             
-            for index in 0...numberAssociatedPhotos - 2 {
+            for index in 0...images.count-1 {
                 startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
             }
             
@@ -388,7 +408,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             
-            //let imageCell = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! ImagesTableViewCell
             let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
             let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
             let descriptionCell = tableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! NotesTableViewCell
@@ -396,9 +415,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             record.warrantyStarts = dateFormatter.date(from: startDateCell.detail.text!) as NSDate?
             record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
             record.descriptionString = descriptionCell.title.text
-            //record.weeksBeforeReminder = weeksBeforeSegment.selectedSegmentIndex+1
-            //record.itemImage = UIImageJPEGRepresentation(imageCell.itemImageView.image!, 1.0) as NSData?
-            //record.receiptImage = UIImageJPEGRepresentation(imageCell.receiptImageView.image!, 1.0) as NSData?
             
             do {
                 try managedContext.save()
@@ -504,16 +520,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             let cell = tableView.dequeueReusableCell(withIdentifier: "imagesCell", for: indexPath) as! ImagesTableViewCell
             
             cell.cellCarouselView.addSubview(imageCarousel)
-            //cell.itemImageView.image = UIImage(data: record.itemImage as! Data)
-            //cell.receiptImageView.image = UIImage(data: record.receiptImage as! Data)
-            
-            // item view gesture recognizer setup
-            //let itemViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
-            //let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
-            //cell.itemImageView.isUserInteractionEnabled = true
-            //cell.receiptImageView.isUserInteractionEnabled = true
-            //cell.itemImageView.addGestureRecognizer(itemViewTap)
-            //cell.receiptImageView.addGestureRecognizer(receiptViewTap)
             
             return cell
         }
@@ -654,7 +660,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     // MARK: iCarousel Delegates
     func numberOfItems(in carousel: iCarousel) -> Int {
-        return numberAssociatedPhotos
+        return images.count + 1
     }
     
     func carousel(_ carousel: iCarousel, viewForItemAt index: Int, reusing view: UIView?) -> UIView {
@@ -666,21 +672,23 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
         }
         
-        if index == 0 {
-            imageView.image = UIImage(data: record.itemImage as! Data)
-            imageView.isUserInteractionEnabled = true
-            let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
-            imageView.addGestureRecognizer(imageViewTap)
-        } else if index == 1 {
-            imageView.image = UIImage(data: record.receiptImage as! Data)
-            imageView.isUserInteractionEnabled = true
-            let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
-            imageView.addGestureRecognizer(receiptViewTap)
-        } else if index == 1 && index < numberAssociatedPhotos - 1 {
-            imageView.image = UIImage(data: record.receiptImage as! Data) // needs to change to extra image
-            imageView.isUserInteractionEnabled = true
-            let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
-            imageView.addGestureRecognizer(imageViewTap)
+        if index < images.count {
+            if index == 0 {
+                imageView.image = UIImage(data: record.itemImage as! Data)
+                imageView.isUserInteractionEnabled = true
+                let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
+                imageView.addGestureRecognizer(imageViewTap)
+            } else if index == 1 {
+                imageView.image = UIImage(data: record.receiptImage as! Data)
+                imageView.isUserInteractionEnabled = true
+                let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
+                imageView.addGestureRecognizer(receiptViewTap)
+            } else {
+                imageView.image = images[index]
+                imageView.isUserInteractionEnabled = true
+                let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
+                imageView.addGestureRecognizer(imageViewTap)
+            }
         } else {
             let addView = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
             
@@ -721,6 +729,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     // tapped "add" button on carousel
                     nextViewController.navBar.title = "New Picture"
                     nextViewController.addingNewImage = true
+                    nextViewController.record = record
                 }
             }
         }

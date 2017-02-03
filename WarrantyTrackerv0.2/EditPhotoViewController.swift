@@ -125,6 +125,7 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
+        saveImageToCloudKit()
         performSegue(withIdentifier: "unwindToEdit", sender: self)
     }
     
@@ -144,20 +145,30 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
                     if (results?.count)! > 0 {
                         recordRecord = (results?[0])!
                         
-                        let ckNote = CKRecord(recordType: "Images")
+                        let ckImage = CKRecord(recordType: "Images")
                         let reference = CKReference(recordID: recordRecord.recordID, action: CKReferenceAction.deleteSelf)
                         
-                        ckNote.setObject(reference, forKey: "associatedRecord")
-                        ckNote.setObject(self.noteTitle.text as CKRecordValue?, forKey: "title")
-                        ckNote.setObject(self.noteBody.text as CKRecordValue?, forKey: "noteString")
+                        let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+                        let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
                         
-                        publicDatabase.save(ckNote, completionHandler: { (record, error) in
-                            if error != nil {
-                                print(error!)
-                                return
-                            }
-                        })
-                        
+                        do {
+                            try self.imageDataToSave.write(to: url, options: NSData.WritingOptions.atomicWrite)
+                            
+                            let imageAsset = CKAsset(fileURL: url)
+                            
+                            ckImage.setObject(reference, forKey: "associatedRecord")
+                            ckImage.setObject(imageAsset as CKRecordValue?, forKey: "image")
+                            
+                            publicDatabase.save(ckImage, completionHandler: { (record, error) in
+                                if error != nil {
+                                    print(error!)
+                                    return
+                                }
+                                self.saveImageLocally()
+                            })
+                        }  catch {
+                            print("Problems writing to URL")
+                        }
                     }
                 }
             })
@@ -172,12 +183,11 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
         
         let managedContext = appDelegate.persistentContainer.viewContext
         
-        let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext)!
-        let note = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
+        let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: managedContext)!
+        let image = NSManagedObject(entity: imageEntity, insertInto: managedContext) as! Image
         
-        note.title = noteTitle.text
-        note.noteString = noteBody.text
-        note.record = record!
+        image.image = imageDataToSave as NSData?
+        image.record = record!
         
         do {
             try managedContext.save()
@@ -185,8 +195,6 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
         } catch {
             print("Problems saving note to CoreData")
         }
-        
-        performSegue(withIdentifier: "unwindFromCreateNote", sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
