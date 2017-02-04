@@ -54,48 +54,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
-        // Get associated notes
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Note")
-        
-        var noteRecords: [NSManagedObject] = []
-        do {
-            noteRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for note in noteRecords {
-            let thisNote = note as! Note
-            
-            if thisNote.record?.recordID == record!.recordID {
-                notes.append(thisNote)
-            }
-        }
-        
-        // Get associated images
-        let imageFetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Image")
-        
-        var imageRecords: [NSManagedObject] = []
-        do {
-            imageRecords = try managedContext.fetch(imageFetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for image in imageRecords {
-            let thisImage = image as! Image
-            
-            if thisImage.record?.recordID == record!.recordID {
-                images.append(UIImage(data: thisImage.image as! Data)!)
-            }
-        }
+        loadAssociatedNotes()
+        loadAssociatedImages()
     
         tableView.reloadData()
         
@@ -147,7 +107,61 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         return (M_PI * x)/180.0
     }
     
+    func loadAssociatedImages() {
+        while images.count > 2 {
+            images.removeLast()
+        }
+        // Get associated notes
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        // Get associated images
+        let imageFetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Image")
+        
+        var imageRecords: [NSManagedObject] = []
+        do {
+            imageRecords = try managedContext.fetch(imageFetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for image in imageRecords {
+            let thisImage = image as! Image
+            
+            if thisImage.record?.recordID == record!.recordID {
+                images.append(UIImage(data: thisImage.image as! Data)!)
+            }
+        }
+    }
     
+    func loadAssociatedNotes() {
+        notes = []
+        // Get associated notes
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Note")
+        
+        var noteRecords: [NSManagedObject] = []
+        do {
+            noteRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for note in noteRecords {
+            let thisNote = note as! Note
+            
+            if thisNote.record?.recordID == record!.recordID {
+                notes.append(thisNote)
+            }
+        }
+    }
     
     // DURING EDITING /////////////////////////////////////////////////////////////////////////
     
@@ -165,9 +179,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             
-            for index in 0...images.count-1 {
-                stopJiggling(viewToStop: imageCarousel!.itemView(at: index) as! UIImageView)
-            }
+//            for index in 0...images.count-1 {
+//                stopJiggling(viewToStop: imageCarousel!.itemView(at: index) as! UIImageView)
+//            }
             
             startDateCell.detail.textColor = UIColor.black
             endDateCell.detail.textColor = UIColor.black
@@ -179,6 +193,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             tableView.beginUpdates()
             tableView.deleteRows(at: [IndexPath(row: notes.count + 1, section: 2)], with: UITableViewRowAnimation.fade)
             tableView.endUpdates()
+            
+            imageCarousel.reloadData()
         } else {
             startDateCell.isUserInteractionEnabled = true
             endDateCell.isUserInteractionEnabled = true
@@ -198,6 +214,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             tableView.beginUpdates()
             tableView.insertRows(at: [IndexPath(row: notes.count + 1, section: 2)], with: UITableViewRowAnimation.fade)
             tableView.endUpdates()
+            
+            imageCarousel.insertItem(at: images.count, animated: true)
         }
     }
     
@@ -660,9 +678,13 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     // MARK: iCarousel Delegates
     func numberOfItems(in carousel: iCarousel) -> Int {
-        return images.count + 1
+        if (isEditingRecord) {
+            return images.count + 1
+        } else {
+            return images.count
+        }
     }
-    
+
     func carousel(_ carousel: iCarousel, viewForItemAt index: Int, reusing view: UIView?) -> UIView {
         let imageView: UIImageView
         
@@ -678,16 +700,26 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 imageView.isUserInteractionEnabled = true
                 let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
                 imageView.addGestureRecognizer(imageViewTap)
+                
+                if isEditingRecord {
+                    startJiggling(viewToShake: imageView)
+                }
             } else if index == 1 {
                 imageView.image = UIImage(data: record.receiptImage as! Data)
                 imageView.isUserInteractionEnabled = true
                 let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
                 imageView.addGestureRecognizer(receiptViewTap)
+                if isEditingRecord {
+                    startJiggling(viewToShake: imageView)
+                }
             } else {
                 imageView.image = images[index]
                 imageView.isUserInteractionEnabled = true
                 let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
                 imageView.addGestureRecognizer(imageViewTap)
+                if isEditingRecord {
+                    startJiggling(viewToShake: imageView)
+                }
             }
         } else {
             let addView = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
