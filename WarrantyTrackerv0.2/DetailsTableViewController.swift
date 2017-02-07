@@ -18,8 +18,11 @@ public protocol DataBackDelegate: class {
 public protocol AddNotesCellDelegate: class {
     func addNotesButtonPressed()
 }
+public protocol EditImageDelegate: class {
+    func editImage(index:Int)
+}
 
-class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate {
+class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate {
     
     // variables passed from last view
     var record: Record!
@@ -300,6 +303,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     func addNotesButtonPressed() {
         performSegue(withIdentifier: "toCreateNote", sender: self)
+    }
+    
+    public func editImage(index: Int) {
+        images.remove(at: index)
+        tableView.reloadData()
     }
     
     func keyboardWillShow(notification:NSNotification) {
