@@ -629,7 +629,7 @@
                             </connections>
                         </barButtonItem>
                         <segmentedControl key="titleView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Tzq-Jn-t4y">
-                            <rect key="frame" x="96" y="8" width="184" height="29"/>
+                            <rect key="frame" x="95.5" y="7.5" width="184" height="29"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="184" id="L6L-Tw-6Or"/>
@@ -872,13 +872,21 @@
                             <constraint firstItem="AEl-fy-R0B" firstAttribute="bottom" secondItem="bNr-6Z-DIy" secondAttribute="top" id="xxY-r3-lWQ"/>
                         </constraints>
                     </view>
+                    <toolbarItems>
+                        <barButtonItem style="plain" systemItem="flexibleSpace" id="xtM-gr-95P"/>
+                        <barButtonItem systemItem="action" id="E2j-C7-40G">
+                            <connections>
+                                <action selector="shareButtonPressed:" destination="QTl-4U-hE1" id="G1e-Qs-0Ve"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <connections>
                         <outlet property="imageView" destination="AEl-fy-R0B" id="5xx-vq-bNx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oIe-zF-Mgh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3254" y="1729"/>
+            <point key="canvasLocation" x="3254" y="1766"/>
         </scene>
         <!--Account Question View Controller-->
         <scene sceneID="kak-5x-TQl">
@@ -1337,18 +1345,18 @@
                                 <rect key="frame" x="0.0" y="268" width="375" height="50"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="jH8-4f-gsc" id="Nsz-pk-eeE">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="49"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="49.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="w7V-Q1-VFN">
-                                            <rect key="frame" x="15" y="14" width="34" height="21"/>
+                                            <rect key="frame" x="15" y="15" width="33.5" height="20.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" text="Detail" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="ekW-TU-8qF">
-                                            <rect key="frame" x="316" y="14" width="44" height="21"/>
+                                            <rect key="frame" x="316" y="15" width="44" height="20.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                             <nil key="textColor"/>
@@ -1421,7 +1429,7 @@
                                 <rect key="frame" x="0.0" y="658" width="375" height="100"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="MCg-t3-1oM" id="0jf-Ti-Eg2">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="100"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="99.5"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </tableViewCellContentView>
                             </tableViewCell>
@@ -1433,13 +1441,17 @@
                         </connections>
                     </tableView>
                     <toolbarItems>
-                        <barButtonItem style="plain" systemItem="flexibleSpace" id="i7o-8g-B5X"/>
                         <barButtonItem title="Delete" id="SW6-cb-VX7">
                             <connections>
                                 <action selector="deleteButtonPressed:" destination="q6V-vQ-Wxv" id="F4j-tB-qwy"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="Ytf-gH-hMi"/>
+                        <barButtonItem systemItem="action" id="SH0-yf-2jN">
+                            <connections>
+                                <action selector="shareButtonPressed:" destination="q6V-vQ-Wxv" id="oDw-02-fsW"/>
+                            </connections>
+                        </barButtonItem>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="Title" id="xbD-HE-aCF">
                         <barButtonItem key="rightBarButtonItem" title="Edit" id="D4S-ic-qIW">
@@ -1453,7 +1465,7 @@
                         <outlet property="editButton" destination="D4S-ic-qIW" id="rHY-jj-95e"/>
                         <outlet property="navBar" destination="xbD-HE-aCF" id="MLh-uU-uiU"/>
                         <segue destination="Fpz-tQ-bwl" kind="show" identifier="editImage" id="VyH-1c-if6"/>
-                        <segue destination="QTl-4U-hE1" kind="show" id="UPW-KQ-8p6"/>
+                        <segue destination="QTl-4U-hE1" kind="show" identifier="toImageView" id="UPW-KQ-8p6"/>
                         <segue destination="Fpz-tQ-bwl" kind="show" identifier="editReceipt" action="showDetailViewController:sender:" id="KF2-0i-yPc"/>
                         <segue destination="Fpz-tQ-bwl" kind="show" identifier="editAdditionalImage" action="showDetailViewController:sender:" id="kEd-ld-dUq"/>
                         <segue destination="SOw-nE-y2d" kind="show" identifier="toCreateNote" id="Dsa-ff-6jQ"/>

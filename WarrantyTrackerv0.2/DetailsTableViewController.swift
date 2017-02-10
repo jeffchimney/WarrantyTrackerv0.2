@@ -19,7 +19,8 @@ public protocol AddNotesCellDelegate: class {
     func addNotesButtonPressed()
 }
 public protocol EditImageDelegate: class {
-    func editImage(index:Int)
+    func removeImage(index:Int)
+    func addNewImage(newImage: UIImage)
 }
 
 class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate {
@@ -68,6 +69,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
 //        } else {
 //            print("3D Touch Not Available")
 //        }
+        deleteButton.isEnabled = false
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -77,6 +79,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             for index in 0...images.count-1 {
                 startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
             }
+            deleteButton.isEnabled = true
         }
     }
     
@@ -199,6 +202,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             
             imageCarousel.reloadData()
         } else {
+            deleteButton.isEnabled = true
             startDateCell.isUserInteractionEnabled = true
             endDateCell.isUserInteractionEnabled = true
             editButton.title = "Done"
@@ -271,6 +275,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             tappedReceipt = false
             generator.impactOccurred()
             performSegue(withIdentifier: "editImage", sender: self)
+        } else {
+            performSegue(withIdentifier: "toImageView", sender: self)
         }
     }
     
@@ -281,6 +287,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             tappedReceipt = true
             tappedItem = false
             performSegue(withIdentifier: "editImage", sender: self)
+        }  else {
+            performSegue(withIdentifier: "toImageView", sender: self)
         }
     }
     
@@ -291,6 +299,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             tappedReceipt = false
             tappedItem = false
             performSegue(withIdentifier: "editImage", sender: self)
+        }  else {
+            performSegue(withIdentifier: "toImageView", sender: self)
         }
     }
     
@@ -305,9 +315,14 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         performSegue(withIdentifier: "toCreateNote", sender: self)
     }
     
-    public func editImage(index: Int) {
-        images.remove(at: index)
-        tableView.reloadData()
+    func removeImage(index: Int) {
+        self.images.remove(at: index)
+        self.tableView.reloadData()
+    }
+    
+    func addNewImage(newImage: UIImage) {
+        self.images.append(newImage)
+        self.tableView.reloadData()
     }
     
     func keyboardWillShow(notification:NSNotification) {
@@ -488,6 +503,30 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         self.navigationController!.popToRootViewController(animated: true)
     }
+    
+    @IBAction func shareButtonPressed(_ sender: Any) {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        
+        let title = "Title: " + record.title! + "\n"
+        let descriptionText = "Description: " + record.descriptionString! + "\n"
+        let spanOfTime = "Valid from " + dateFormatter.string(from:  record.warrantyStarts as! Date) + " until " + dateFormatter.string(from:  record.warrantyEnds as! Date) + ".\n"
+        var activityItems: [Any] = [title, descriptionText, spanOfTime]
+        activityItems.append("Notes:")
+        for each in notes {
+            activityItems.append(each.noteString!)
+        }
+        for eachImage in images {
+            activityItems.append(eachImage)
+        }
+        
+        activityItems.append("\nSent using UnderWarranty.")
+        
+        let vc = UIActivityViewController(activityItems: activityItems, applicationActivities: [])
+        
+        present(vc, animated: true, completion: nil)
+    }
+    
     
     // MARK: Table View Delegate Methods
     override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -697,7 +736,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         let imageView: UIImageView
         
         if view != nil {
-            imageView = view as! UIImageView
+            imageView = UIImageView()//view as! UIImageView
         } else {
             imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
         }
@@ -766,10 +805,22 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     nextViewController.navBar.title = "Receipt"
                     nextViewController.addingNewImage = false
                 } else {
-                    // tapped "add" button on carousel
+                    // tapped "add" button on carousel or an image that isnt the item or receipt.
                     nextViewController.navBar.title = "New Picture"
                     nextViewController.addingNewImage = true
                     nextViewController.record = record
+                    
+                    let selectedView = imageCarousel.currentItemView
+                    if imageCarousel.index(ofItemView: selectedView!) == imageCarousel.numberOfItems-1 {
+                        print("Tapped plus button")
+                        nextViewController.addingNewImage = true
+                        nextViewController.editImageDelegate = self
+                    } else {
+                        print("Tapped image at index " + String(imageCarousel.index(ofItemView: selectedView!)))
+                        nextViewController.indexTapped = imageCarousel.index(ofItemView: selectedView!)
+                        nextViewController.addingNewImage = false
+                        nextViewController.editImageDelegate = self
+                    }
                 }
             }
         }
@@ -784,6 +835,13 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     nextViewController.navBar.title = "Note"
                     nextViewController.record = record
                 }
+            }
+        }
+        if segue.identifier == "toImageView" {
+            if let nextViewController = segue.destination as? ImageViewController {
+                let selectedImageView = imageCarousel.currentItemView as! UIImageView
+                nextViewController.image = selectedImageView.image!
+                nextViewController.carouselIndex = imageCarousel.index(ofItemView: selectedImageView)
             }
         }
     }

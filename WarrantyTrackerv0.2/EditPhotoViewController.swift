@@ -31,6 +31,8 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     var stillImageOutput: AVCaptureStillImageOutput?
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     
+    weak var editImageDelegate: EditImageDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         imagePicker.delegate = self
@@ -126,6 +128,11 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     
     @IBAction func saveButtonPressed(_ sender: Any) {
         saveImageToCloudKit()
+        if !addingNewImage {
+            
+        } else {
+            editImageDelegate?.addNewImage(newImage: UIImage(data: imageDataToSave)!)
+        }
         performSegue(withIdentifier: "unwindToEdit", sender: self)
     }
     
