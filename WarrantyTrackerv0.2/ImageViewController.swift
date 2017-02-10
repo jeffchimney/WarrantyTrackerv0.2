@@ -12,9 +12,11 @@ import UIKit
 class ImageViewController: UIViewController {
     
     var image: UIImage!
-    var carouselIndex: Int!
+    var imageIndex: Int!
     
     @IBOutlet weak var imageView: UIImageView!
+    
+    weak var deleteImageDelegate: EditImageDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +31,23 @@ class ImageViewController: UIViewController {
         if let image = image {
             let vc = UIActivityViewController(activityItems: [shareText, image], applicationActivities: [])
             present(vc, animated: true, completion: nil)
+        }
+    }
+    
+    override var previewActionItems: [UIPreviewActionItem] {
+        
+        if imageIndex != 0 && imageIndex != 1 {
+            let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
+                self.deleteImageDelegate?.removeImage(index: self.imageIndex)
+            })
+        
+            let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in
+                print("Cancel Action Selected")
+            }
+        
+            return [delete, cancel]
+        } else {
+            return []
         }
     }
 }

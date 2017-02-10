@@ -23,7 +23,7 @@ public protocol EditImageDelegate: class {
     func addNewImage(newImage: UIImage)
 }
 
-class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate {
+class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, UIViewControllerPreviewingDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate {
     
     // variables passed from last view
     var record: Record!
@@ -64,11 +64,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         tableView.reloadData()
         
         // register for previewing with 3d touch
-//        if traitCollection.forceTouchCapability == .available {
-//            registerForPreviewing(with: self, sourceView: view)
-//        } else {
-//            print("3D Touch Not Available")
-//        }
+        if traitCollection.forceTouchCapability == .available {
+            registerForPreviewing(with: self, sourceView: view)
+        } else {
+            print("3D Touch Not Available")
+        }
         deleteButton.isEnabled = false
     }
     
@@ -270,38 +270,38 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     func itemViewTapped(sender: UITapGestureRecognizer) {
         // show controller to take photo
-        if isEditingRecord {
-            tappedItem = true
-            tappedReceipt = false
-            generator.impactOccurred()
-            performSegue(withIdentifier: "editImage", sender: self)
-        } else {
-            performSegue(withIdentifier: "toImageView", sender: self)
-        }
+        //if isEditingRecord {
+            //tappedItem = true
+            //tappedReceipt = false
+            //generator.impactOccurred()
+            //performSegue(withIdentifier: "editImage", sender: self)
+        //} else {
+        performSegue(withIdentifier: "toImageView", sender: self)
+        //}
     }
     
     func receiptViewTapped(sender: UITapGestureRecognizer) {
         // show controller to take photo
-        if isEditingRecord {
-            generator.impactOccurred()
-            tappedReceipt = true
-            tappedItem = false
-            performSegue(withIdentifier: "editImage", sender: self)
-        }  else {
-            performSegue(withIdentifier: "toImageView", sender: self)
-        }
+        //if isEditingRecord {
+        //    generator.impactOccurred()
+        //    tappedReceipt = true
+        //    tappedItem = false
+        //    performSegue(withIdentifier: "editImage", sender: self)
+        //}  else {
+        performSegue(withIdentifier: "toImageView", sender: self)
+        //}
     }
     
     func imageViewTapped(sender: UITapGestureRecognizer) {
         // show controller to take photo
-        if isEditingRecord {
-            generator.impactOccurred()
-            tappedReceipt = false
-            tappedItem = false
-            performSegue(withIdentifier: "editImage", sender: self)
-        }  else {
-            performSegue(withIdentifier: "toImageView", sender: self)
-        }
+        //if isEditingRecord {
+        //    generator.impactOccurred()
+        //    tappedReceipt = false
+        //    tappedItem = false
+        //    performSegue(withIdentifier: "editImage", sender: self)
+        //}  else {
+        performSegue(withIdentifier: "toImageView", sender: self)
+        //}
     }
     
     func addButtonTapped(sender: Any) {
@@ -316,13 +316,39 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     func removeImage(index: Int) {
-        self.images.remove(at: index)
-        self.tableView.reloadData()
+        DispatchQueue.main.async() {
+            self.deleteImage(at: index)
+            self.images.remove(at: index)
+        }
     }
     
     func addNewImage(newImage: UIImage) {
         self.images.append(newImage)
-        self.tableView.reloadData()
+        imageCarousel.insertItem(at: images.count - 1, animated: true)
+    }
+    
+    func deleteImage(at indexToDelete: Int) {
+//        guard let appDelegate =
+//            UIApplication.shared.delegate as? AppDelegate else {
+//                return
+//        }
+//        let managedContext =
+//            appDelegate.persistentContainer.viewContext
+//        let fetchRequest =
+//            NSFetchRequest<NSManagedObject>(entityName: "Image")
+//        fetchRequest.predicate = NSPredicate(format: "dateCreated==%@", record.dateCreated!)
+//        let object = try! managedContext.fetch(fetchRequest)
+//
+//        let record = object[0] as! Record
+//            
+//        record.recentlyDeleted = true
+//        record.dateDeleted = Date() as NSDate?
+//        do {
+//            try managedContext.save()
+//        } catch {
+//            print("The record couldn't be updated.")
+//        }
+
     }
     
     func keyboardWillShow(notification:NSNotification) {
@@ -578,9 +604,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // Images Cell
         if indexPath.section == 0 {
-            imageCarousel = iCarousel(frame: CGRect(x: 0, y: 0, width: 375, height: 240))
-            imageCarousel.dataSource = self
-            imageCarousel.type = .coverFlow
+            if imageCarousel == nil {
+                imageCarousel = iCarousel(frame: CGRect(x: 0, y: 0, width: 375, height: 240))
+                imageCarousel.dataSource = self
+                imageCarousel.type = .coverFlow
+            }
             
             let cell = tableView.dequeueReusableCell(withIdentifier: "imagesCell", for: indexPath) as! ImagesTableViewCell
             
@@ -764,6 +792,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 imageView.isUserInteractionEnabled = true
                 let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
                 imageView.addGestureRecognizer(imageViewTap)
+                
                 if isEditingRecord {
                     startJiggling(viewToShake: imageView)
                 }
@@ -801,14 +830,17 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 if tappedItem {
                     nextViewController.navBar.title = "Item"
                     nextViewController.addingNewImage = false
+                    nextViewController.editImageDelegate = self
                 } else if tappedReceipt {
                     nextViewController.navBar.title = "Receipt"
                     nextViewController.addingNewImage = false
+                    nextViewController.editImageDelegate = self
                 } else {
                     // tapped "add" button on carousel or an image that isnt the item or receipt.
                     nextViewController.navBar.title = "New Picture"
                     nextViewController.addingNewImage = true
                     nextViewController.record = record
+                    nextViewController.editImageDelegate = self
                     
                     let selectedView = imageCarousel.currentItemView
                     if imageCarousel.index(ofItemView: selectedView!) == imageCarousel.numberOfItems-1 {
@@ -841,8 +873,45 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             if let nextViewController = segue.destination as? ImageViewController {
                 let selectedImageView = imageCarousel.currentItemView as! UIImageView
                 nextViewController.image = selectedImageView.image!
-                nextViewController.carouselIndex = imageCarousel.index(ofItemView: selectedImageView)
+                nextViewController.imageIndex = imageCarousel.currentItemIndex
             }
         }
+    }
+    
+    //MARK: Peek and Pop methods
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
+        
+        // convert point from position in self.view to position in warrantiesTableView
+        let cellPosition = tableView.convert(location, from: self.view)
+        
+        guard let indexPath = tableView.indexPathForRow(at: cellPosition),
+            let cell = tableView.cellForRow(at: indexPath) else {
+                return nil
+        }
+        
+        // handle 3D touch on image carousel
+        if indexPath.section == 0 {
+            guard let currentView = imageCarousel.currentItemView as? UIImageView else {
+                return nil
+            }
+            guard let imageViewController =
+                    storyboard?.instantiateViewController(withIdentifier: "ImageViewController") as? ImageViewController else {
+                return nil
+            }
+        
+            imageViewController.image = currentView.image
+            imageViewController.imageIndex = imageCarousel.currentItemIndex
+            imageViewController.preferredContentSize =
+                CGSize(width: 0.0, height: 500)
+        
+            previewingContext.sourceRect = view.convert(cell.frame, from: tableView)
+            
+            return imageViewController
+        }
+        return nil
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController) {
+        show(viewControllerToCommit, sender: self)
     }
 }
