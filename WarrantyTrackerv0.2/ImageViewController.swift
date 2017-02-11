@@ -13,6 +13,7 @@ class ImageViewController: UIViewController {
     
     var image: UIImage!
     var imageIndex: Int!
+    var isEditingRecord: Bool!
     
     @IBOutlet weak var imageView: UIImageView!
     
@@ -35,17 +36,21 @@ class ImageViewController: UIViewController {
     }
     
     override var previewActionItems: [UIPreviewActionItem] {
-        
-        if imageIndex != 0 && imageIndex != 1 {
-            let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
-                self.deleteImageDelegate?.removeImage(index: self.imageIndex)
-            })
-        
-            let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in
-                print("Cancel Action Selected")
+        // only show option to delete if currently editing record.
+        if isEditingRecord! {
+            if imageIndex != 0 && imageIndex != 1 {
+                let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
+                    self.deleteImageDelegate?.removeImage(at: self.imageIndex)
+                })
+            
+                let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in
+                    print("Cancel Action Selected")
+                }
+            
+                return [delete, cancel]
+            } else {
+                return []
             }
-        
-            return [delete, cancel]
         } else {
             return []
         }

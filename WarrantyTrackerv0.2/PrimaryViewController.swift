@@ -402,6 +402,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
         }
+        
+        
     }
     
     func getRecordsFromCloudKit() {

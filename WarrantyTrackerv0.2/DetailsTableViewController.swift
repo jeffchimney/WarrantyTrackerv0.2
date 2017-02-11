@@ -19,8 +19,8 @@ public protocol AddNotesCellDelegate: class {
     func addNotesButtonPressed()
 }
 public protocol EditImageDelegate: class {
-    func removeImage(index:Int)
-    func addNewImage(newImage: UIImage)
+    func removeImage(at indexToDelete:Int)
+    func addNewImage(newImage: UIImage, newID: String)
 }
 
 class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, UIViewControllerPreviewingDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate {
@@ -31,6 +31,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
 
     var notes: [Note] = []
     var images: [UIImage] = []
+    var imageIDs: [String] = []
     var imageCarousel: iCarousel!
     
     @IBOutlet weak var navBar: UINavigationItem!
@@ -138,6 +139,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             
             if thisImage.record?.recordID == record!.recordID {
                 images.append(UIImage(data: thisImage.image as! Data)!)
+                imageIDs.append(thisImage.id!)
             }
         }
     }
@@ -317,38 +319,42 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     func removeImage(index: Int) {
         DispatchQueue.main.async() {
-            self.deleteImage(at: index)
+            self.removeImage(at: index)
             self.images.remove(at: index)
         }
     }
     
-    func addNewImage(newImage: UIImage) {
+    func addNewImage(newImage: UIImage, newID: String) {
         self.images.append(newImage)
+        imageIDs.append(newID)
         imageCarousel.insertItem(at: images.count - 1, animated: true)
     }
     
-    func deleteImage(at indexToDelete: Int) {
-//        guard let appDelegate =
-//            UIApplication.shared.delegate as? AppDelegate else {
-//                return
-//        }
-//        let managedContext =
-//            appDelegate.persistentContainer.viewContext
-//        let fetchRequest =
-//            NSFetchRequest<NSManagedObject>(entityName: "Image")
-//        fetchRequest.predicate = NSPredicate(format: "dateCreated==%@", record.dateCreated!)
-//        let object = try! managedContext.fetch(fetchRequest)
-//
-//        let record = object[0] as! Record
-//            
-//        record.recentlyDeleted = true
-//        record.dateDeleted = Date() as NSDate?
-//        do {
-//            try managedContext.save()
-//        } catch {
-//            print("The record couldn't be updated.")
-//        }
+    func removeImage(at indexToDelete: Int) {
+        // from core data
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Image")
+        fetchRequest.predicate = NSPredicate(format: "id==%@", imageIDs[indexToDelete-2]) // account for item and receipt images
+        let object = try! managedContext.fetch(fetchRequest)
 
+        let record = object[0] as! Image
+        
+        do {
+            managedContext.delete(record)
+            try managedContext.save()
+        } catch {
+            print("The record couldn't be deleted.")
+        }
+        
+        imageCarousel.removeItem(at: indexToDelete, animated: true)
+        images.remove(at: indexToDelete)
+        imageIDs.remove(at: indexToDelete-2)
     }
     
     func keyboardWillShow(notification:NSNotification) {
@@ -829,28 +835,23 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 nextViewController.record = record
                 if tappedItem {
                     nextViewController.navBar.title = "Item"
-                    nextViewController.addingNewImage = false
                     nextViewController.editImageDelegate = self
                 } else if tappedReceipt {
                     nextViewController.navBar.title = "Receipt"
-                    nextViewController.addingNewImage = false
                     nextViewController.editImageDelegate = self
                 } else {
                     // tapped "add" button on carousel or an image that isnt the item or receipt.
                     nextViewController.navBar.title = "New Picture"
-                    nextViewController.addingNewImage = true
                     nextViewController.record = record
                     nextViewController.editImageDelegate = self
                     
                     let selectedView = imageCarousel.currentItemView
                     if imageCarousel.index(ofItemView: selectedView!) == imageCarousel.numberOfItems-1 {
                         print("Tapped plus button")
-                        nextViewController.addingNewImage = true
                         nextViewController.editImageDelegate = self
                     } else {
                         print("Tapped image at index " + String(imageCarousel.index(ofItemView: selectedView!)))
                         nextViewController.indexTapped = imageCarousel.index(ofItemView: selectedView!)
-                        nextViewController.addingNewImage = false
                         nextViewController.editImageDelegate = self
                     }
                 }
@@ -874,6 +875,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 let selectedImageView = imageCarousel.currentItemView as! UIImageView
                 nextViewController.image = selectedImageView.image!
                 nextViewController.imageIndex = imageCarousel.currentItemIndex
+                nextViewController.deleteImageDelegate = self
             }
         }
     }
@@ -901,6 +903,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
             imageViewController.image = currentView.image
             imageViewController.imageIndex = imageCarousel.currentItemIndex
+            imageViewController.isEditingRecord = isEditingRecord
+            imageViewController.deleteImageDelegate = self
             imageViewController.preferredContentSize =
                 CGSize(width: 0.0, height: 500)
         

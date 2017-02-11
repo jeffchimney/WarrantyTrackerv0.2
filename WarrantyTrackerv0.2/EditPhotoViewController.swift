@@ -19,8 +19,8 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var libraryButton: UIButton!
     var indexTapped: Int!
-    var addingNewImage: Bool!
     var record: Record!
+    var imageID = ""
     
     var imageDataToSave: Data!
     let imagePicker = UIImagePickerController()
@@ -127,12 +127,16 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
-        saveImageToCloudKit()
-        if !addingNewImage {
-            
+        imageID = UUID().uuidString
+        let defaults = UserDefaults.standard
+        let username = defaults.string(forKey: "username")
+        if username != nil {
+            saveImageToCloudKit()
         } else {
-            editImageDelegate?.addNewImage(newImage: UIImage(data: imageDataToSave)!)
+            saveImageLocally()
         }
+        print(imageID)
+        editImageDelegate?.addNewImage(newImage: UIImage(data: imageDataToSave)!, newID: imageID)
         performSegue(withIdentifier: "unwindToEdit", sender: self)
     }
     
@@ -165,6 +169,7 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
                             
                             ckImage.setObject(reference, forKey: "associatedRecord")
                             ckImage.setObject(imageAsset as CKRecordValue?, forKey: "image")
+                            ckImage.setObject(self.imageID as CKRecordValue?, forKey: "id")
                             
                             publicDatabase.save(ckImage, completionHandler: { (record, error) in
                                 if error != nil {
@@ -183,6 +188,9 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     func saveImageLocally() {
+        let defaults = UserDefaults.standard
+        let username = defaults.string(forKey: "username")
+        // if not connected to cloudkit, get a new UUID
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {
                 return
@@ -195,10 +203,11 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
         
         image.image = imageDataToSave as NSData?
         image.record = record!
+        image.id = imageID
         
         do {
             try managedContext.save()
-            print("Saved note to CoreData")
+            print("Saved image to CoreData")
         } catch {
             print("Problems saving note to CoreData")
         }

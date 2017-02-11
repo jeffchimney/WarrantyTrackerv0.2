@@ -7,6 +7,7 @@
         <attribute name="username" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="Image" representedClassName="Image" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="image" optional="YES" attributeType="Binary" syncable="YES"/>
         <relationship name="record" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Record" syncable="YES"/>
     </entity>
@@ -38,7 +39,7 @@
     </entity>
     <elements>
         <element name="Account" positionX="-81" positionY="-72" width="128" height="105"/>
-        <element name="Image" positionX="-81" positionY="-72" width="128" height="75"/>
+        <element name="Image" positionX="-81" positionY="-72" width="128" height="90"/>
         <element name="Note" positionX="-81" positionY="-72" width="128" height="90"/>
         <element name="Record" positionX="-47" positionY="-225" width="128" height="270"/>
         <element name="Tag" positionX="-117" positionY="80" width="128" height="75"/>
