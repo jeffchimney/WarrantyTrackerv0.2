@@ -23,6 +23,8 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
     
+    weak var handleNotesDelegate: HandleNotesDelegate?
+    
     override func viewDidLoad() {
         noteTitle.text = ""
         noteTitle.placeholder = "Title"
@@ -104,7 +106,7 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         } catch {
             print("Problems saving note to CoreData")
         }
-        
+        handleNotesDelegate?.passBack(newNote: note)
         performSegue(withIdentifier: "unwindFromCreateNote", sender: self)
     }
 }

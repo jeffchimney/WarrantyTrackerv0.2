@@ -22,8 +22,11 @@ public protocol EditImageDelegate: class {
     func removeImage(at indexToDelete:Int)
     func addNewImage(newImage: UIImage, newID: String)
 }
+public protocol HandleNotesDelegate: class {
+    func passBack(newNote: Note)
+}
 
-class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, UIViewControllerPreviewingDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate {
+class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, UIViewControllerPreviewingDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate, HandleNotesDelegate {
     
     // variables passed from last view
     var record: Record!
@@ -169,6 +172,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 notes.append(thisNote)
             }
         }
+    }
+    
+    func passBack(newNote: Note) {
+        notes.append(newNote)
+        self.tableView.reloadData()
     }
     
     // DURING EDITING /////////////////////////////////////////////////////////////////////////
@@ -860,6 +868,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         if segue.identifier == "toCreateNote" {
             if let nextViewController = segue.destination as? NoteViewController {
                 nextViewController.record = record
+                nextViewController.handleNotesDelegate = self
                 if isEditingRecord {
                     nextViewController.navBar.title = "Create Note"
                     nextViewController.record = record
@@ -875,6 +884,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 let selectedImageView = imageCarousel.currentItemView as! UIImageView
                 nextViewController.image = selectedImageView.image!
                 nextViewController.imageIndex = imageCarousel.currentItemIndex
+                nextViewController.isEditingRecord = isEditingRecord
                 nextViewController.deleteImageDelegate = self
             }
         }

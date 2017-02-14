@@ -16,14 +16,26 @@ class ImageViewController: UIViewController {
     var isEditingRecord: Bool!
     
     @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var deleteButton: UIBarButtonItem!
     
     weak var deleteImageDelegate: EditImageDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.setToolbarHidden(false, animated: false)
+
         imageView.contentMode = .scaleAspectFit
         imageView.image = image
+        // remove delete button
+        deleteButton.isEnabled = false
+        if imageIndex > 1 && isEditingRecord{
+            // show delete button
+            deleteButton.tintColor = .red
+            deleteButton.isEnabled = true
+        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setToolbarHidden(false, animated: false)
     }
     
     @IBAction func shareButtonPressed(_ sender: Any) {
@@ -33,6 +45,12 @@ class ImageViewController: UIViewController {
             let vc = UIActivityViewController(activityItems: [shareText, image], applicationActivities: [])
             present(vc, animated: true, completion: nil)
         }
+    }
+    
+    @IBAction func deleteButtonPressed(_ sender: Any) {
+        // delete image and pop view controller
+        deleteImageDelegate?.removeImage(at: imageIndex)
+        _ = navigationController?.popViewController(animated: true)
     }
     
     override var previewActionItems: [UIPreviewActionItem] {
