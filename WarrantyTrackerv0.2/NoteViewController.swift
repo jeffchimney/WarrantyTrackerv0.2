@@ -15,6 +15,10 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
     
     // variables passed from last view
     var record: Record!
+    var isEditingRecord: Bool!
+    var titleText: String!
+    var bodyText: String!
+    var selectedNotesIndex: Int!
     //
     
     @IBOutlet weak var noteTitle: UITextField!
@@ -26,11 +30,12 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
     weak var handleNotesDelegate: HandleNotesDelegate?
     
     override func viewDidLoad() {
-        noteTitle.text = ""
         noteTitle.placeholder = "Title"
         noteTitle.borderStyle = .none
-        noteTitle.becomeFirstResponder()
+        //noteTitle.becomeFirstResponder()
         indicator.isHidden = true
+        noteTitle.text = titleText
+        noteBody.text = bodyText
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
@@ -39,7 +44,6 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         indicator.isHidden = false
         indicator.startAnimating()
         indicator.activityIndicatorViewStyle = .gray
-        saveNoteToCloudKit()// save note locally now and to cloudkit in the background
         saveNoteLocally()
     }
     
@@ -99,6 +103,7 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         note.title = noteTitle.text
         note.noteString = noteBody.text
         note.record = record!
+        note.id = UUID().uuidString
         
         do {
             try managedContext.save()
@@ -108,5 +113,26 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         }
         handleNotesDelegate?.passBack(newNote: note)
         performSegue(withIdentifier: "unwindFromCreateNote", sender: self)
+    }
+    
+    override var previewActionItems: [UIPreviewActionItem] {
+        // only show option to delete if currently editing record.
+        if isEditingRecord! {
+            if selectedNotesIndex != 0 {
+                let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
+                    self.handleNotesDelegate?.deleteNote(at: self.selectedNotesIndex)
+                })
+                
+                let cancel = UIPreviewAction(title: "Cancel", style: .default) { (action, controller) in
+                    print("Cancel Action Selected")
+                }
+                
+                return [delete, cancel]
+            } else {
+                return []
+            }
+        } else {
+            return []
+        }
     }
 }

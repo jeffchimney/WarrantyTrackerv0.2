@@ -40,6 +40,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var selectedRecord: Record!
     let defaults = UserDefaults.standard
     
+    let generator = UIImpactFeedbackGenerator(style: .medium)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -213,6 +215,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
 //    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        generator.impactOccurred()
         if searchActive {
             selectedRecord = filteredRecords[indexPath.row]
             performSegue(withIdentifier: "toCellDetails", sender: self)

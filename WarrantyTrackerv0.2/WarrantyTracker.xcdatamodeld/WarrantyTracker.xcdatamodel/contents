@@ -12,6 +12,7 @@
         <relationship name="record" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Record" syncable="YES"/>
     </entity>
     <entity name="Note" representedClassName="Note" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="noteString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="record" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Record" syncable="YES"/>
@@ -40,7 +41,7 @@
     <elements>
         <element name="Account" positionX="-81" positionY="-72" width="128" height="105"/>
         <element name="Image" positionX="-81" positionY="-72" width="128" height="90"/>
-        <element name="Note" positionX="-81" positionY="-72" width="128" height="90"/>
+        <element name="Note" positionX="-81" positionY="-72" width="128" height="105"/>
         <element name="Record" positionX="-47" positionY="-225" width="128" height="270"/>
         <element name="Tag" positionX="-117" positionY="80" width="128" height="75"/>
     </elements>

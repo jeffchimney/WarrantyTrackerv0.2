@@ -128,14 +128,7 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     
     @IBAction func saveButtonPressed(_ sender: Any) {
         imageID = UUID().uuidString
-        let defaults = UserDefaults.standard
-        let username = defaults.string(forKey: "username")
-        if username != nil {
-            saveImageToCloudKit()
-        } else {
-            saveImageLocally()
-        }
-        print(imageID)
+        saveImageLocally()
         editImageDelegate?.addNewImage(newImage: UIImage(data: imageDataToSave)!, newID: imageID)
         performSegue(withIdentifier: "unwindToEdit", sender: self)
     }
@@ -188,8 +181,6 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     func saveImageLocally() {
-        let defaults = UserDefaults.standard
-        let username = defaults.string(forKey: "username")
         // if not connected to cloudkit, get a new UUID
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {

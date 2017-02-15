@@ -1484,7 +1484,7 @@
         <!--Title-->
         <scene sceneID="7tu-zc-aIC">
             <objects>
-                <viewController id="SOw-nE-y2d" customClass="NoteViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="NoteViewController" id="SOw-nE-y2d" customClass="NoteViewController" customModule="WarrantyTrackerv0_2" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="u7w-dg-DTk"/>
                         <viewControllerLayoutGuide type="bottom" id="Bd0-nf-QRs"/>
@@ -1499,7 +1499,7 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" text="This is some test text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="mIt-yt-bhE">
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="mIt-yt-bhE">
                                 <rect key="frame" x="16" y="110" width="343" height="513"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>

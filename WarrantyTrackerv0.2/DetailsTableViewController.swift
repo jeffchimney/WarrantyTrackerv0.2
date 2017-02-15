@@ -24,6 +24,7 @@ public protocol EditImageDelegate: class {
 }
 public protocol HandleNotesDelegate: class {
     func passBack(newNote: Note)
+    func deleteNote(at index: Int)
 }
 
 class DetailsTableViewController: UITableViewController, UIPopoverPresentationControllerDelegate, UIViewControllerPreviewingDelegate, iCarouselDelegate, iCarouselDataSource, DataBackDelegate, AddNotesCellDelegate, EditImageDelegate, HandleNotesDelegate {
@@ -33,6 +34,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     //
 
     var notes: [Note] = []
+    var noteIDs: [String] = []
     var images: [UIImage] = []
     var imageIDs: [String] = []
     var imageCarousel: iCarousel!
@@ -43,9 +45,10 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     var keyboardHeight: CGFloat = 0
     var isEditingRecord = false
+    var willEditNote = false
+    var selectedNotesIndex = -1
     var tappedItem = false
     var tappedReceipt = false
-    var rowsInNotesSection = 0
     var originalCellSize = 0
     let generator = UIImpactFeedbackGenerator(style: .medium)
     
@@ -85,6 +88,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             }
             deleteButton.isEnabled = true
         }
+        selectedNotesIndex = -1
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -170,13 +174,42 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             
             if thisNote.record?.recordID == record!.recordID {
                 notes.append(thisNote)
+                noteIDs.append(thisNote.id!)
             }
         }
     }
     
     func passBack(newNote: Note) {
         notes.append(newNote)
-        self.tableView.reloadData()
+        noteIDs.append(newNote.id!)
+        tableView.insertRows(at: [IndexPath(row: notes.count, section: 2)], with: .fade)
+    }
+    
+    func deleteNote(at index: Int) {
+        // from core data
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        let managedContext =
+            appDelegate.persistentContainer.viewContext
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Note")
+        fetchRequest.predicate = NSPredicate(format: "id==%@", noteIDs[index-1]) // account for item and receipt images
+        let object = try! managedContext.fetch(fetchRequest)
+        
+        let record = object[0] as! Note
+        
+        do {
+            managedContext.delete(record)
+            try managedContext.save()
+        } catch {
+            print("The record couldn't be deleted.")
+        }
+        
+        notes.remove(at: index-1)
+        noteIDs.remove(at: index-1)
+        tableView.deleteRows(at: [IndexPath(row: index, section: 2)], with: .fade)
     }
     
     // DURING EDITING /////////////////////////////////////////////////////////////////////////
@@ -242,7 +275,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker")  as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
-        popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
+        popController.popoverPresentationController?.permittedArrowDirections = [UIPopoverArrowDirection.down, UIPopoverArrowDirection.up]
         popController.popoverPresentationController?.delegate = self
         popController.popoverPresentationController?.sourceView = startDateCell.detail
         popController.popoverPresentationController?.sourceRect = CGRect(x: startDateCell.detail.bounds.midX, y: startDateCell.detail.bounds.minY, width: 0, height: 0)
@@ -263,7 +296,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         // set up the popover presentation controller
         let popController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DatePicker") as! EditDateController
         popController.modalPresentationStyle = UIModalPresentationStyle.popover
-        popController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.down
+        popController.popoverPresentationController?.permittedArrowDirections = [UIPopoverArrowDirection.down, UIPopoverArrowDirection.up]
         popController.popoverPresentationController?.delegate = self
         popController.popoverPresentationController?.sourceView = endDateCell.detail
         popController.popoverPresentationController?.sourceRect = CGRect(x: endDateCell.detail.bounds.midX, y: endDateCell.detail.bounds.minY, width: 0, height: 0)
@@ -286,6 +319,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             //generator.impactOccurred()
             //performSegue(withIdentifier: "editImage", sender: self)
         //} else {
+        generator.impactOccurred()
         performSegue(withIdentifier: "toImageView", sender: self)
         //}
     }
@@ -298,6 +332,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         //    tappedItem = false
         //    performSegue(withIdentifier: "editImage", sender: self)
         //}  else {
+        generator.impactOccurred()
         performSegue(withIdentifier: "toImageView", sender: self)
         //}
     }
@@ -310,6 +345,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         //    tappedItem = false
         //    performSegue(withIdentifier: "editImage", sender: self)
         //}  else {
+        generator.impactOccurred()
         performSegue(withIdentifier: "toImageView", sender: self)
         //}
     }
@@ -569,14 +605,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     
     
     // MARK: Table View Delegate Methods
-    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.section == 2 {
-            // count rows in Notes section
-            rowsInNotesSection += 1
-            //print(rowsInNotesSection)
-        }
-    }
-    
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 3
     }
@@ -691,11 +719,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 cell.noteImageView.layer.cornerRadius = 20//cell.noteImageView.frame.width/2
                 cell.noteImageView.layer.masksToBounds = false
                 cell.noteImageView.clipsToBounds = true
-                if isEditingRecord {
-                    cell.title.text = notes[indexPath.row-2].title
-                } else {
-                    cell.title.text = notes[indexPath.row-1].title
-                }
+                cell.title.text = notes[indexPath.row-1].title
+
                 return cell
             } else {
                 let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
@@ -705,8 +730,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         }
         // shouldnt get called.
         else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "addCell", for: indexPath) as! AddTableViewCell
-            return cell
+            return UITableViewCell() // shouldn't ever get called
         }
     }
     
@@ -726,27 +750,29 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             }
             
             // NOTES
-//            if indexPath.section == 2 {
-//                for index in 0...rowsInNotesSection {
-//                    if indexPath.row == index {
-//                        let selectedCell = tableView.cellForRow(at: indexPath)
-//                        let cellLabel = selectedCell?.contentView.subviews[0] as! UILabel
-//                        cellLabel.numberOfLines = 0
-//                    }
-//                }
-//            }
+            if indexPath.section == 2 {
+                generator.impactOccurred()
+                for index in 0...notes.count+1 {
+                    if indexPath.row == index && indexPath.row <= notes.count {
+                        selectedNotesIndex = indexPath.row
+                        willEditNote = true
+                        performSegue(withIdentifier: "toCreateNote", sender: nil)
+                    }
+                }
+            }
+        } else {
+            // NOTES
+            if indexPath.section == 2 {
+                generator.impactOccurred()
+                for index in 0...notes.count+1  {
+                    if indexPath.row == index && indexPath.row <= notes.count {
+                        selectedNotesIndex = indexPath.row
+                        willEditNote = false
+                        performSegue(withIdentifier: "toCreateNote", sender: nil)
+                    }
+                }
+            }
         }
-        
-        // NOTES
-//        if indexPath.section == 2 {
-//            for index in 0...rowsInNotesSection {
-//                if indexPath.row == index {
-//                    let selectedCell = tableView.cellForRow(at: indexPath) as! NotesTableViewCell
-//                    let cellLabel = selectedCell.contentView.subviews[0] as! UILabel
-//                    
-//                }
-//            }
-//        }
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -869,13 +895,24 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             if let nextViewController = segue.destination as? NoteViewController {
                 nextViewController.record = record
                 nextViewController.handleNotesDelegate = self
-                if isEditingRecord {
+                nextViewController.isEditingRecord = isEditingRecord
+                nextViewController.selectedNotesIndex = selectedNotesIndex
+                
+                if selectedNotesIndex != -1  && selectedNotesIndex != 0{
+                    nextViewController.titleText = notes[selectedNotesIndex-1].title!
+                    nextViewController.bodyText = notes[selectedNotesIndex-1].noteString!
+                    nextViewController.title = "Edit Note"
+                }
+                
+                if isEditingRecord && !willEditNote && selectedNotesIndex != 0{ // create new note
                     nextViewController.navBar.title = "Create Note"
-                    nextViewController.record = record
-                } else {
-                    // tapped "add" button on carousel
-                    nextViewController.navBar.title = "Note"
-                    nextViewController.record = record
+                    nextViewController.titleText = ""
+                    nextViewController.bodyText  = "Text"
+                }
+                
+                if selectedNotesIndex == 0 {
+                    nextViewController.titleText = "Description:"
+                    nextViewController.bodyText = record.descriptionString!
                 }
             }
         }
@@ -922,6 +959,36 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             
             return imageViewController
         }
+        
+        // handle 3d touch on notes
+        if indexPath.section == 2 {
+            guard let noteViewController =
+                storyboard?.instantiateViewController(withIdentifier: "NoteViewController") as? NoteViewController else {
+                    return nil
+            }
+            
+            noteViewController.record = record
+            noteViewController.handleNotesDelegate = self
+            noteViewController.isEditingRecord = isEditingRecord
+            noteViewController.selectedNotesIndex = indexPath.row
+            
+            if indexPath.row == 0 {
+                noteViewController.titleText = "Description:"
+                noteViewController.bodyText = record.descriptionString!
+            } else {
+                noteViewController.navBar.title = "Edit Note"
+                noteViewController.titleText = notes[indexPath.row-1].title
+                noteViewController.bodyText = notes[indexPath.row-1].noteString
+            }
+            
+            noteViewController.preferredContentSize =
+                CGSize(width: 0.0, height: 500)
+            
+            previewingContext.sourceRect = view.convert(cell.frame, from: tableView)
+            
+            return noteViewController
+        }
+        
         return nil
     }
     
