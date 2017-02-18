@@ -26,6 +26,7 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var indicator: UIActivityIndicatorView!
+    @IBOutlet weak var deleteButton: UIBarButtonItem!
     
     weak var handleNotesDelegate: HandleNotesDelegate?
     
@@ -36,6 +37,11 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         indicator.isHidden = true
         noteTitle.text = titleText
         noteBody.text = bodyText
+        navigationController?.setToolbarHidden(false, animated: false)
+        
+        if !isEditingRecord {
+            deleteButton.isEnabled = false
+        }
     }
     
     @IBAction func saveButtonPressed(_ sender: Any) {
@@ -51,6 +57,11 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         noteTitle.resignFirstResponder()
         noteBody.becomeFirstResponder()
         return false
+    }
+    
+    @IBAction func deleteButtonPressed(_ sender: Any) {
+        handleNotesDelegate?.deleteNote(at: selectedNotesIndex)
+        _ = navigationController?.popViewController(animated: true)
     }
     
     func saveNoteToCloudKit() {

@@ -228,10 +228,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             isEditingRecord = false
             navBar.setHidesBackButton(isEditingRecord, animated: true)
             
-//            for index in 0...images.count-1 {
-//                stopJiggling(viewToStop: imageCarousel!.itemView(at: index) as! UIImageView)
-//            }
-            
             startDateCell.detail.textColor = UIColor.black
             endDateCell.detail.textColor = UIColor.black
             
@@ -640,6 +636,32 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         }
         else {
             return ""
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let edit = UITableViewRowAction(style: .normal, title: "Edit") { action, index in
+            if indexPath.section == 2 {
+                self.selectedNotesIndex = indexPath.row
+                self.performSegue(withIdentifier: "toCreateNote", sender: nil)
+            }
+        }
+        edit.backgroundColor = tableView.tintColor
+        
+        // delete record on press delete
+        let delete = UITableViewRowAction(style: .destructive, title: "Delete") { action, index in
+            if indexPath.section == 2 && indexPath.row != 0 { //
+                self.deleteNote(at: indexPath.row)
+            }
+        }
+        delete.backgroundColor = .red
+        
+        if indexPath.section == 2 && indexPath.row == 0 {
+            return [edit]
+        } else if indexPath.section == 2 && indexPath.row != 0{
+            return [delete, edit]
+        } else {
+            return nil
         }
     }
     
