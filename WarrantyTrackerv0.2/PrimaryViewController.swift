@@ -32,6 +32,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
     @IBOutlet weak var archiveButton: UIBarButtonItem!
+    @IBOutlet weak var syncButton: UIBarButtonItem!
     let cellIdentifier = "WarrantyTableViewCell"
     var fetchedRecords: [NSManagedObject] = []
     var records: [Record] = []
@@ -73,7 +74,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             print("3D Touch Not Available")
         }
         warrantiesTableView.tableHeaderView = searchController.searchBar
-        navigationController?.isToolbarHidden = true
         
         let defaults = UserDefaults.standard
         if (defaults.object(forKey: "FirstLaunch") == nil) {
@@ -193,6 +193,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewWillAppear(_ animated: Bool) {
         getRecordsFromCoreData()
+        navigationController?.isToolbarHidden = false
         
         self.warrantiesTableView.reloadData()
     }
@@ -405,8 +406,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
         }
-        
-        
     }
     
     func getRecordsFromCloudKit() {
@@ -442,6 +441,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             })
         }
+    }
+    
+    @IBAction func syncButtonPressed(_ sender: Any) {
+        
     }
     
     //MARK: Search bar delegate functions

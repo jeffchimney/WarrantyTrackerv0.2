@@ -20,6 +20,7 @@
 		BE2097DD1E38071B007B17D1 /* NoteViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE2097DC1E38071B007B17D1 /* NoteViewController.swift */; };
 		BE2A0DB61E258B7400C31586 /* DetailsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE2A0DB51E258B7400C31586 /* DetailsTableViewController.swift */; };
 		BE30DC2D1E020AE10022259E /* EditPhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */; };
+		BE395BFF1E5A74020085353E /* SettingsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE395BFE1E5A74020085353E /* SettingsTableViewController.swift */; };
 		BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */; };
 		BE3D35941E2D6FA6009B3ED1 /* AddTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE3D35931E2D6FA6009B3ED1 /* AddTableViewCell.swift */; };
 		BE5269AF1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */; };
@@ -33,7 +34,6 @@
 		BE7EE2521E1EFBF2009ED090 /* SignUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */; };
 		BE7EE2541E1F1D55009ED090 /* AccountQuestionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */; };
 		BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE81B6051E246D1E00EF71CC /* RecoverCardViewController.swift */; };
-		BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */; };
 		BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */; };
 		BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */; };
 		BECB41471DFF297200689AA4 /* EditDateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BECB41461DFF297200689AA4 /* EditDateController.swift */; };
@@ -77,6 +77,7 @@
 		BE2097DC1E38071B007B17D1 /* NoteViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoteViewController.swift; sourceTree = "<group>"; };
 		BE2A0DB51E258B7400C31586 /* DetailsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsTableViewController.swift; sourceTree = "<group>"; };
 		BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditPhotoViewController.swift; sourceTree = "<group>"; };
+		BE395BFE1E5A74020085353E /* SettingsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsTableViewController.swift; sourceTree = "<group>"; };
 		BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyDetailsViewController.swift; sourceTree = "<group>"; };
 		BE3D35931E2D6FA6009B3ED1 /* AddTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddTableViewCell.swift; sourceTree = "<group>"; };
 		BE5269AE1DCEAFCD00B46A4B /* WarrantyTableViewCellController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WarrantyTableViewCellController.swift; sourceTree = "<group>"; };
@@ -91,7 +92,6 @@
 		BE7EE2511E1EFBF2009ED090 /* SignUpViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignUpViewController.swift; sourceTree = "<group>"; };
 		BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountQuestionViewController.swift; sourceTree = "<group>"; };
 		BE81B6051E246D1E00EF71CC /* RecoverCardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecoverCardViewController.swift; sourceTree = "<group>"; };
-		BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsViewController.swift; sourceTree = "<group>"; };
 		BEA0D6D61DE8E66800A2AFFE /* ImageViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		BEB975C81DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = WarrantyTracker.xcdatamodel; sourceTree = "<group>"; };
 		BECB41461DFF297200689AA4 /* EditDateController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditDateController.swift; sourceTree = "<group>"; };
@@ -159,7 +159,6 @@
 				BE1C11131DC921D200B0D493 /* PrimaryViewController.swift */,
 				BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */,
 				BE81B6051E246D1E00EF71CC /* RecoverCardViewController.swift */,
-				BE86D7911DE7921A00A15EBA /* DetailsViewController.swift */,
 				BE2A0DB51E258B7400C31586 /* DetailsTableViewController.swift */,
 				BECB41461DFF297200689AA4 /* EditDateController.swift */,
 				BE30DC2C1E020AE10022259E /* EditPhotoViewController.swift */,
@@ -169,6 +168,7 @@
 				BE1C113F1DC9551600B0D493 /* NewReceiptViewController.swift */,
 				BE1C11411DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift */,
 				BE3BD96D1DC9B617004CBD07 /* WarrantyDetailsViewController.swift */,
+				BE395BFE1E5A74020085353E /* SettingsTableViewController.swift */,
 				BE56CE461E2D505A006870E7 /* TableViewCells */,
 				BE1C11151DC921D200B0D493 /* Main.storyboard */,
 				BE1C11181DC921D200B0D493 /* Assets.xcassets */,
@@ -375,9 +375,9 @@
 				BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */,
 				BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */,
 				BE2A0DB61E258B7400C31586 /* DetailsTableViewController.swift in Sources */,
-				BE86D7921DE7921A00A15EBA /* DetailsViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
 				BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */,
+				BE395BFF1E5A74020085353E /* SettingsTableViewController.swift in Sources */,
 				BE56CE4A1E2D5909006870E7 /* ImagesTableViewCell.swift in Sources */,
 				BE6525551E1F46A200DF03BC /* WhySignUpController.swift in Sources */,
 				BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */,
