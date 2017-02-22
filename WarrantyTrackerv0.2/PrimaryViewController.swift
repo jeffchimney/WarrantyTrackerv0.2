@@ -37,6 +37,11 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var fetchedRecords: [NSManagedObject] = []
     var records: [Record] = []
     var filteredRecords: [Record] = []
+    var ckRecords: [CKRecord] = []
+    var cdImagesForRecord: [Image] = []
+    var ckImagesForRecord: [CKRecord] = []
+    var cdNotesForRecord: [Note] = []
+    var ckNotesForRecord: [CKRecord] = []
     var sections: [[Record]] = [[]]
     var selectedRecord: Record!
     let defaults = UserDefaults.standard
@@ -83,6 +88,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             self.present(vc, animated: true, completion: nil)
         } // otherwise, carry on as normal.
+        
+//        warrantiesTableView.layer.cornerRadius = 15
+//        
+//        view.backgroundColor = view.tintColor
+//        
+//        navigationController?.navigationBar.alpha = 1.0
+//        navigationController?.toolbar.alpha = 1.0
     }
     
     func handleRefresh(refreshControl: UIRefreshControl) {
@@ -104,6 +116,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         let account = accountRecords[0] as! Account
         
+        var cdRecords = loadAssociatedCDRecords()
+        var cdRecordIDs: [String] = []
+        for record in cdRecords {
+            cdRecordIDs.append(record.recordID!)
+        }
+        
         // cloudkit
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
         let predicate = NSPredicate(format: "AssociatedAccount = %@", CKRecordID(recordName: account.id!))
@@ -118,6 +136,24 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 return
             } else {
                 for result in results! {
+                    if cdRecordIDs.contains(result.recordID.recordName) {
+                        let recordIndex = cdRecordIDs.index(of: result.recordID.recordName)
+                        var recordMatch = cdRecords[recordIndex!]
+                        
+                        // check if cloud was synced before local storage
+                        let cloudSynced = result.value(forKey: "lastSynced") as! Date
+                        let localSynced = recordMatch.lastSynced as! Date
+                        if (cloudSynced == localSynced) {
+                            // do nothing
+                        }
+                    }
+                    
+                    var ckRecords: [CKRecord] = []
+                    var ckImagesForRecord: [CKRecord] = []
+                    var cdNotesForRecord: [Note] = []
+                    var ckNotesForRecord: [CKRecord] = []
+                    
+                    
                     let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
                     record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
                     record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
@@ -169,6 +205,84 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             }
         })
+    }
+    
+    func loadAssociatedCDRecords() -> [Record] {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return []
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        // Get associated images
+        let recordFetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        
+        var recordRecords: [NSManagedObject] = []
+        do {
+            recordRecords = try managedContext.fetch(recordFetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        var recordList: [Record] = []
+        for record in recordRecords {
+            let thisRecord = record as! Record
+            
+            recordList.append(thisRecord)
+        }
+        return recordList
+    }
+    
+    func loadAssociatedCDImages(for record: Record) -> [Image] {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return []
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        // Get associated images
+        let imageFetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Image")
+        
+        var imageRecords: [NSManagedObject] = []
+        do {
+            imageRecords = try managedContext.fetch(imageFetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        var imageList: [Image] = []
+        for image in imageRecords {
+            let thisImage = image as! Image
+            
+            if thisImage.record?.recordID == record.recordID {
+                imageList.append(thisImage)
+            }
+        }
+        return imageList
+    }
+    
+    
+    
+    func loadAssociatedNotes() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Note")
+        
+        var noteRecords: [NSManagedObject] = []
+        do {
+            noteRecords = try managedContext.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for note in noteRecords {
+            let thisNote = note as! Note
+            
+            if thisNote.record?.recordID == record!.recordID {
+                notes.append(thisNote)
+                noteIDs.append(thisNote.id!)
+            }
+        }
     }
     
     func configureButton()
