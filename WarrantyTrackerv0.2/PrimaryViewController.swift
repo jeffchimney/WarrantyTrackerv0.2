@@ -136,73 +136,113 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 return
             } else {
                 for result in results! {
+                    // if record id is in coredata already, sync data to that record
                     if cdRecordIDs.contains(result.recordID.recordName) {
                         let recordIndex = cdRecordIDs.index(of: result.recordID.recordName)
-                        var recordMatch = cdRecords[recordIndex!]
+                        let recordMatch = cdRecords[recordIndex!]
                         
                         // check if cloud was synced before local storage
                         let cloudSynced = result.value(forKey: "lastSynced") as! Date
                         let localSynced = recordMatch.lastSynced as! Date
-                        if (cloudSynced == localSynced) {
-                            // do nothing
+                        if cloudSynced > localSynced {
+                            // sync from cloud to local and pop from cdRecords abd cdRecordIDs arrays
+                            let record = recordMatch
+                            record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
+                            record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
+                            record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
+                            record.descriptionString = result.value(forKey: "descriptionString") as! String?
+                            record.eventIdentifier = result.value(forKey: "eventIdentifier") as! String?
+                            record.title = result.value(forKey: "title") as! String?
+                            record.warrantyStarts = result.value(forKey: "warrantyStarts") as! NSDate?
+                            record.warrantyEnds = result.value(forKey: "warrantyEnds") as! NSDate?
+                            // CKAssets need to be converted to NSData
+                            let itemImage = result.value(forKey: "itemData") as! CKAsset
+                            record.itemImage = NSData(contentsOf: itemImage.fileURL)
+                            let receiptImage = result.value(forKey: "receiptData") as! CKAsset
+                            record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
+                            // Bools stored as ints on CK.  Need to be converted
+                            let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
+                            if recentlyDeleted == 0 {
+                                record.recentlyDeleted = false
+                            } else {
+                                record.recentlyDeleted = true
+                            }
+                            let expired = result.value(forKey: "expired") as! Int64
+                            if expired == 0 {
+                                record.expired = false
+                            } else {
+                                record.expired = true
+                            }
+                            let hasWarranty = result.value(forKey: "hasWarranty") as! Int64
+                            if hasWarranty == 0 {
+                                record.hasWarranty = false
+                            } else {
+                                record.hasWarranty = true
+                            }
+                            record.lastSynced = Date() as NSDate?
+                            
+                            // remove updated record from record lists so that once finished, the remainder
+                            // (those not existing on the cloud) can be synced to the cloud.
+                            cdRecords.remove(at: recordIndex!)
+                            cdRecordIDs.remove(at: recordIndex!)
                         }
-                    }
-                    
-                    var ckRecords: [CKRecord] = []
-                    var ckImagesForRecord: [CKRecord] = []
-                    var cdNotesForRecord: [Note] = []
-                    var ckNotesForRecord: [CKRecord] = []
-                    
-                    
-                    let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
-                    record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
-                    record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
-                    record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
-                    record.descriptionString = result.value(forKey: "descriptionString") as! String?
-                    record.eventIdentifier = result.value(forKey: "eventIdentifier") as! String?
-                    record.title = result.value(forKey: "title") as! String?
-                    record.warrantyStarts = result.value(forKey: "warrantyStarts") as! NSDate?
-                    record.warrantyEnds = result.value(forKey: "warrantyEnds") as! NSDate?
-                    // CKAssets need to be converted to NSData
-                    let itemImage = result.value(forKey: "itemData") as! CKAsset
-                    record.itemImage = NSData(contentsOf: itemImage.fileURL)
-                    let receiptImage = result.value(forKey: "receiptData") as! CKAsset
-                    record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
-                    // Bools stored as ints on CK.  Need to be converted
-                    let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
-                    if recentlyDeleted == 0 {
-                        record.recentlyDeleted = false
                     } else {
-                        record.recentlyDeleted = true
-                    }
-                    let expired = result.value(forKey: "expired") as! Int64
-                    if expired == 0 {
-                        record.expired = false
-                    } else {
-                        record.expired = true
-                    }
-                    let hasWarranty = result.value(forKey: "hasWarranty") as! Int64
-                    if hasWarranty == 0 {
-                        record.hasWarranty = false
-                    } else {
-                        record.hasWarranty = true
+                        // create new record from data in cloud
+                        let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
+                        record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
+                        record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
+                        record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
+                        record.descriptionString = result.value(forKey: "descriptionString") as! String?
+                        record.eventIdentifier = result.value(forKey: "eventIdentifier") as! String?
+                        record.title = result.value(forKey: "title") as! String?
+                        record.warrantyStarts = result.value(forKey: "warrantyStarts") as! NSDate?
+                        record.warrantyEnds = result.value(forKey: "warrantyEnds") as! NSDate?
+                        // CKAssets need to be converted to NSData
+                        let itemImage = result.value(forKey: "itemData") as! CKAsset
+                        record.itemImage = NSData(contentsOf: itemImage.fileURL)
+                        let receiptImage = result.value(forKey: "receiptData") as! CKAsset
+                        record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
+                        // Bools stored as ints on CK.  Need to be converted
+                        let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
+                        if recentlyDeleted == 0 {
+                            record.recentlyDeleted = false
+                        } else {
+                            record.recentlyDeleted = true
+                        }
+                        let expired = result.value(forKey: "expired") as! Int64
+                        if expired == 0 {
+                            record.expired = false
+                        } else {
+                            record.expired = true
+                        }
+                        let hasWarranty = result.value(forKey: "hasWarranty") as! Int64
+                        if hasWarranty == 0 {
+                            record.hasWarranty = false
+                        } else {
+                            record.hasWarranty = true
+                        }
+                        record.lastSynced = Date() as NSDate?
                     }
                 }
+                
+                // Whatever remains in the cdRecords array, sync to cloud and set lastSynced to current time
+                for eachRecord in cdRecords {
+                    self.saveRecordToCloudKit(cdRecord: eachRecord, context: managedContext, rEntity: recordEntity)
+                }
+                
                 // save locally
                 do {
                     try managedContext.save()
-                    DispatchQueue.main.async {
-                        self.warrantiesTableView.reloadData()
-                        refreshControl.endRefreshing()
-                    }
                 } catch {
                     DispatchQueue.main.async {
                         print("Connection error. Try again later.")
-                        self.refreshControl.endRefreshing()
                     }
-                   
                     return
                 }
+            }
+            DispatchQueue.main.async {
+                self.refreshControl.endRefreshing()
+                self.warrantiesTableView.reloadData()
             }
         })
     }
@@ -259,9 +299,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     
     
-    func loadAssociatedNotes() {
+    func loadAssociatedNotes(for record: Record) -> [Note] {
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
+            return []
         }
         let managedContext = appDelegate.persistentContainer.viewContext
         
@@ -275,14 +315,15 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             print("Could not fetch. \(error), \(error.userInfo)")
         }
         
+        var noteList: [Note] = []
         for note in noteRecords {
             let thisNote = note as! Note
-            
-            if thisNote.record?.recordID == record!.recordID {
-                notes.append(thisNote)
-                noteIDs.append(thisNote.id!)
+    
+            if thisNote.record?.recordID == record.recordID {
+                noteList.append(thisNote)
             }
         }
+        return noteList
     }
     
     func configureButton()
@@ -555,6 +596,77 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             })
         }
+    }
+    
+    func saveRecordToCloudKit(cdRecord: Record, context: NSManagedObjectContext, rEntity: NSEntityDescription) {
+        print(cdRecord.recordID)
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+
+        let defaults = UserDefaults.standard
+        let username = defaults.string(forKey: "username")
+        let password = defaults.string(forKey: "password")
+
+        let predicate = NSPredicate(format: "username = %@ AND password = %@", username!, password!)
+        let query = CKQuery(recordType: "Accounts", predicate: predicate)
+        var accountRecord = CKRecord(recordType: "Accounts")
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print("Error retrieving from cloudkit")
+            } else {
+                if (results?.count)! > 0 {
+                    accountRecord = (results?[0])!
+
+                    let ckRecord = CKRecord(recordType: "Records", recordID: CKRecordID(recordName: cdRecord.recordID!))
+                    let reference = CKReference(recordID: accountRecord.recordID, action: CKReferenceAction.deleteSelf)
+
+                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
+                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
+
+
+                    do {
+                        try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
+                        try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
+
+                        let itemAsset = CKAsset(fileURL: url)
+                        let receiptAsset = CKAsset(fileURL: receiptURL)
+
+                        ckRecord.setObject(reference, forKey: "AssociatedAccount")
+                        ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
+                        ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
+                        ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
+                        ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
+                        ckRecord.setObject(itemAsset, forKey: "itemData")
+                        ckRecord.setObject(receiptAsset, forKey: "receiptData")
+                        ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
+                        ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
+                        ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
+                        ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
+                        ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
+                        ckRecord.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
+                        
+                        publicDatabase.save(ckRecord, completionHandler: { (record, error) in
+                            if error != nil {
+                                print(error!)
+                                return
+                            }
+                            print("Successfully added record")
+
+                            // Save the created Record object
+                            do {
+                                try context.save()
+                            } catch let error as NSError {
+                                print("Could not save. \(error), \(error.userInfo)")
+                            }
+                        })
+                    } catch {
+                        print("Problems writing to URL")
+                    }
+                    
+                }
+            }
+        })
     }
     
     @IBAction func syncButtonPressed(_ sender: Any) {

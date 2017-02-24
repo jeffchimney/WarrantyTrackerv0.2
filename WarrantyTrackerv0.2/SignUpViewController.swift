@@ -120,7 +120,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                             } else {
                                 account.username = self.usernameField.text
                                 account.password = self.passwordField.text
-                                account.lastSynced = dateCreated
                                 account.id = accountRecord.recordID.recordName
                             }
                         })
@@ -188,7 +187,6 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                     } else { // save the username and password locally and log in
                         account.username = self.usernameField.text
                         account.password = self.passwordField.text
-                        account.lastSynced = Date() as NSDate?
                         account.id = results?[0].recordID.recordName
                         
                         // save locally
