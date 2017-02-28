@@ -62,7 +62,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
         usernameField.resignFirstResponder()
         passwordField.resignFirstResponder()
         
-        if !signingIn! { // create new username password combo and save to cloud and locally
+        if !signingIn! { // (signing up) create new username password combo and save to cloud and locally
             
             errorLabel.text = "Creating Account..."
             errorLabel.textColor = .black
@@ -249,6 +249,7 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                 for result in results! {
                     let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
                     //hello
+                    record.recordID = result.recordID.recordName
                     record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
                     record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
                     record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
