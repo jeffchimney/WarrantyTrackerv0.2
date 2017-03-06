@@ -38,6 +38,8 @@
 		BECB41471DFF297200689AA4 /* EditDateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BECB41461DFF297200689AA4 /* EditDateController.swift */; };
 		BECD25D51E60E76C0028BA71 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BECD25D41E60E76C0028BA71 /* CloudKit.framework */; };
 		BED7A1911E2EACEA00B27F2A /* iCarousel.m in Sources */ = {isa = PBXBuildFile; fileRef = BED7A1901E2EACEA00B27F2A /* iCarousel.m */; };
+		BEE392FB1E6E26F2009FB937 /* CloudKitHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE392FA1E6E26F2009FB937 /* CloudKitHelper.swift */; };
+		BEE392FD1E6E2700009FB937 /* CoreDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE392FC1E6E2700009FB937 /* CoreDataHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +100,8 @@
 		BED7A18E1E2EACE900B27F2A /* WarrantyTrackerv0.2-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WarrantyTrackerv0.2-Bridging-Header.h"; sourceTree = "<group>"; };
 		BED7A18F1E2EACEA00B27F2A /* iCarousel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCarousel.h; sourceTree = "<group>"; };
 		BED7A1901E2EACEA00B27F2A /* iCarousel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCarousel.m; sourceTree = "<group>"; };
+		BEE392FA1E6E26F2009FB937 /* CloudKitHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudKitHelper.swift; path = WarrantyTrackerv0.2/CloudKitHelper.swift; sourceTree = "<group>"; };
+		BEE392FC1E6E2700009FB937 /* CoreDataHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CoreDataHelper.swift; path = WarrantyTrackerv0.2/CoreDataHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -151,6 +155,7 @@
 		BE1C110E1DC921D200B0D493 /* WarrantyTrackerv0.2 */ = {
 			isa = PBXGroup;
 			children = (
+				BE499A3C1E6DD16E00AA3A25 /* DataHandlingHelpers */,
 				BE7EE24E1E1EF403009ED090 /* WarrantyTrackerv0.2.entitlements */,
 				BE1C110F1DC921D200B0D493 /* AppDelegate.swift */,
 				BE7EE2531E1F1D55009ED090 /* AccountQuestionViewController.swift */,
@@ -198,6 +203,16 @@
 				BE1C11331DC921D200B0D493 /* Info.plist */,
 			);
 			path = WarrantyTrackerv0.2UITests;
+			sourceTree = "<group>";
+		};
+		BE499A3C1E6DD16E00AA3A25 /* DataHandlingHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				BEE392FC1E6E2700009FB937 /* CoreDataHelper.swift */,
+				BEE392FA1E6E26F2009FB937 /* CloudKitHelper.swift */,
+			);
+			name = DataHandlingHelpers;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		BE56CE461E2D505A006870E7 /* TableViewCells */ = {
@@ -370,10 +385,12 @@
 				BE1C11421DC9665500B0D493 /* WarrantyBeginsEndsViewController.swift in Sources */,
 				BE3D35941E2D6FA6009B3ED1 /* AddTableViewCell.swift in Sources */,
 				BE56CE481E2D50FE006870E7 /* InfoTableViewCell.swift in Sources */,
+				BEE392FB1E6E26F2009FB937 /* CloudKitHelper.swift in Sources */,
 				BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */,
 				BED7A1911E2EACEA00B27F2A /* iCarousel.m in Sources */,
 				BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */,
 				BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */,
+				BEE392FD1E6E2700009FB937 /* CoreDataHelper.swift in Sources */,
 				BE2A0DB61E258B7400C31586 /* DetailsTableViewController.swift in Sources */,
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
 				BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */,

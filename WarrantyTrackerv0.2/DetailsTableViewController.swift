@@ -52,9 +52,16 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     var originalCellSize = 0
     let generator = UIImpactFeedbackGenerator(style: .medium)
     
+    var managedContext: NSManagedObjectContext?
+    
     weak var reloadDelegate: ReloadTableViewDelegate?
     
     override func viewDidLoad() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        managedContext = appDelegate.persistentContainer.viewContext
+        
         navBar.title = record.title!
         
         tableView.dataSource = self
@@ -125,57 +132,22 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         while images.count > 2 {
             images.removeLast()
         }
-        // Get associated notes
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        // Get associated images
-        let imageFetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Image")
         
-        var imageRecords: [NSManagedObject] = []
-        do {
-            imageRecords = try managedContext.fetch(imageFetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
+        let imagesToAppend = CoreDataHelper.fetchImages(for: record, in: managedContext!)
         
-        for image in imageRecords {
-            let thisImage = image as! Image
-            
-            if thisImage.record?.recordID == record!.recordID {
-                images.append(UIImage(data: thisImage.image as! Data)!)
-                imageIDs.append(thisImage.id!)
+        for image in imagesToAppend {
+            if image.record?.recordID == record!.recordID {
+                images.append(UIImage(data: image.image as! Data)!)
+                imageIDs.append(image.id!)
             }
         }
     }
     
     func loadAssociatedNotes() {
-        notes = []
-        // Get associated notes
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
+        notes = CoreDataHelper.fetchNotes(for: record, in: managedContext!)
         
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Note")
-        
-        var noteRecords: [NSManagedObject] = []
-        do {
-            noteRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for note in noteRecords {
-            let thisNote = note as! Note
-            
-            if thisNote.record?.recordID == record!.recordID {
-                notes.append(thisNote)
-                noteIDs.append(thisNote.id!)
-            }
+        for note in notes {
+            noteIDs.append(note.id!)
         }
     }
     

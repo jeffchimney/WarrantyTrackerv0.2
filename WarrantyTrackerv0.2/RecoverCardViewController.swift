@@ -15,19 +15,26 @@ class RecoverCardViewController: UIViewController {
     @IBOutlet weak var imageView: UIImageView!
     var record: Record!
     var recoverRecordDelegate: ReloadDeletedTableViewDelegate?
+    var managedContext: NSManagedObjectContext?
     
     override func viewDidLoad() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        managedContext = appDelegate.persistentContainer.viewContext
+        
         imageView.image = UIImage(data: record.itemImage as! Data)
     }
     
     override var previewActionItems: [UIPreviewActionItem] {
         let delete = UIPreviewAction(title: "Delete", style: .destructive, handler: {_,_ in
-            self.deleteFromCoreData(record: self.record)
+            
+            CoreDataHelper.delete(record: self.record, in: self.managedContext!) //self.deleteFromCoreData(record: self.record)
             self.recoverRecordDelegate?.reloadLastControllerTableView()
         })
         
         let recover = UIPreviewAction(title: "Recover", style: .default, handler: {_,_ in
-            self.setRecentlyDeletedFalse(for: self.record)
+            CoreDataHelper.setRecentlyDeletedFalse(for: self.record, in: self.managedContext!) //self.setRecentlyDeletedFalse(for: self.record)
             self.recoverRecordDelegate?.reloadLastControllerTableView()
         })
         
@@ -36,71 +43,5 @@ class RecoverCardViewController: UIViewController {
         }
         
         return [delete, recover, cancel]
-    }
-    
-    func deleteFromCoreData(record: Record) {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        var returnedRecords: [NSManagedObject] = []
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        do {
-            returnedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for thisRecord in returnedRecords {
-            if record == thisRecord {
-                managedContext.delete(thisRecord)
-                do {
-                    try managedContext.save()
-                } catch {
-                    print("Error deleting record")
-                }
-            }
-        }
-        
-    }
-    
-    func setRecentlyDeletedFalse(for record: Record) {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        var returnedRecords: [NSManagedObject] = []
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        do {
-            returnedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for thisRecord in returnedRecords {
-            if record == thisRecord {
-                let thisRecord = thisRecord as! Record
-                thisRecord.recentlyDeleted = false
-                do {
-                    try managedContext.save()
-                } catch {
-                    print("Error deleting record")
-                }
-            }
-        }
     }
 }

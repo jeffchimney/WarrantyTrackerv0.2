@@ -16,15 +16,23 @@ public protocol ReloadDeletedTableViewDelegate: class {
 class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIViewControllerPreviewingDelegate, ReloadDeletedTableViewDelegate {
     
     let cellIdentifier = "WarrantyTableViewCell"
-    var fetchedRecords: [NSManagedObject] = []
+    var fetchedRecords: [Record] = []
     var expiredRecords: [Record] = []
     var deletedRecords: [Record] = []
     var sections: [[Record]] = [[]]
+    var managedContext: NSManagedObjectContext?
     
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        managedContext = appDelegate.persistentContainer.viewContext
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -42,7 +50,7 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        getRecordsFromCloudKit()
+        sortRecordsToSections()
         tableView.reloadData()
     }
     
@@ -63,32 +71,15 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         }
     }
     
-    func getRecordsFromCloudKit() {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        do {
-            fetchedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
+    func sortRecordsToSections() {
+        fetchedRecords = CoreDataHelper.fetchAllRecords(in: managedContext!)
         
         //get your object from CoreData
         for eachRecord in fetchedRecords {
-            let record = eachRecord as! Record
-            
-            if record.recentlyDeleted {
-                deletedRecords.append(record)
-            } else if record.expired {
-                expiredRecords.append(record)
+            if eachRecord.recentlyDeleted {
+                deletedRecords.append(eachRecord)
+            } else if eachRecord.expired {
+                expiredRecords.append(eachRecord)
             }
         }
     }
@@ -163,7 +154,8 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         // recover record on press recover
         let recover = UITableViewRowAction(style: .normal, title: "Recover") { action, index in
             if indexPath.section == 1 { // recently deleted
-                self.setRecentlyDeletedFalse(for: self.deletedRecords[indexPath.row])
+                CoreDataHelper.setRecentlyDeletedFalse(for: self.deletedRecords[indexPath.row], in: self.managedContext!)
+                self.deletedRecords.remove(at: self.deletedRecords.index(of: self.deletedRecords[indexPath.row])!)
                 tableView.reloadData()
             }
         }
@@ -173,10 +165,10 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         let delete = UITableViewRowAction(style: .destructive, title: "Delete") { action, index in
             if indexPath.section == 0 { // expired
                 
-                self.deleteFromCoreData(record: self.expiredRecords[indexPath.row])
+                CoreDataHelper.delete(record: self.expiredRecords[indexPath.row], in: self.managedContext!)
                 self.expiredRecords.remove(at: indexPath.row)
             } else { // recently deleted
-                self.deleteFromCoreData(record: self.deletedRecords[indexPath.row])
+                CoreDataHelper.delete(record: self.deletedRecords[indexPath.row], in: self.managedContext!)
                 self.deletedRecords.remove(at: indexPath.row)
             }
             tableView.reloadData()
@@ -193,75 +185,8 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
     func reloadLastControllerTableView() {
         deletedRecords = []
         expiredRecords = []
-        getRecordsFromCloudKit()
+        sortRecordsToSections()
         tableView.reloadData()
-    }
-    
-    func deleteFromCoreData(record: Record) {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        var returnedRecords: [NSManagedObject] = []
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        do {
-            returnedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for thisRecord in returnedRecords {
-            if record == thisRecord {
-                managedContext.delete(thisRecord)
-                do {
-                    try managedContext.save()
-                } catch {
-                    print("Error deleting record")
-                }
-            }
-        }
-    }
-    
-    func setRecentlyDeletedFalse(for record: Record) {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        var returnedRecords: [NSManagedObject] = []
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        do {
-            returnedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for thisRecord in returnedRecords {
-            if record == thisRecord {
-                let thisRecord = thisRecord as! Record
-                thisRecord.recentlyDeleted = false
-                deletedRecords.remove(at: deletedRecords.index(of: record)!)
-                tableView.reloadData()
-                do {
-                    try managedContext.save()
-                } catch {
-                    print("Error deleting record")
-                }
-            }
-        }
     }
     
     //MARK: Peek and Pop methods

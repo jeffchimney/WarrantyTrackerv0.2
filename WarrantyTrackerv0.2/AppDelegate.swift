@@ -8,6 +8,8 @@
 
 import UIKit
 import CoreData
+import CloudKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -21,6 +23,32 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // register for notifications
+        UNUserNotificationCenter.current().requestAuthorization(options: [[.alert, .sound, .badge]], completionHandler: { (granted, error) in
+            // Handle Error
+        })
+        
+        let settings = UIUserNotificationSettings(types: [UIUserNotificationType.alert, UIUserNotificationType.badge, UIUserNotificationType.sound], categories: nil)
+        
+        application.registerUserNotificationSettings(settings)
+        application.registerForRemoteNotifications()
+        
+        if let options: NSDictionary = launchOptions as NSDictionary? {
+            let remoteNotification =
+                options[UIApplicationLaunchOptionsKey.remoteNotification]
+            
+            
+            if let notification = remoteNotification {
+                
+                self.application(application, didReceiveRemoteNotification:
+                    notification as! [AnyHashable : Any],
+                                 fetchCompletionHandler:  { (result) in
+                })
+                UIApplication.shared.applicationIconBadgeNumber = 1 // clear current notifications
+            }
+        }
+        
         return true
     }
 
@@ -101,6 +129,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let nserror = error as NSError
                 fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
             }
+        }
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let viewController : PrimaryViewController = storyboard.instantiateViewController(withIdentifier: "primaryController") as! PrimaryViewController
+        window?.rootViewController?.show(viewController, sender: nil)
+        
+        let notification: CKNotification =
+            CKNotification(fromRemoteNotificationDictionary:
+                userInfo as! [String : NSObject])
+        
+        if (notification.notificationType ==
+            CKNotificationType.query) {
+            
+            let queryNotification =
+                notification as! CKQueryNotification
+            
+            let recordID = queryNotification.recordID
+            
+            CloudKitHelper.fetchRecord(recordID: recordID!)
         }
     }
 }

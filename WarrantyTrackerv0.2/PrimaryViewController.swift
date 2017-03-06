@@ -17,6 +17,7 @@ public protocol ReloadTableViewDelegate: class {
 
 class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, UIViewControllerPreviewingDelegate, UIScrollViewDelegate, ReloadTableViewDelegate {
     
+    var managedContext: NSManagedObjectContext?
     let searchController = UISearchController(searchResultsController: nil)
     var searchActive = false
     var rectOfLastRow = CGRect()
@@ -34,7 +35,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var archiveButton: UIBarButtonItem!
     @IBOutlet weak var syncButton: UIBarButtonItem!
     let cellIdentifier = "WarrantyTableViewCell"
-    var fetchedRecords: [NSManagedObject] = []
     var records: [Record] = []
     var filteredRecords: [Record] = []
     var ckRecords: [CKRecord] = []
@@ -50,6 +50,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        UIApplication.shared.applicationIconBadgeNumber = 0
+        
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        managedContext = appDelegate.persistentContainer.viewContext
 
         self.warrantiesTableView.delegate = self
         self.warrantiesTableView.dataSource = self
@@ -88,17 +95,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             self.present(vc, animated: true, completion: nil)
         } // otherwise, carry on as normal.
-        
-//        warrantiesTableView.layer.cornerRadius = 15
-//        
-//        view.backgroundColor = view.tintColor
-//        
-//        navigationController?.navigationBar.alpha = 1.0
-//        navigationController?.toolbar.alpha = 1.0
     }
     
     func handleRefresh(refreshControl: UIRefreshControl) {
-        // coredata
+//        // coredata
         guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
             return
         }
@@ -116,7 +116,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         let account = accountRecords[0] as! Account
         
-        var cdRecords = loadAssociatedCDRecords()
+        var cdRecords = CoreDataHelper.fetchAllRecords(in: managedContext) // loadAssociatedCDRecords()
         var cdRecordIDs: [String] = []
         for record in cdRecords {
             cdRecordIDs.append(record.recordID!)
@@ -280,85 +280,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         })
     }
     
-    func loadAssociatedCDRecords() -> [Record] {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return []
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        // Get associated images
-        let recordFetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        var recordRecords: [NSManagedObject] = []
-        do {
-            recordRecords = try managedContext.fetch(recordFetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        var recordList: [Record] = []
-        for record in recordRecords {
-            let thisRecord = record as! Record
-            
-            recordList.append(thisRecord)
-        }
-        return recordList
-    }
-    
-    func loadAssociatedCDImages(for record: Record) -> [Image] {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return []
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        // Get associated images
-        let imageFetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Image")
-        
-        var imageRecords: [NSManagedObject] = []
-        do {
-            imageRecords = try managedContext.fetch(imageFetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        var imageList: [Image] = []
-        for image in imageRecords {
-            let thisImage = image as! Image
-            
-            if thisImage.record?.recordID == record.recordID {
-                imageList.append(thisImage)
-            }
-        }
-        return imageList
-    }
-    
-    
-    
-    func loadAssociatedNotes(for record: Record) -> [Note] {
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return []
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Note")
-        
-        var noteRecords: [NSManagedObject] = []
-        do {
-            noteRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        var noteList: [Note] = []
-        for note in noteRecords {
-            let thisNote = note as! Note
-    
-            if thisNote.record?.recordID == record.recordID {
-                noteList.append(thisNote)
-            }
-        }
-        return noteList
-    }
-    
     func configureButton()
     {
         backToTopButton = UIButton()
@@ -380,7 +301,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        getRecordsFromCoreData()
+        let fetchedRecords = CoreDataHelper.fetchAllRecords(in: managedContext!)
+        checkExpiryAndDeletedDates(for: fetchedRecords, context: managedContext!)
+        
         navigationController?.isToolbarHidden = false
         
         self.warrantiesTableView.reloadData()
@@ -398,10 +321,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
-    
-//    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-//        return sectionHeaders[section]
-//    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         generator.impactOccurred()
@@ -481,7 +400,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func reloadLastControllerTableView() {
         DispatchQueue.main.async() {
-            self.getRecordsFromCoreData()
+            let fetchedRecords = CoreDataHelper.fetchAllRecords(in: self.managedContext!)
+            self.checkExpiryAndDeletedDates(for: fetchedRecords, context: self.managedContext!)
             self.warrantiesTableView.reloadData()
         }
     }
@@ -500,97 +420,42 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
     }
     
-    func delete(record: Record) {
-        
-        var fetchedRecordToDelete: Record!
-        
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        fetchRequest.predicate = NSPredicate(format: "dateCreated = %@", record.dateCreated!)
-        
-        do {
-            fetchedRecordToDelete = try managedContext.fetch(fetchRequest)[0] as! Record
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        if record.recentlyDeleted { // permenantly delete record
-            
-        } else { // set recentlyDeleted = true
-            fetchedRecordToDelete.recentlyDeleted = true
-            fetchedRecordToDelete.dateDeleted = Date() as NSDate?
-            
-            do {
-                try managedContext.save()
-            } catch {
-                print("Could not save. \(error), \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func getRecordsFromCoreData() {
-        guard let appDelegate =
-            UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
-        let managedContext =
-            appDelegate.persistentContainer.viewContext
-        
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        
-        do {
-            fetchedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        //get your object from CoreData
+    func checkExpiryAndDeletedDates(for recordsArray: [Record], context: NSManagedObjectContext) {
         records = []
-        for eachRecord in fetchedRecords {
-            let record = eachRecord as! Record
+        for eachRecord in recordsArray {
             let calendar = NSCalendar.current
             
-            if record.recentlyDeleted {
+            if eachRecord.recentlyDeleted {
                 // Replace the hour (time) of both dates with 00:00
-                let deletedDate = calendar.startOfDay(for: record.dateDeleted as! Date)
+                let deletedDate = calendar.startOfDay(for: eachRecord.dateDeleted as! Date)
                 let currentDate = calendar.startOfDay(for: Date())
                 
                 let components = calendar.dateComponents([.day], from: deletedDate, to: currentDate)
                 
                 if components.day! > 30 { // This will return the number of day(s) between dates
                     do {
-                        managedContext.delete(record)
-                        try managedContext.save()
+                        context.delete(eachRecord)
+                        try context.save()
                     } catch {
                         print("Record could not be deleted")
                     }
                 }
             } else { // add to active records list
                 // Replace the hour (time) of both dates with 00:00
-                let expiryDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
+                let expiryDate = calendar.startOfDay(for: eachRecord.warrantyEnds as! Date)
                 let currentDate = calendar.startOfDay(for: Date())
                 
                 let components = calendar.dateComponents([.day], from: expiryDate, to: currentDate)
                 
                 if components.day! > 0 { // This will return the number of day(s) between dates
                     do {
-                        record.expired = true
-                        try managedContext.save()
+                        eachRecord.expired = true
+                        try context.save()
                     } catch {
                         print("Record could not be deleted")
                     }
                 } else {
-                    records.append(record)
+                    records.append(eachRecord)
                 }
             }
         }
@@ -640,7 +505,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             if error != nil {
                 print("Error pulling from CloudKit")
             } else {
-                var cdImageRecords = self.loadAssociatedCDImages(for: associatedWith)
+                var cdImageRecords =  CoreDataHelper.fetchImages(for: associatedWith, in: self.managedContext!)// self.loadAssociatedCDImages(for: associatedWith)
                 var cdImageRecordIDs: [String] = []
                 for imageRecord in cdImageRecords {
                     cdImageRecordIDs.append(imageRecord.id!)
@@ -762,7 +627,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func saveAssociatedImagesToCloudKit(cdRecord: Record, syncedDate: Date) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-        let associatedImages = loadAssociatedCDImages(for: cdRecord)
+        let associatedImages = CoreDataHelper.fetchImages(for: cdRecord, in: managedContext!) //loadAssociatedCDImages(for: cdRecord)
         
         for image in associatedImages {
             let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
@@ -863,67 +728,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         })
     }
-    
-//    func updateImageInCloudKit(cdRecord: Record) {
-//        print(cdRecord.recordID)
-//        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-//        let recordsPredicate = NSPredicate(format: "%K == %@", "recordID" ,CKReference(recordID: CKRecordID(recordName: cdRecord.recordID!), action: .none))
-//        let query = CKQuery(recordType: "Records", predicate: recordsPredicate)
-//        
-//        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
-//            if error != nil {
-//                DispatchQueue.main.async {
-//                    print("Error retrieving from cloudkit")
-//                }
-//            } else {
-//                if (results?.count)! > 0 {
-//                    let ckRecord = (results?[0])!
-//                    
-//                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-//                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-//                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-//                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
-//                    
-//                    
-//                    do {
-//                        try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
-//                        try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
-//                        
-//                        let itemAsset = CKAsset(fileURL: url)
-//                        let receiptAsset = CKAsset(fileURL: receiptURL)
-//                        
-//                        ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
-//                        ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
-//                        ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
-//                        ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
-//                        ckRecord.setObject(itemAsset, forKey: "itemData")
-//                        ckRecord.setObject(receiptAsset, forKey: "receiptData")
-//                        ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
-//                        ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
-//                        ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
-//                        ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
-//                        ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
-//                        let syncedDate = Date()
-//                        ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-//                        cdRecord.lastSynced = syncedDate as NSDate?
-//                        
-//                        publicDatabase.save(ckRecord, completionHandler: { (record, error) in
-//                            if error != nil {
-//                                print(error!)
-//                                return
-//                            }
-//                            DispatchQueue.main.async {
-//                                print("Successfully updated record")
-//                            }
-//                        })
-//                    } catch {
-//                        print("Problems writing to URL")
-//                    }
-//                    
-//                }
-//            }
-//        })
-//    }
     
     @IBAction func syncButtonPressed(_ sender: Any) {
         
