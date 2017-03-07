@@ -98,25 +98,21 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func handleRefresh(refreshControl: UIRefreshControl) {
-//        // coredata
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        let managedContext = appDelegate.persistentContainer.viewContext
-        let recordEntity = NSEntityDescription.entity(forEntityName: "Record", in: managedContext)!
+        // coredata
+        let recordEntity = NSEntityDescription.entity(forEntityName: "Record", in: managedContext!)!
         
         let fetchRequest =
             NSFetchRequest<NSManagedObject>(entityName: "Account")
         
         var accountRecords: [NSManagedObject] = []
         do {
-            accountRecords = try managedContext.fetch(fetchRequest)
+            accountRecords = try managedContext!.fetch(fetchRequest)
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
         let account = accountRecords[0] as! Account
         
-        var cdRecords = CoreDataHelper.fetchAllRecords(in: managedContext) // loadAssociatedCDRecords()
+        var cdRecords = CoreDataHelper.fetchAllRecords(in: managedContext!) // loadAssociatedCDRecords()
         var cdRecordIDs: [String] = []
         for record in cdRecords {
             cdRecordIDs.append(record.recordID!)
@@ -205,12 +201,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                                 print("Removed from id list")
                             }
                             // sync any images that havent been synced to the cloud yet
-                            self.syncImagesToCloudKit(associatedWith: recordMatch)
+                            CloudKitHelper.syncImagesToCloudKit(associatedWith: recordMatch, in: self.managedContext!)
                         } else { // if localSynced > cloudSynced, sync from device to cloud
                             DispatchQueue.main.async {
                                 print("Updating record in cloudkit")
                             }
-                            self.updateRecordInCloudKit(cdRecord: recordMatch)
+                            CloudKitHelper.updateRecordInCloudKit(cdRecord: recordMatch, context: self.managedContext!)//  self.updateRecordInCloudKit(cdRecord: recordMatch)
                             cdRecords.remove(at: recordIndex!)
                             DispatchQueue.main.async {
                                 print("Removed from record list")
@@ -221,7 +217,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                             }
                         }
                     } else { // create new record from data in cloud
-                        let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
+                        let record = NSManagedObject(entity: recordEntity, insertInto: self.managedContext!) as! Record
                         record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
                         record.dateDeleted = result.value(forKey: "dateDeleted") as! NSDate?
                         record.daysBeforeReminder = result.value(forKey: "daysBeforeReminder") as! Int32
@@ -260,18 +256,12 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 
                 // Whatever remains in the cdRecords array, sync to cloud and set lastSynced to current time
                 for eachRecord in cdRecords {
-                    self.saveRecordToCloudKit(cdRecord: eachRecord, context: managedContext, rEntity: recordEntity)
+                    CloudKitHelper.importCDRecord(cdRecord: eachRecord, context: self.managedContext!)
                 }
-                
-                // save locally
-                do {
-                    try managedContext.save()
-                } catch {
-                    DispatchQueue.main.async {
-                        print("Connection error. Try again later.")
-                    }
-                    return
+                DispatchQueue.main.async {
+                    print("Just about to save")
                 }
+                CoreDataHelper.save(context: self.managedContext!)
             }
             DispatchQueue.main.async {
                 self.refreshControl.endRefreshing()
@@ -496,237 +486,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    func syncImagesToCloudKit(associatedWith: Record) {
-        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-        let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Images", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
-        let query = CKQuery(recordType: "Images", predicate: predicate)
-        
-        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
-            if error != nil {
-                print("Error pulling from CloudKit")
-            } else {
-                var cdImageRecords =  CoreDataHelper.fetchImages(for: associatedWith, in: self.managedContext!)// self.loadAssociatedCDImages(for: associatedWith)
-                var cdImageRecordIDs: [String] = []
-                for imageRecord in cdImageRecords {
-                    cdImageRecordIDs.append(imageRecord.id!)
-                }
-                
-                // pare down results that already exist in the cloud
-                for result in results! {
-                    let resultID = result.value(forKey: "id") as! String
-                    if cdImageRecordIDs.contains(resultID) {
-                        let index = cdImageRecordIDs.index(of: resultID)
-                        cdImageRecordIDs.remove(at: index!)
-                        cdImageRecords.remove(at: index!)
-                    }
-                }
-                // sync remaining records to cloudkit
-                for image in cdImageRecords {
-                    let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
-                    
-                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-                    do {
-                        try image.image!.write(to: url, options: NSData.WritingOptions.atomicWrite)
-                        
-                        let imageAsset = CKAsset(fileURL: url)
-                        
-                        ckImage.setObject(imageAsset, forKey: "image")
-                        
-                        let reference = CKReference(recordID: CKRecordID(recordName: associatedWith.recordID!) , action: CKReferenceAction.deleteSelf)
-                        ckImage.setObject(reference, forKey: "associatedRecord")
-                        ckImage.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
-                        ckImage.setObject(image.id as CKRecordValue?, forKey: "id")
-                        
-                        publicDatabase.save(ckImage, completionHandler: { (record, error) in
-                            if error != nil {
-                                print(error!)
-                                return
-                            }
-                            DispatchQueue.main.async {
-                                print("Successfully synced image to cloudkit")
-                            }
-                        })
-                    } catch {
-                        DispatchQueue.main.async {
-                            print("Problems writing image data to URL")
-                        }
-                    }
-                }
-            }
-        })
-    }
-    
-    func saveRecordToCloudKit(cdRecord: Record, context: NSManagedObjectContext, rEntity: NSEntityDescription) {
-        print(cdRecord.recordID)
-        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-
-        let defaults = UserDefaults.standard
-        let username = defaults.string(forKey: "username")
-        let password = defaults.string(forKey: "password")
-
-        let predicate = NSPredicate(format: "username = %@ AND password = %@", username!, password!)
-        let query = CKQuery(recordType: "Accounts", predicate: predicate)
-        var accountRecord = CKRecord(recordType: "Accounts")
-        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
-            if error != nil {
-                print("Error retrieving from cloudkit")
-            } else {
-                if (results?.count)! > 0 {
-                    accountRecord = (results?[0])!
-
-                    let ckRecord = CKRecord(recordType: "Records", recordID: CKRecordID(recordName: cdRecord.recordID!))
-                    let reference = CKReference(recordID: accountRecord.recordID, action: CKReferenceAction.deleteSelf)
-
-                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
-
-
-                    do {
-                        try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
-                        try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
-
-                        let itemAsset = CKAsset(fileURL: url)
-                        let receiptAsset = CKAsset(fileURL: receiptURL)
-
-                        ckRecord.setObject(reference, forKey: "AssociatedAccount")
-                        ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
-                        ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
-                        ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
-                        ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
-                        ckRecord.setObject(itemAsset, forKey: "itemData")
-                        ckRecord.setObject(receiptAsset, forKey: "receiptData")
-                        ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
-                        ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
-                        ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
-                        ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
-                        ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
-                        let syncedDate = Date()
-                        ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-                        cdRecord.lastSynced = syncedDate as NSDate?
-                        
-                        publicDatabase.save(ckRecord, completionHandler: { (record, error) in
-                            if error != nil {
-                                print(error!)
-                                return
-                            }
-                            print("Successfully added record")
-
-                            self.saveAssociatedImagesToCloudKit(cdRecord: cdRecord, syncedDate: syncedDate)
-                        })
-                    } catch {
-                        print("Problems writing to URL")
-                    }
-                    
-                }
-            }
-        })
-    }
-    
-    func saveAssociatedImagesToCloudKit(cdRecord: Record, syncedDate: Date) {
-        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-        let associatedImages = CoreDataHelper.fetchImages(for: cdRecord, in: managedContext!) //loadAssociatedCDImages(for: cdRecord)
-        
-        for image in associatedImages {
-            let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
-            
-            let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-            let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-            do {
-                try image.image!.write(to: url, options: NSData.WritingOptions.atomicWrite)
-                
-                let imageAsset = CKAsset(fileURL: url)
-                
-                ckImage.setObject(imageAsset, forKey: "image")
-                
-                let reference = CKReference(recordID: CKRecordID(recordName: cdRecord.recordID!) , action: CKReferenceAction.deleteSelf)
-                ckImage.setObject(reference, forKey: "associatedRecord")
-                ckImage.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-                ckImage.setObject(image.id as CKRecordValue?, forKey: "id")
-                
-                publicDatabase.save(ckImage, completionHandler: { (record, error) in
-                    if error != nil {
-                        print(error!)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        print("Successfully saved image to cloudkit")
-                    }
-                })
-            } catch {
-                DispatchQueue.main.async {
-                    print("Problems writing image data to URL")
-                }
-            }
-        }
-    }
-    
     func updateAssociatedImagesInCloudKit(cdRecord: Record, syncedDate: Date) {
         
-    }
-    
-    func updateRecordInCloudKit(cdRecord: Record) {
-        print(cdRecord.recordID)
-        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-        let recordsPredicate = NSPredicate(format: "%K == %@", "recordID" ,CKReference(recordID: CKRecordID(recordName: cdRecord.recordID!), action: .none))
-        let query = CKQuery(recordType: "Records", predicate: recordsPredicate)
-        
-        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
-            if error != nil {
-                DispatchQueue.main.async {
-                    print("Error retrieving from cloudkit")
-                }
-            } else {
-                if (results?.count)! > 0 {
-                    let ckRecord = (results?[0])!
-                    
-                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
-                    
-                    
-                    do {
-                        try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
-                        try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
-                        
-                        let itemAsset = CKAsset(fileURL: url)
-                        let receiptAsset = CKAsset(fileURL: receiptURL)
-                        
-                        ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
-                        ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
-                        ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
-                        ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
-                        ckRecord.setObject(itemAsset, forKey: "itemData")
-                        ckRecord.setObject(receiptAsset, forKey: "receiptData")
-                        ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
-                        ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
-                        ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
-                        ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
-                        ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
-                        let syncedDate = Date()
-                        ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-                        cdRecord.lastSynced = syncedDate as NSDate?
-                        
-                        publicDatabase.save(ckRecord, completionHandler: { (record, error) in
-                            if error != nil {
-                                print(error!)
-                                return
-                            }
-                            DispatchQueue.main.async {
-                                print("Successfully updated record")
-                            }
-                            self.syncImagesToCloudKit(associatedWith: cdRecord)
-                        })
-                    } catch {
-                        print("Problems writing to URL")
-                    }
-                    
-                }
-            }
-        })
     }
     
     @IBAction func syncButtonPressed(_ sender: Any) {
