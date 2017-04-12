@@ -143,6 +143,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                         defaults.set(false, forKey: "FirstLaunch")
                         defaults.set(self.username, forKey: "username")
                         defaults.set(self.password, forKey: "password")
+                        defaults.set(false, forKey: "SyncUsingData")
+                        defaults.set(true, forKey: "SignedIn")
                         
                         DispatchQueue.main.async {
                             self.performSegue(withIdentifier: "unwindToInitial", sender: nil)
@@ -208,6 +210,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                         defaults.set(false, forKey: "FirstLaunch")
                         defaults.set(self.username, forKey: "username")
                         defaults.set(self.password, forKey: "password")
+                        defaults.set(false, forKey: "SyncUsingData")
+                        defaults.set(true, forKey: "SignedIn")
                         
                         DispatchQueue.main.async {
                             self.errorLabel.text = "Retrieving existing records..."

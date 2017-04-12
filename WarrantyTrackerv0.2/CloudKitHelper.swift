@@ -64,6 +64,7 @@ class CloudKitHelper {
                         ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
                         ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
                         ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
+                        ckRecord.setObject(cdRecord.eventIdentifier! as CKRecordValue, forKey: "eventIdentifier")
                         ckRecord.setObject(itemAsset, forKey: "itemData")
                         ckRecord.setObject(receiptAsset, forKey: "receiptData")
                         ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
@@ -73,7 +74,6 @@ class CloudKitHelper {
                         ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
                         let syncedDate = Date()
                         ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-                        cdRecord.lastSynced = syncedDate as NSDate?
                         
                         publicDatabase.save(ckRecord, completionHandler: { (record, error) in
                             if error != nil {
@@ -133,7 +133,6 @@ class CloudKitHelper {
                         ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
                         let syncedDate = Date()
                         ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-                        cdRecord.lastSynced = syncedDate as NSDate?
                         
                         publicDatabase.save(ckRecord, completionHandler: { (record, error) in
                             if error != nil {

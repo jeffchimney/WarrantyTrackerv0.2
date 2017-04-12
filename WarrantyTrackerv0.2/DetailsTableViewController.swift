@@ -67,8 +67,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         tableView.dataSource = self
         tableView.delegate = self
         
-        images.append(UIImage(data: record.itemImage as! Data)!)
-        images.append(UIImage(data: record.receiptImage as! Data)!)
+        images.append(UIImage(data: record.itemImage! as Data)!)
+        images.append(UIImage(data: record.receiptImage! as Data)!)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
@@ -125,7 +125,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     func degreesToRadians(x: Double) -> Double {
-        return (M_PI * x)/180.0
+        return (.pi * x)/180.0
     }
     
     func loadAssociatedImages() {
@@ -137,7 +137,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         for image in imagesToAppend {
             if image.record?.recordID == record!.recordID {
-                images.append(UIImage(data: image.image as! Data)!)
+                images.append(UIImage(data: image.image! as Data)!)
                 imageIDs.append(image.id!)
             }
         }
@@ -280,42 +280,18 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     func itemViewTapped(sender: UITapGestureRecognizer) {
-        // show controller to take photo
-        //if isEditingRecord {
-            //tappedItem = true
-            //tappedReceipt = false
-            //generator.impactOccurred()
-            //performSegue(withIdentifier: "editImage", sender: self)
-        //} else {
         generator.impactOccurred()
         performSegue(withIdentifier: "toImageView", sender: self)
-        //}
     }
     
     func receiptViewTapped(sender: UITapGestureRecognizer) {
-        // show controller to take photo
-        //if isEditingRecord {
-        //    generator.impactOccurred()
-        //    tappedReceipt = true
-        //    tappedItem = false
-        //    performSegue(withIdentifier: "editImage", sender: self)
-        //}  else {
         generator.impactOccurred()
         performSegue(withIdentifier: "toImageView", sender: self)
-        //}
     }
     
     func imageViewTapped(sender: UITapGestureRecognizer) {
-        // show controller to take photo
-        //if isEditingRecord {
-        //    generator.impactOccurred()
-        //    tappedReceipt = false
-        //    tappedItem = false
-        //    performSegue(withIdentifier: "editImage", sender: self)
-        //}  else {
         generator.impactOccurred()
         performSegue(withIdentifier: "toImageView", sender: self)
-        //}
     }
     
     func addButtonTapped(sender: Any) {
@@ -482,6 +458,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             
             record.recentlyDeleted = true
             record.dateDeleted = Date() as NSDate?
+            record.lastUpdated = Date() as NSDate
             do {
                 try managedContext.save()
             } catch {
@@ -500,6 +477,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             record.warrantyStarts = dateFormatter.date(from: startDateCell.detail.text!) as NSDate?
             record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
             record.descriptionString = descriptionCell.title.text
+            record.lastUpdated = Date() as NSDate
             
             do {
                 try managedContext.save()
@@ -521,10 +499,10 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                             event?.alarms?.removeAll()
                         }
                         
-                        //let daysToSubtract = (weeksBeforeSegment.selectedSegmentIndex+1)*(-7)
+                        let daysToSubtract = Int(-record.daysBeforeReminder)
                         
                         var addingPeriod = DateComponents()
-                        //addingPeriod.day = daysToSubtract
+                        addingPeriod.day = daysToSubtract
                         addingPeriod.hour = 12
                         
                         let userCalendar = NSCalendar.current
@@ -535,6 +513,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                         
                         do {
                             try eventStore.save(event!, span: .thisEvent, commit: true)
+                            self.navigationController!.popToRootViewController(animated: true)
                         } catch {
                             print("The event couldnt be updated")
                         }
@@ -544,8 +523,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 print("The record couldn't be saved.")
             }
         }
-        
-        self.navigationController!.popToRootViewController(animated: true)
     }
     
     @IBAction func shareButtonPressed(_ sender: Any) {
@@ -554,7 +531,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         let title = "Title: " + record.title! + "\n"
         let descriptionText = "Description: " + record.descriptionString! + "\n"
-        let spanOfTime = "Valid from " + dateFormatter.string(from:  record.warrantyStarts as! Date) + " until " + dateFormatter.string(from:  record.warrantyEnds as! Date) + ".\n"
+        let spanOfTime = "Valid from " + dateFormatter.string(from:  record.warrantyStarts! as Date) + " until " + dateFormatter.string(from:  record.warrantyEnds! as Date) + ".\n"
         var activityItems: [Any] = [title, descriptionText, spanOfTime]
         activityItems.append("Notes:")
         for each in notes {
@@ -661,11 +638,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             
             if indexPath.row == 0 {
                 cell.title.text = "Start Date"
-                cell.detail.text = dateFormatter.string(from: record.warrantyStarts as! Date)
+                cell.detail.text = dateFormatter.string(from: record.warrantyStarts! as Date)
             }
             if indexPath.row == 1 {
                 cell.title.text = "End Date"
-                cell.detail.text = dateFormatter.string(from: record.warrantyEnds as! Date)
+                cell.detail.text = dateFormatter.string(from: record.warrantyEnds! as Date)
             }
             if indexPath.row == 2 {
                 
@@ -677,7 +654,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 addingPeriod.hour = 12
                 
                 let userCalendar = NSCalendar.current
-                let alarmDate = userCalendar.date(byAdding: addingPeriod, to: record.warrantyEnds as! Date) // this is really subtracting...
+                let alarmDate = userCalendar.date(byAdding: addingPeriod, to: record.warrantyEnds! as Date) // this is really subtracting...
                 
                 cell.title.text = "Scheduled Alert"
                 cell.detail.text = dateFormatter.string(from: alarmDate!)
@@ -686,7 +663,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 let calendar = NSCalendar.current
                 // Replace the hour (time) of both dates with 00:00
                 let currentDate = calendar.startOfDay(for: Date())
-                let endDate = calendar.startOfDay(for: record.warrantyEnds as! Date)
+                let endDate = calendar.startOfDay(for: record.warrantyEnds! as Date)
                 let daysLeft = calendar.dateComponents([.day], from: currentDate, to: endDate)
                 
                 cell.title.text = "Days Remaining"
@@ -805,7 +782,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         
         if index < images.count {
             if index == 0 {
-                imageView.image = UIImage(data: record.itemImage as! Data)
+                imageView.image = UIImage(data: record.itemImage! as Data)
                 imageView.isUserInteractionEnabled = true
                 let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
                 imageView.addGestureRecognizer(imageViewTap)
@@ -814,7 +791,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     startJiggling(viewToShake: imageView)
                 }
             } else if index == 1 {
-                imageView.image = UIImage(data: record.receiptImage as! Data)
+                imageView.image = UIImage(data: record.receiptImage! as Data)
                 imageView.isUserInteractionEnabled = true
                 let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
                 imageView.addGestureRecognizer(receiptViewTap)

@@ -18,6 +18,8 @@ class AccountQuestionViewController: UIViewController, UIPopoverPresentationCont
         // set userdefaults for first launch
         let defaults = UserDefaults.standard
         defaults.set(false, forKey: "FirstLaunch")
+        defaults.set(false, forKey: "SyncUsingData")
+        defaults.set(false, forKey: "SignedIn")
         
         performSegue(withIdentifier: "unwindToInitialController", sender: nil)
     }

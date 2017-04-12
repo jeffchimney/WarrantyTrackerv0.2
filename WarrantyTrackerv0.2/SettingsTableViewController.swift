@@ -26,5 +26,16 @@ class SettingsTableViewController: UITableViewController {
         if username != nil { // user is logged in
             
         }
+        
+        let usernameRow = tableView.cellForRow(at: IndexPath(row: 0, section: 0)) as! UsernamePasswordTableViewCell
+        
+        if UserDefaultsHelper.isSignedIn() {
+            usernameRow.usernameLabel.text = UserDefaultsHelper.getUsername()
+        } else {
+            usernameRow.usernameLabel.text = "N/A"
+        }
+        
+        let toggleRow = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! TitleAndSwitchTableViewCell
+        toggleRow.toggle.isOn = UserDefaultsHelper.canSyncUsingData()
     }
 }

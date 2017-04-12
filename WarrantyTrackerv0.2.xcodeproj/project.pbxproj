@@ -38,6 +38,11 @@
 		BECB41471DFF297200689AA4 /* EditDateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BECB41461DFF297200689AA4 /* EditDateController.swift */; };
 		BECD25D51E60E76C0028BA71 /* CloudKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BECD25D41E60E76C0028BA71 /* CloudKit.framework */; };
 		BED7A1911E2EACEA00B27F2A /* iCarousel.m in Sources */ = {isa = PBXBuildFile; fileRef = BED7A1901E2EACEA00B27F2A /* iCarousel.m */; };
+		BEE224C71E9EB7C7004D92D7 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE224C61E9EB7C7004D92D7 /* Reachability.swift */; };
+		BEE224C91E9EB810004D92D7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BEE224C81E9EB810004D92D7 /* SystemConfiguration.framework */; };
+		BEE224CB1E9ED3EB004D92D7 /* UserDefaultsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE224CA1E9ED3EB004D92D7 /* UserDefaultsHelper.swift */; };
+		BEE224CD1E9EEB9D004D92D7 /* TitleAndSwitchTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE224CC1E9EEB9D004D92D7 /* TitleAndSwitchTableViewCell.swift */; };
+		BEE224CF1E9EEF46004D92D7 /* UsernamePasswordTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE224CE1E9EEF46004D92D7 /* UsernamePasswordTableViewCell.swift */; };
 		BEE392FB1E6E26F2009FB937 /* CloudKitHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE392FA1E6E26F2009FB937 /* CloudKitHelper.swift */; };
 		BEE392FD1E6E2700009FB937 /* CoreDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEE392FC1E6E2700009FB937 /* CoreDataHelper.swift */; };
 /* End PBXBuildFile section */
@@ -100,6 +105,11 @@
 		BED7A18E1E2EACE900B27F2A /* WarrantyTrackerv0.2-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WarrantyTrackerv0.2-Bridging-Header.h"; sourceTree = "<group>"; };
 		BED7A18F1E2EACEA00B27F2A /* iCarousel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iCarousel.h; sourceTree = "<group>"; };
 		BED7A1901E2EACEA00B27F2A /* iCarousel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = iCarousel.m; sourceTree = "<group>"; };
+		BEE224C61E9EB7C7004D92D7 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		BEE224C81E9EB810004D92D7 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		BEE224CA1E9ED3EB004D92D7 /* UserDefaultsHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsHelper.swift; sourceTree = "<group>"; };
+		BEE224CC1E9EEB9D004D92D7 /* TitleAndSwitchTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TitleAndSwitchTableViewCell.swift; sourceTree = "<group>"; };
+		BEE224CE1E9EEF46004D92D7 /* UsernamePasswordTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UsernamePasswordTableViewCell.swift; sourceTree = "<group>"; };
 		BEE392FA1E6E26F2009FB937 /* CloudKitHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CloudKitHelper.swift; path = WarrantyTrackerv0.2/CloudKitHelper.swift; sourceTree = "<group>"; };
 		BEE392FC1E6E2700009FB937 /* CoreDataHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CoreDataHelper.swift; path = WarrantyTrackerv0.2/CoreDataHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -109,6 +119,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEE224C91E9EB810004D92D7 /* SystemConfiguration.framework in Frameworks */,
 				BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */,
 				BECD25D51E60E76C0028BA71 /* CloudKit.framework in Frameworks */,
 			);
@@ -183,6 +194,7 @@
 				BED7A1901E2EACEA00B27F2A /* iCarousel.m */,
 				BEB975C71DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld */,
 				BED7A18E1E2EACE900B27F2A /* WarrantyTrackerv0.2-Bridging-Header.h */,
+				BEE224C61E9EB7C7004D92D7 /* Reachability.swift */,
 			);
 			path = WarrantyTrackerv0.2;
 			sourceTree = "<group>";
@@ -210,6 +222,7 @@
 			children = (
 				BEE392FC1E6E2700009FB937 /* CoreDataHelper.swift */,
 				BEE392FA1E6E26F2009FB937 /* CloudKitHelper.swift */,
+				BEE224CA1E9ED3EB004D92D7 /* UserDefaultsHelper.swift */,
 			);
 			name = DataHandlingHelpers;
 			path = ..;
@@ -223,6 +236,8 @@
 				BE56CE471E2D50FE006870E7 /* InfoTableViewCell.swift */,
 				BE56CE491E2D5909006870E7 /* ImagesTableViewCell.swift */,
 				BE3D35931E2D6FA6009B3ED1 /* AddTableViewCell.swift */,
+				BEE224CC1E9EEB9D004D92D7 /* TitleAndSwitchTableViewCell.swift */,
+				BEE224CE1E9EEF46004D92D7 /* UsernamePasswordTableViewCell.swift */,
 			);
 			name = TableViewCells;
 			sourceTree = "<group>";
@@ -230,6 +245,7 @@
 		BE69FF1B1DE4DD830052685E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BEE224C81E9EB810004D92D7 /* SystemConfiguration.framework */,
 				BECD25D41E60E76C0028BA71 /* CloudKit.framework */,
 				BE69FF1C1DE4DD830052685E /* CoreData.framework */,
 			);
@@ -387,6 +403,8 @@
 				BE56CE481E2D50FE006870E7 /* InfoTableViewCell.swift in Sources */,
 				BEE392FB1E6E26F2009FB937 /* CloudKitHelper.swift in Sources */,
 				BE3BD96E1DC9B617004CBD07 /* WarrantyDetailsViewController.swift in Sources */,
+				BEE224C71E9EB7C7004D92D7 /* Reachability.swift in Sources */,
+				BEE224CD1E9EEB9D004D92D7 /* TitleAndSwitchTableViewCell.swift in Sources */,
 				BED7A1911E2EACEA00B27F2A /* iCarousel.m in Sources */,
 				BE81B6061E246D1E00EF71CC /* RecoverCardViewController.swift in Sources */,
 				BEA0D6D71DE8E66800A2AFFE /* ImageViewController.swift in Sources */,
@@ -395,6 +413,8 @@
 				BE1C11141DC921D200B0D493 /* PrimaryViewController.swift in Sources */,
 				BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */,
 				BE395BFF1E5A74020085353E /* SettingsTableViewController.swift in Sources */,
+				BEE224CB1E9ED3EB004D92D7 /* UserDefaultsHelper.swift in Sources */,
+				BEE224CF1E9EEF46004D92D7 /* UsernamePasswordTableViewCell.swift in Sources */,
 				BE56CE4A1E2D5909006870E7 /* ImagesTableViewCell.swift in Sources */,
 				BE6525551E1F46A200DF03BC /* WhySignUpController.swift in Sources */,
 				BEB975C91DE4D59C000DD5F4 /* WarrantyTracker.xcdatamodeld in Sources */,

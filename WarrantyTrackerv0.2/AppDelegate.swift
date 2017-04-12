@@ -49,6 +49,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
         
+        // check for network availability
+        do {
+            Network.reachability = try Reachability(hostname: "www.google.com")
+            do {
+                try Network.reachability?.start()
+            } catch let error as Network.Error {
+                print(error)
+            } catch {
+                print(error)
+            }
+        } catch {
+            print(error)
+        }
+        
         return true
     }
 
