@@ -158,7 +158,27 @@ class CoreDataHelper {
                 }
             }
         }
+    }
+    
+    static func deleteAll() {
+        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
+            return
+        }
+        let context = appDelegate.persistentContainer.viewContext
+        let entityList = ["Note", "Tag", "Image", "Record", "Account"]
         
+        for entity in entityList {
+            let deleteFetch = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
+            let deleteRequest = NSBatchDeleteRequest(fetchRequest: deleteFetch)
+            
+            do {
+                try context.execute(deleteRequest)
+                try context.save()
+                print (entity + "s were successfully deleted.")
+            } catch {
+                print ("There was an error deleting " + entity)
+            }
+        }
     }
     
     static func setRecentlyDeletedFalse(for record: Record, in context: NSManagedObjectContext) {

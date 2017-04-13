@@ -461,6 +461,17 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             record.lastUpdated = Date() as NSDate
             do {
                 try managedContext.save()
+                
+                if (UserDefaultsHelper.isSignedIn()) {
+                    // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                    let conn = UserDefaultsHelper.currentConnection()
+                    if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                        CloudKitHelper.updateRecordInCloudKit(cdRecord: record, context: managedContext)
+                    } else {
+                        // queue up the record to sync when you have a good connection
+                        UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
+                    }
+                }
             } catch {
                 print("The record couldn't be updated.")
             }
@@ -517,6 +528,17 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                         } catch {
                             print("The event couldnt be updated")
                         }
+                    }
+                }
+                
+                if (UserDefaultsHelper.isSignedIn()) {
+                    // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                    let conn = UserDefaultsHelper.currentConnection()
+                    if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                        CloudKitHelper.updateRecordInCloudKit(cdRecord: record, context: managedContext)
+                    } else {
+                        // queue up the record to sync when you have a good connection
+                        UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
                     }
                 }
             } catch {

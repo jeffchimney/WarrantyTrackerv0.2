@@ -616,25 +616,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             defaults.set("unreachable", forKey: "connection")
         case .wifi:
             defaults.set("wifi", forKey: "connection")
+            syncEverything()
             
-            guard let appDelegate =
-                UIApplication.shared.delegate as? AppDelegate else {
-                    return
-            }
-            
-            let managedContext = appDelegate.persistentContainer.viewContext
-            let queuedRecords = UserDefaultsHelper.getQueuedChanges() 
-            
-            if queuedRecords != nil {
-                if (queuedRecords?.count)! > 0 {
-                    for recordID in queuedRecords! {
-                        CloudKitHelper.importCDRecord(cdRecord: CoreDataHelper.fetchRecord(with: recordID, in: managedContext), context: managedContext)
-                    }
-                    UserDefaultsHelper.setQueueToEmpty()
-                }
-            }
         case .wwan:
             defaults.set("data", forKey: "connection")
+            if UserDefaultsHelper.canSyncUsingData() {
+                syncEverything() // there should only be anything in the queued array if the user is just coming out of an area of no service.
+            }
         }
         print("Reachability Summary")
         print("Status:", status)
@@ -644,6 +632,39 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     func statusManager(_ notification: NSNotification) {
         updateUserInterface()
+    }
+    
+    func syncEverything() {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        let queuedRecords = UserDefaultsHelper.getQueuedChanges()
+        
+        if queuedRecords != nil {
+            if (queuedRecords?.count)! > 0 {
+                for recordID in queuedRecords! {
+                    
+                    let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+                    publicDatabase.fetch(withRecordID: CKRecordID(recordName: recordID), completionHandler: ({record, error in
+                        let fetchedRecord = CoreDataHelper.fetchRecord(with: recordID, in: managedContext) as Record
+                        if let err = error {
+                            DispatchQueue.main.async() {
+                                print(err.localizedDescription)
+                                print("Syncing as new record to cloud.")
+                            }
+                            // couldn't find record, save in cloud as new record
+                            CloudKitHelper.importCDRecord(cdRecord: fetchedRecord, context: managedContext)
+                        } else { // found record, update it in cloud
+                            CloudKitHelper.updateRecordInCloudKit(cdRecord: fetchedRecord, context: managedContext)
+                        }
+                    }))
+                }
+                UserDefaultsHelper.setQueueToEmpty()
+            }
+        }
     }
 }
 

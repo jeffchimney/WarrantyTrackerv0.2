@@ -24,6 +24,10 @@ class UserDefaultsHelper {
         return defaults.object(forKey: "SignedIn") as! Bool
     }
     
+    static func isSignedIn(bool: Bool) {
+        defaults.set(bool, forKey: "SignedIn")
+    }
+    
     static func canSyncUsingData() -> Bool {
         return defaults.object(forKey: "SyncUsingData") as! Bool
     }
@@ -40,7 +44,9 @@ class UserDefaultsHelper {
         var queuedRecords = defaults.object(forKey: "recordQueue") as! [String]?
         
         if queuedRecords != nil {
-            queuedRecords!.append(recordID)
+            if !(queuedRecords?.contains(recordID))! {
+                queuedRecords!.append(recordID)
+            }
         } else {
             queuedRecords = []
             queuedRecords!.append(recordID)

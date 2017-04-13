@@ -21,7 +21,7 @@ class CloudKitHelper {
                     print(err.localizedDescription)
                 }
             } else {
-                //return record!
+                // found record
             }
         }))
     }
@@ -248,6 +248,41 @@ class CloudKitHelper {
                 DispatchQueue.main.async {
                     print("Problems writing image data to URL")
                 }
+            }
+        }
+    }
+    
+    static func saveImageToCloud(imageRecord: Image, associatedRecord: Record) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        
+        let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
+        
+        let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+        let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
+        do {
+            try imageRecord.image!.write(to: url, options: NSData.WritingOptions.atomicWrite)
+            
+            let imageAsset = CKAsset(fileURL: url)
+            
+            ckImage.setObject(imageAsset, forKey: "image")
+            
+            let reference = CKReference(recordID: CKRecordID(recordName: associatedRecord.recordID!) , action: CKReferenceAction.deleteSelf)
+            ckImage.setObject(reference, forKey: "associatedRecord")
+            ckImage.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
+            ckImage.setObject(imageRecord.id as CKRecordValue?, forKey: "id")
+            
+            publicDatabase.save(ckImage, completionHandler: { (record, error) in
+                if error != nil {
+                    print(error!)
+                    return
+                }
+                DispatchQueue.main.async {
+                    print("Successfully saved image to cloudkit")
+                }
+            })
+        } catch {
+            DispatchQueue.main.async {
+                print("Problems writing image data to URL")
             }
         }
     }
