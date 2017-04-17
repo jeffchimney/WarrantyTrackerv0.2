@@ -115,7 +115,11 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imageView.contentMode = .scaleAspectFit
+            session?.stopRunning()
+            imageView.layer.sublayers?.removeAll()
+            imageView.contentMode = .scaleAspectFill
             imageView.image = pickedImage
+            imageDataToSave = UIImagePNGRepresentation(pickedImage)
             imagePicked = true
         }
         

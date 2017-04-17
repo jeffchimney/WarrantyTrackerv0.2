@@ -43,33 +43,35 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
             nextButton.title = "Next"
         }
         
-        session = AVCaptureSession()
-        session!.sessionPreset = AVCaptureSessionPresetPhoto
-        let backCamera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
-        
-        var error: NSError?
-        var input: AVCaptureDeviceInput!
-        do {
-            input = try AVCaptureDeviceInput(device: backCamera)
-        } catch let error1 as NSError {
-            error = error1
-            input = nil
-            print(error!.localizedDescription)
-        }
-        
-        if error == nil && session!.canAddInput(input) {
-            session!.addInput(input)
+        if !imagePicked {
+            session = AVCaptureSession()
+            session!.sessionPreset = AVCaptureSessionPresetPhoto
+            let backCamera = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo)
             
-            stillImageOutput = AVCaptureStillImageOutput()
-            stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+            var error: NSError?
+            var input: AVCaptureDeviceInput!
+            do {
+                input = try AVCaptureDeviceInput(device: backCamera)
+            } catch let error1 as NSError {
+                error = error1
+                input = nil
+                print(error!.localizedDescription)
+            }
             
-            if session!.canAddOutput(stillImageOutput) {
-                session!.addOutput(stillImageOutput)
-                videoPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
-                videoPreviewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
-                videoPreviewLayer!.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
-                imageView.layer.addSublayer(videoPreviewLayer!)
-                session!.startRunning()
+            if error == nil && session!.canAddInput(input) {
+                session!.addInput(input)
+                
+                stillImageOutput = AVCaptureStillImageOutput()
+                stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+                
+                if session!.canAddOutput(stillImageOutput) {
+                    session!.addOutput(stillImageOutput)
+                    videoPreviewLayer = AVCaptureVideoPreviewLayer(session: session)
+                    videoPreviewLayer!.videoGravity = AVLayerVideoGravityResizeAspectFill
+                    videoPreviewLayer!.connection?.videoOrientation = AVCaptureVideoOrientation.portrait
+                    imageView.layer.addSublayer(videoPreviewLayer!)
+                    session!.startRunning()
+                }
             }
         }
     }
@@ -117,7 +119,11 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imageView.contentMode = .scaleAspectFit
+            session?.stopRunning()
+            imageView.layer.sublayers?.removeAll()
+            imageView.contentMode = .scaleAspectFill
             imageView.image = pickedImage
+            imageDataToSave = UIImagePNGRepresentation(pickedImage)
             imagePicked = true
         }
         
