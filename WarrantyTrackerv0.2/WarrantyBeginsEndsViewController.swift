@@ -27,11 +27,14 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
     @IBOutlet weak var daysBeforePicker: UIPickerView!
     @IBOutlet weak var remindMeLabel1: UILabel!
     @IBOutlet weak var remindMeLabel2: UILabel!
+    @IBOutlet weak var datesSlidingView: UIView!
+    @IBOutlet weak var daysBeforeSlidingView: UIView!
     
     var startDatePicked = false
     var endDatePicked = false
     var hasWarranty = true
     var pickerData: [String] = []
+    var navBarHeight: CGFloat!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +46,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         selectedStartDate.textColor = UIColor.red
         selectedEndDate.textColor = UIColor.red
         saveDateButton.setTitle("Set Start Date", for: .normal)
+        saveDateButton.layer.cornerRadius = 10
         warrantyBeginsLabel.isHidden = true
         warrantyEndsLabel.isHidden = true
         selectedEndDate.isHidden = true
@@ -58,10 +62,32 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         }
         
         daysBeforePicker.delegate = self
+        
+        datesSlidingView.layer.shadowColor = UIColor.black.cgColor
+        datesSlidingView.layer.shadowOpacity = 0.7
+        datesSlidingView.layer.shadowOffset = CGSize.zero
+        datesSlidingView.layer.shadowRadius = 5
+        datesSlidingView.translatesAutoresizingMaskIntoConstraints = true
+        datesSlidingView.layer.cornerRadius = 15
+        
+        daysBeforeSlidingView.layer.shadowColor = UIColor.black.cgColor
+        daysBeforeSlidingView.layer.shadowOpacity = 0.7
+        daysBeforeSlidingView.layer.shadowOffset = CGSize.zero
+        daysBeforeSlidingView.layer.shadowRadius = 5
+        daysBeforeSlidingView.translatesAutoresizingMaskIntoConstraints = true
+        daysBeforeSlidingView.layer.cornerRadius = 15
+        
+        navBarHeight = navigationController!.navigationBar.frame.height
+        navigationController?.isToolbarHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(true)
         daysBeforePicker.selectRow(6, inComponent: 0, animated: false)
+        datesSlidingView.center.y = -datesSlidingView.frame.height
+        print(daysBeforeSlidingView.center.y)
+        daysBeforeSlidingView.center.y = view.frame.height + daysBeforeSlidingView.frame.height
+        print(daysBeforeSlidingView.center.y)
     }
     
     override func didReceiveMemoryWarning() {
@@ -93,11 +119,21 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             saveDateButton.setTitle("Set End Date", for: .normal)
             startDatePicked = true
             nextButton.title = "Skip"
+            
+            UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
+                //let statusHeight = UIApplication.shared.statusBarFrame.size.height
+                self.datesSlidingView.center.y = self.datesSlidingView.frame.height/2
+            }, completion: { (_) in
+            })
+            
         } else if startDatePicked == true && endDatePicked == false { // set end date
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             let endDate = dateFormatter.string(from: beginsPicker.date)
             self.selectedEndDate.text = endDate
+            
+            warrantyEndsLabel.alpha = 0
+            selectedEndDate.alpha = 0
             
             warrantyEndsLabel.isHidden = false
             selectedEndDate.isHidden = false
@@ -108,6 +144,15 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             remindMeLabel1.isHidden = false
             daysBeforePicker.isHidden = false
             remindMeLabel2.isHidden = false
+            
+            UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
+                self.warrantyEndsLabel.alpha = 1
+                self.selectedEndDate.alpha = 1
+                
+                self.daysBeforeSlidingView.center.y = self.view.frame.height - self.daysBeforeSlidingView.frame.height/2
+            }, completion: { (_) in
+                print(self.daysBeforeSlidingView.center.y)
+            })
         } else if startDatePicked == true && endDatePicked == true { // clear both dates and start over
             self.selectedStartDate.text = ""
             self.selectedEndDate.text = ""
@@ -117,6 +162,17 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             startDatePicked = false
             endDatePicked = false
             nextButton.title = "Skip"
+            saveDateButton.setTitle("Set Start Date", for: .normal)
+            
+            UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
+                self.warrantyEndsLabel.alpha = 1
+                self.selectedEndDate.alpha = 1
+                
+                self.daysBeforeSlidingView.center.y = self.view.frame.height + self.daysBeforeSlidingView.frame.height/2
+                self.datesSlidingView.center.y = -self.datesSlidingView.frame.height/2
+            }, completion: { (_) in
+                print(self.daysBeforeSlidingView.center.y)
+            })
         }
         
     }

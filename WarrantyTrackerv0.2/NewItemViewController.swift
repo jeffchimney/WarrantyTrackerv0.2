@@ -30,6 +30,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         super.viewDidLoad()
         imagePicker.delegate = self
         navBar.title = "Item"
+        navigationController?.isToolbarHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -119,7 +120,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             imageView.layer.sublayers?.removeAll()
             imageView.contentMode = .scaleAspectFill
             imageView.image = pickedImage
-            imageDataToSave = UIImagePNGRepresentation(pickedImage)
+            imageDataToSave = UIImageJPEGRepresentation(pickedImage, 1.0)
             imagePicked = true
         }
         

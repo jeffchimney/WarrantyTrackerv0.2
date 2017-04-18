@@ -119,8 +119,9 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
             imageView.layer.sublayers?.removeAll()
             imageView.contentMode = .scaleAspectFill
             imageView.image = pickedImage
-            imageDataToSave = UIImagePNGRepresentation(pickedImage)
+            imageDataToSave = UIImageJPEGRepresentation(pickedImage, 1.0)
             imagePicked = true
+            saveButton.isEnabled = true
         }
         
         dismiss(animated: true, completion: nil)

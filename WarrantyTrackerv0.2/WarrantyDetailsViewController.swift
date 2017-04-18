@@ -11,7 +11,7 @@ import CoreData
 import CloudKit
 import EventKit
 
-class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
+class WarrantyDetailsViewController: UITableViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     
     // variables that have been passed forward
     var itemImageData: Data! = nil
@@ -65,6 +65,7 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UIPi
         titleTextField.becomeFirstResponder()
         
         requestAccessToCalendar()
+        navigationController?.isToolbarHidden = true
     }
     
     override func didReceiveMemoryWarning() {

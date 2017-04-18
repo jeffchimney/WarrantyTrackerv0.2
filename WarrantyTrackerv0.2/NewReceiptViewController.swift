@@ -34,6 +34,7 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
         super.viewDidLoad()
         imagePicker.delegate = self
         navBar.title = "Receipt"
+        navigationController?.isToolbarHidden = true
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -96,7 +97,7 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
                 if sampleBuffer != nil {
                     let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
                     self.imageDataToSave = imageData
-                    let dataProvider = CGDataProvider(data: imageData as! CFData)
+                    let dataProvider = CGDataProvider(data: imageData! as CFData)
                     let cgImageRef = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: CGColorRenderingIntent.defaultIntent)
                     let image = UIImage(cgImage: cgImageRef!, scale: 1.0, orientation: UIImageOrientation.right)
                     self.session?.stopRunning()
@@ -123,7 +124,7 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
             imageView.layer.sublayers?.removeAll()
             imageView.contentMode = .scaleAspectFill
             imageView.image = pickedImage
-            imageDataToSave = UIImagePNGRepresentation(pickedImage)
+            imageDataToSave = UIImageJPEGRepresentation(pickedImage, 1.0)
             imagePicked = true
         }
         
