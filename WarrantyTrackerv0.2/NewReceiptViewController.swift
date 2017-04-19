@@ -74,7 +74,7 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
                     session!.startRunning()
                 }
             }
-            videoPreviewLayer!.frame = imageView.bounds
+            //videoPreviewLayer!.frame = imageView.bounds
         }
     }
     

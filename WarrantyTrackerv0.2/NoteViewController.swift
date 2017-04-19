@@ -16,9 +16,10 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
     // variables passed from last view
     var record: Record!
     var isEditingRecord: Bool!
-    var titleText: String!
-    var bodyText: String!
+//    var titleText: String!
+//    var bodyText: String!
     var selectedNotesIndex: Int!
+    var note: Note!
     //
     
     @IBOutlet weak var noteTitle: UITextField!
@@ -35,8 +36,8 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         noteTitle.borderStyle = .none
         //noteTitle.becomeFirstResponder()
         indicator.isHidden = true
-        noteTitle.text = titleText
-        noteBody.text = bodyText
+        noteTitle.text = note.title!
+        noteBody.text = note.noteString!
         navigationController?.setToolbarHidden(false, animated: false)
         
         if !isEditingRecord {

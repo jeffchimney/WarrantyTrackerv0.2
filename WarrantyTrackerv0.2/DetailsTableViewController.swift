@@ -541,6 +541,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                         UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
                     }
                 }
+                navigationController?.popViewController(animated: true)
             } catch {
                 print("The record couldn't be saved.")
             }
@@ -713,6 +714,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 cell.noteImageView.layer.masksToBounds = false
                 cell.noteImageView.clipsToBounds = true
                 cell.title.text = notes[indexPath.row-1].title
+                cell.note = notes[indexPath.row-1]
 
                 return cell
             } else {
@@ -892,20 +894,24 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 nextViewController.selectedNotesIndex = selectedNotesIndex
                 
                 if selectedNotesIndex != -1  && selectedNotesIndex != 0{
-                    nextViewController.titleText = notes[selectedNotesIndex-1].title!
-                    nextViewController.bodyText = notes[selectedNotesIndex-1].noteString!
                     nextViewController.title = "Edit Note"
+                    nextViewController.note = notes[selectedNotesIndex-1]
                 }
                 
                 if isEditingRecord && !willEditNote && selectedNotesIndex != 0{ // create new note
                     nextViewController.navBar.title = "Create Note"
-                    nextViewController.titleText = ""
-                    nextViewController.bodyText  = "Text"
+                    let emptyNote = Note()
+                    emptyNote.title = "Title"
+                    emptyNote.noteString = "Body"
+                    emptyNote.record = record
+                    nextViewController.note = emptyNote
                 }
                 
                 if selectedNotesIndex == 0 {
-                    nextViewController.titleText = "Description:"
-                    nextViewController.bodyText = record.descriptionString!
+                    let descriptionNote = Note()
+                    descriptionNote.title = "Description:"
+                    descriptionNote.noteString = record.descriptionString!
+                    nextViewController.note = descriptionNote
                 }
             }
         }
@@ -966,12 +972,13 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             noteViewController.selectedNotesIndex = indexPath.row
             
             if indexPath.row == 0 {
-                noteViewController.titleText = "Description:"
-                noteViewController.bodyText = record.descriptionString!
+                let descriptionNote = Note()
+                descriptionNote.title = "Description:"
+                descriptionNote.noteString = record.descriptionString!
+                noteViewController.note = descriptionNote
             } else {
                 noteViewController.navBar.title = "Edit Note"
-                noteViewController.titleText = notes[indexPath.row-1].title
-                noteViewController.bodyText = notes[indexPath.row-1].noteString
+                noteViewController.note = notes[indexPath.row-1]
             }
             
             noteViewController.preferredContentSize =

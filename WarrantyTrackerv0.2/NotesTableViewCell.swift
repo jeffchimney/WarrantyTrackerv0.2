@@ -11,6 +11,7 @@ import UIKit
 
 class NotesTableViewCell: UITableViewCell {
     
+    var note: Note!
     @IBOutlet weak var title: UILabel!
     @IBOutlet weak var noteImageView: UIImageView!
     
