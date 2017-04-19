@@ -74,16 +74,8 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
                     session!.startRunning()
                 }
             }
+            videoPreviewLayer!.frame = imageView.bounds
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        videoPreviewLayer!.frame = imageView.bounds
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        
     }
     
     override func didReceiveMemoryWarning() {

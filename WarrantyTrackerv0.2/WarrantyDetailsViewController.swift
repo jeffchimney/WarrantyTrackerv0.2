@@ -264,16 +264,11 @@ class WarrantyDetailsViewController: UITableViewController, UITextFieldDelegate,
         if (textField.text != "" && textField == tagsTextField) {
             addTagToArray(usingString: textField.text!)
         }
-        //textField.resignFirstResponder()
         
-        //
-        let nextTage=textField.tag+1;
-        // Try to find next responder
-        let nextResponder=textField.superview?.viewWithTag(nextTage) as UIResponder!
-        
-        if (nextResponder != nil){
-            // Found next responder, so set it.
-            nextResponder?.becomeFirstResponder()
+        if titleTextField.isFirstResponder {
+            descriptionTextField.becomeFirstResponder()
+        } else if descriptionTextField.isFirstResponder {
+            tagsTextField.becomeFirstResponder()
         }
         return false // We do not want UITextField to insert line-breaks.
     }
