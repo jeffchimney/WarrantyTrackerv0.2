@@ -8,6 +8,7 @@
 
 import Foundation
 import CoreData
+import CloudKit
 
 class CoreDataHelper {
     
@@ -86,7 +87,7 @@ class CoreDataHelper {
         return imageList
     }
     
-    static func fetchNote(with id: String, in context: NSManagedObjectContext) -> Note {
+    static func fetchNote(with id: String, in context: NSManagedObjectContext) -> Note? {
         let predicate = NSPredicate(format: "id = %@", id)
         
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Note")
@@ -97,6 +98,7 @@ class CoreDataHelper {
             returnedNotes = try context.fetch(fetchRequest)
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
+            return nil
         }
         let note = returnedNotes[0] as! Note
         
@@ -206,4 +208,78 @@ class CoreDataHelper {
         }
     }
     
+    static func importNotesFromCloudKit(associatedWith: Record, in context: NSManagedObjectContext) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
+        let query = CKQuery(recordType: "Notes", predicate: predicate)
+        
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print("Error pulling from CloudKit")
+            } else {
+                // pare down results that already exist in the cloud
+                for result in results! {
+                    let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: context)!
+                    let note = NSManagedObject(entity: noteEntity, insertInto: context) as! Note
+                    
+                    note.id = result.recordID.recordName
+                    note.lastSynced = Date() as NSDate
+                    note.title = result.value(forKey: "title") as? String
+                    note.noteString = result.value(forKey: "noteString") as? String
+                    note.record = associatedWith
+                    
+                    // save locally
+                    do {
+                        try context.save()
+                        DispatchQueue.main.async {
+                            print("Imported notes to core data")
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            print("Error importing notes to core data")
+                        }
+                        return
+                    }
+                }
+            }
+        })
+    }
+    
+    static func importImagesFromCloudKit(associatedWith: Record, in context: NSManagedObjectContext) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Images", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
+        let query = CKQuery(recordType: "Images", predicate: predicate)
+        
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print("Error pulling from CloudKit")
+            } else {
+                // pare down results that already exist in the cloud
+                for result in results! {
+                    let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: context)!
+                    let image = NSManagedObject(entity: imageEntity, insertInto: context) as! Image
+                    
+                    image.lastSynced = Date() as NSDate
+                    // CKAssets need to be converted to NSData
+                    let imageData = result.value(forKey: "itemData") as! CKAsset
+                    image.image = NSData(contentsOf: imageData.fileURL)
+                    image.id = result.recordID.recordName
+                    image.record = associatedWith
+                    
+                    // save locally
+                    do {
+                        try context.save()
+                        DispatchQueue.main.async {
+                            print("Imported images to core data")
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            print("Error importing images to core data")
+                        }
+                        return
+                    }
+                }
+            }
+        })
+    }
 }

@@ -23,7 +23,7 @@ public protocol EditImageDelegate: class {
     func addNewImage(newImage: UIImage, newID: String)
 }
 public protocol HandleNotesDelegate: class {
-    func passBack(newNote: Note)
+    func passBack(newNote: Note, selectedIndex: Int)
     func deleteNote(at index: Int)
 }
 
@@ -151,10 +151,15 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         }
     }
     
-    func passBack(newNote: Note) {
-        notes.append(newNote)
-        noteIDs.append(newNote.id!)
-        tableView.insertRows(at: [IndexPath(row: notes.count, section: 2)], with: .fade)
+    func passBack(newNote: Note, selectedIndex: Int) {
+        
+        if selectedIndex != 0 {
+            if !notes.contains(newNote) {
+                notes.append(newNote)
+                noteIDs.append(newNote.id!)
+                tableView.insertRows(at: [IndexPath(row: notes.count, section: 2)], with: .fade)
+            }
+        }
     }
     
     func deleteNote(at index: Int) {
@@ -888,6 +893,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         }
         if segue.identifier == "toCreateNote" {
             if let nextViewController = segue.destination as? NoteViewController {
+                let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext!)!
                 nextViewController.record = record
                 nextViewController.handleNotesDelegate = self
                 nextViewController.isEditingRecord = isEditingRecord
@@ -900,17 +906,19 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 
                 if isEditingRecord && !willEditNote && selectedNotesIndex != 0{ // create new note
                     nextViewController.navBar.title = "Create Note"
-                    let emptyNote = Note()
+                    let emptyNote = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
                     emptyNote.title = "Title"
                     emptyNote.noteString = "Body"
                     emptyNote.record = record
+                    emptyNote.id = "temp"
                     nextViewController.note = emptyNote
                 }
                 
                 if selectedNotesIndex == 0 {
-                    let descriptionNote = Note()
+                    let descriptionNote = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
                     descriptionNote.title = "Description:"
                     descriptionNote.noteString = record.descriptionString!
+                    descriptionNote.id = "descriptionNote"
                     nextViewController.note = descriptionNote
                 }
             }
@@ -972,9 +980,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             noteViewController.selectedNotesIndex = indexPath.row
             
             if indexPath.row == 0 {
-                let descriptionNote = Note()
+                let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext!)!
+                let descriptionNote = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
                 descriptionNote.title = "Description:"
                 descriptionNote.noteString = record.descriptionString!
+                descriptionNote.id = "descriptionNote"
                 noteViewController.note = descriptionNote
             } else {
                 noteViewController.navBar.title = "Edit Note"

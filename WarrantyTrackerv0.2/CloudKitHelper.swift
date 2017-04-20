@@ -29,7 +29,6 @@ class CloudKitHelper {
     static func importCDRecord(cdRecord: Record, context: NSManagedObjectContext) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
         let defaults = UserDefaults.standard
-//        let defaults = UserDefaults.standard
         let username = defaults.string(forKey: "username")
         let password = defaults.string(forKey: "password")
         
@@ -83,6 +82,7 @@ class CloudKitHelper {
                             print("Successfully added record")
                             
                             self.importAssociatedImages(cdRecord: cdRecord, syncedDate: syncedDate, context: context)
+                            self.importAssociatedNotes(cdRecord: cdRecord, syncedDate: syncedDate, context: context)
                         })
                     } catch {
                         print("Problems writing to URL")
@@ -143,6 +143,7 @@ class CloudKitHelper {
                                 print("Successfully updated record")
                             }
                             self.syncImagesToCloudKit(associatedWith: cdRecord, in: context)
+                            self.syncNotesToCloudKit(associatedWith: cdRecord, in: context)
                         })
                     } catch {
                         print("Problems writing to URL")
@@ -169,14 +170,17 @@ class CloudKitHelper {
                 }
                 
                 // pare down results that already exist in the cloud
-                for result in results! {
-                    let resultID = result.value(forKey: "id") as! String
-                    if cdImageRecordIDs.contains(resultID) {
-                        let index = cdImageRecordIDs.index(of: resultID)
-                        cdImageRecordIDs.remove(at: index!)
-                        cdImageRecords.remove(at: index!)
+                if results != nil {
+                    for result in results! {
+                        let resultID = result.value(forKey: "id") as! String
+                        if cdImageRecordIDs.contains(resultID) {
+                            let index = cdImageRecordIDs.index(of: resultID)
+                            cdImageRecordIDs.remove(at: index!)
+                            cdImageRecords.remove(at: index!)
+                        }
                     }
                 }
+                
                 // sync remaining records to cloudkit
                 for image in cdImageRecords {
                     let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
@@ -200,9 +204,6 @@ class CloudKitHelper {
                                 print(error!)
                                 return
                             }
-                            DispatchQueue.main.async {
-                                print("Successfully synced image to cloudkit")
-                            }
                         })
                     } catch {
                         DispatchQueue.main.async {
@@ -214,12 +215,61 @@ class CloudKitHelper {
         })
     }
     
+    static func syncNotesToCloudKit(associatedWith: Record, in context: NSManagedObjectContext) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
+        let query = CKQuery(recordType: "Notes", predicate: predicate)
+
+        
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print("Error pulling from CloudKit")
+            } else {
+                var cdNotesRecords = CoreDataHelper.fetchNotes(for: associatedWith, in: context)
+                var cdNotesRecordIDs: [String] = []
+                for noteRecord in cdNotesRecords {
+                    cdNotesRecordIDs.append(noteRecord.id!)
+                }
+
+                // pare down results that already exist in the cloud
+                if results != nil {
+                    for result in results! {
+                        let resultID = result.recordID.recordName
+                        if cdNotesRecordIDs.contains(resultID) {
+                            let index = cdNotesRecordIDs.index(of: resultID)
+                            cdNotesRecordIDs.remove(at: index!)
+                            cdNotesRecords.remove(at: index!)
+                        }
+                    }
+                }
+                
+                // sync remaining records to cloudkit
+                for note in cdNotesRecords {
+                    let ckNote = CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: note.id!))
+                        
+                    let reference = CKReference(recordID: CKRecordID(recordName: associatedWith.recordID!) , action: CKReferenceAction.deleteSelf)
+                    ckNote.setObject(reference, forKey: "associatedRecord")
+                    ckNote.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
+                    ckNote.setObject(note.title! as CKRecordValue?, forKey: "title")
+                    ckNote.setObject(note.noteString! as CKRecordValue?, forKey: "title")
+                    
+                    publicDatabase.save(ckNote, completionHandler: { (record, error) in
+                        if error != nil {
+                            print(error!)
+                            return
+                        }
+                    })
+                }
+            }
+        })
+    }
+    
     static func importAssociatedImages(cdRecord: Record, syncedDate: Date, context: NSManagedObjectContext) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
         let associatedImages = CoreDataHelper.fetchImages(for: cdRecord, in: context) //loadAssociatedCDImages(for: cdRecord)
         
         for image in associatedImages {
-            let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
+            let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: image.id!))
             
             let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
             let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
@@ -251,11 +301,35 @@ class CloudKitHelper {
             }
         }
     }
+    static func importAssociatedNotes(cdRecord: Record, syncedDate: Date, context: NSManagedObjectContext) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        let associatedNotes = CoreDataHelper.fetchNotes(for: cdRecord, in: context)
+        
+        for note in associatedNotes {
+            let ckNote = CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: note.id!))
+            
+            let reference = CKReference(recordID: CKRecordID(recordName: cdRecord.recordID!) , action: CKReferenceAction.deleteSelf)
+            ckNote.setObject(reference, forKey: "associatedRecord")
+            ckNote.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
+            ckNote.setObject(note.title! as CKRecordValue, forKey: "title")
+            ckNote.setObject(note.noteString! as CKRecordValue, forKey: "noteString")
+            
+            publicDatabase.save(ckNote, completionHandler: { (record, error) in
+                if error != nil {
+                    print(error!)
+                    return
+                }
+                DispatchQueue.main.async {
+                    print("Successfully saved note to cloudkit")
+                }
+            })
+        }
+    }
     
     static func saveImageToCloud(imageRecord: Image, associatedRecord: Record) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
         
-        let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
+        let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: imageRecord.id!))
         
         let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
         let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
@@ -285,5 +359,59 @@ class CloudKitHelper {
                 print("Problems writing image data to URL")
             }
         }
+    }
+    
+    static func saveNoteToCloud(noteRecord: Note, associatedRecord: Record) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        
+        let recordID = CKRecordID(recordName: noteRecord.id!)
+        
+        print("")
+        publicDatabase.fetch(withRecordID: recordID, completionHandler: ({record, error in
+            if let err = error {
+                DispatchQueue.main.async() {
+                    print(err.localizedDescription)
+                    print("Couldn't find record, create new note.")
+                }
+                let ckNote = CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: recordID.recordName))
+                
+                do {
+                    let reference = CKReference(recordID: CKRecordID(recordName: associatedRecord.recordID!) , action: CKReferenceAction.deleteSelf)
+                    ckNote.setObject(reference, forKey: "associatedRecord")
+                    ckNote.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
+                    ckNote.setObject(noteRecord.title! as CKRecordValue, forKey: "title")
+                    ckNote.setObject(noteRecord.noteString! as CKRecordValue, forKey: "noteString")
+                    
+                    publicDatabase.save(ckNote, completionHandler: { (record, error) in
+                        if error != nil {
+                            print(error!)
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            print("Successfully saved note to cloudkit")
+                        }
+                    })
+                }
+            } else {
+                // found record, update it
+                do {
+                    let reference = CKReference(recordID: CKRecordID(recordName: associatedRecord.recordID!) , action: CKReferenceAction.deleteSelf)
+                    record?.setObject(reference, forKey: "associatedRecord")
+                    record?.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
+                    record?.setObject(noteRecord.title! as CKRecordValue, forKey: "title")
+                    record?.setObject(noteRecord.noteString! as CKRecordValue, forKey: "noteString")
+                    
+                    publicDatabase.save(record!, completionHandler: { (savedRecord, error) in
+                        if error != nil {
+                            print(error!)
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            print("Successfully updated note in cloudkit")
+                        }
+                    })
+                }
+            }
+        }))
     }
 }

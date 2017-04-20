@@ -16,17 +16,13 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
     // variables passed from last view
     var record: Record!
     var isEditingRecord: Bool!
-//    var titleText: String!
-//    var bodyText: String!
     var selectedNotesIndex: Int!
     var note: Note!
     //
     
     @IBOutlet weak var noteTitle: UITextField!
     @IBOutlet weak var noteBody: UITextView!
-    @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var navBar: UINavigationItem!
-    @IBOutlet weak var indicator: UIActivityIndicatorView!
     @IBOutlet weak var deleteButton: UIBarButtonItem!
     
     weak var handleNotesDelegate: HandleNotesDelegate?
@@ -35,7 +31,6 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         noteTitle.placeholder = "Title"
         noteTitle.borderStyle = .none
         //noteTitle.becomeFirstResponder()
-        indicator.isHidden = true
         noteTitle.text = note.title!
         noteBody.text = note.noteString!
         navigationController?.setToolbarHidden(false, animated: false)
@@ -45,12 +40,9 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    @IBAction func saveButtonPressed(_ sender: Any) {
+    override func viewWillDisappear(_ animated: Bool) {
         noteTitle.resignFirstResponder()
         noteBody.resignFirstResponder()
-        indicator.isHidden = false
-        indicator.startAnimating()
-        indicator.activityIndicatorViewStyle = .gray
         saveNoteLocally()
     }
     
@@ -65,42 +57,6 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         _ = navigationController?.popViewController(animated: true)
     }
     
-    func saveNoteToCloudKit() {
-        let defaults = UserDefaults.standard
-        let username = defaults.string(forKey: "username")
-        if username != nil {
-            let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-            
-            let predicate = NSPredicate(format: "recordID = %@", CKRecordID(recordName: record.recordID!))
-            let query = CKQuery(recordType: "Records", predicate: predicate)
-            var recordRecord = CKRecord(recordType: "Records")
-            publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
-                if error != nil {
-                    print("Error retrieving from cloudkit")
-                } else {
-                    if (results?.count)! > 0 {
-                        recordRecord = (results?[0])!
-                        
-                        let ckNote = CKRecord(recordType: "Notes")
-                        let reference = CKReference(recordID: recordRecord.recordID, action: CKReferenceAction.deleteSelf)
-                        
-                        ckNote.setObject(reference, forKey: "associatedRecord")
-                        ckNote.setObject(self.noteTitle.text as CKRecordValue?, forKey: "title")
-                        ckNote.setObject(self.noteBody.text as CKRecordValue?, forKey: "noteString")
-                            
-                        publicDatabase.save(ckNote, completionHandler: { (record, error) in
-                            if error != nil {
-                            print(error!)
-                                return
-                            }
-                        })
-                        
-                    }
-                }
-            })
-        }
-    }
-    
     func saveNoteLocally() {
         guard let appDelegate =
             UIApplication.shared.delegate as? AppDelegate else {
@@ -109,21 +65,85 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         
         let managedContext = appDelegate.persistentContainer.viewContext
         
-        let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext)!
-        let note = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
-        
-        note.title = noteTitle.text
-        note.noteString = noteBody.text
-        note.record = record!
-        note.id = UUID().uuidString
-        
-        do {
-            try managedContext.save()
-            print("Saved note to CoreData")
-        } catch {
-            print("Problems saving note to CoreData")
+        if selectedNotesIndex == 0 {
+            record.descriptionString = noteBody.text
+            
+            do {
+                try managedContext.save()
+                print("Updated note in CoreData")
+                
+                if (UserDefaultsHelper.isSignedIn()) {
+                    // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                    let conn = UserDefaultsHelper.currentConnection()
+                    if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                        CloudKitHelper.updateRecordInCloudKit(cdRecord: record, context: managedContext)
+                    } else {
+                        // queue up the record to sync when you have a good connection
+                        UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
+                    }
+                }
+            } catch {
+                print("Problems updating note to CoreData")
+            }
+            handleNotesDelegate?.passBack(newNote: note, selectedIndex: selectedNotesIndex)
+        } else {
+            if self.note.id != "temp" {
+                let returnedNote = CoreDataHelper.fetchNote(with: self.note.id!, in: managedContext)
+                
+                if returnedNote != nil {
+                    returnedNote?.title = noteTitle.text
+                    returnedNote?.noteString = noteBody.text
+                    returnedNote?.record = record!
+                    
+                    do {
+                        try managedContext.save()
+                        print("Updated note in CoreData")
+                        
+                        if (UserDefaultsHelper.isSignedIn()) {
+                            // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                            let conn = UserDefaultsHelper.currentConnection()
+                            if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                                CloudKitHelper.saveNoteToCloud(noteRecord: returnedNote!, associatedRecord: record!)
+                            } else {
+                                // queue up the record to sync when you have a good connection
+                                UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
+                            }
+                        }
+                    } catch {
+                        print("Problems updating note to CoreData")
+                    }
+                    handleNotesDelegate?.passBack(newNote: note, selectedIndex: selectedNotesIndex)
+                }
+            }else {
+                let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext)!
+                let note = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
+                
+                note.title = noteTitle.text
+                note.noteString = noteBody.text
+                note.record = record!
+                note.id = UUID().uuidString
+                
+                do {
+                    try managedContext.save()
+                    print("Saved note to CoreData")
+                    
+                    if (UserDefaultsHelper.isSignedIn()) {
+                        // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                        let conn = UserDefaultsHelper.currentConnection()
+                        if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                            CloudKitHelper.saveNoteToCloud(noteRecord: note, associatedRecord: record!)
+                        } else {
+                            // queue up the record to sync when you have a good connection
+                            UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
+                        }
+                    }
+                } catch {
+                    print("Problems saving note to CoreData")
+                }
+                handleNotesDelegate?.passBack(newNote: note, selectedIndex: selectedNotesIndex)
+            }
         }
-        handleNotesDelegate?.passBack(newNote: note)
+        
         performSegue(withIdentifier: "unwindFromCreateNote", sender: self)
     }
     

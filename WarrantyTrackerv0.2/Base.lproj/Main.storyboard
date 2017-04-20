@@ -1507,21 +1507,16 @@
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="B6V-3T-oW3">
-                                <rect key="frame" x="177" y="323" width="20" height="20"/>
-                            </activityIndicatorView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="lNN-Nd-RX0" firstAttribute="trailing" secondItem="FAx-py-aSi" secondAttribute="trailingMargin" id="3qN-fu-MKQ"/>
                             <constraint firstItem="mIt-yt-bhE" firstAttribute="bottom" secondItem="Bd0-nf-QRs" secondAttribute="top" id="7Ab-KJ-4OL"/>
-                            <constraint firstItem="B6V-3T-oW3" firstAttribute="centerX" secondItem="FAx-py-aSi" secondAttribute="centerX" id="BSv-PC-JmL"/>
                             <constraint firstItem="lNN-Nd-RX0" firstAttribute="trailing" secondItem="mIt-yt-bhE" secondAttribute="trailing" id="VS4-ao-LQl"/>
                             <constraint firstItem="mIt-yt-bhE" firstAttribute="top" secondItem="lNN-Nd-RX0" secondAttribute="bottom" constant="8" symbolic="YES" id="cQV-gt-ZOo"/>
                             <constraint firstItem="lNN-Nd-RX0" firstAttribute="leading" secondItem="FAx-py-aSi" secondAttribute="leadingMargin" id="djU-rc-lQK"/>
                             <constraint firstItem="lNN-Nd-RX0" firstAttribute="leading" secondItem="mIt-yt-bhE" secondAttribute="leading" id="gwf-w7-ckU"/>
                             <constraint firstItem="lNN-Nd-RX0" firstAttribute="top" secondItem="u7w-dg-DTk" secondAttribute="bottom" constant="8" symbolic="YES" id="kiE-nT-EyO"/>
-                            <constraint firstItem="B6V-3T-oW3" firstAttribute="centerY" secondItem="FAx-py-aSi" secondAttribute="centerY" id="lB9-8I-waB"/>
                         </constraints>
                     </view>
                     <toolbarItems>
@@ -1531,20 +1526,12 @@
                             </connections>
                         </barButtonItem>
                     </toolbarItems>
-                    <navigationItem key="navigationItem" title="Title" id="rLj-nH-0sN">
-                        <barButtonItem key="rightBarButtonItem" title="Save" id="vUX-BO-I07">
-                            <connections>
-                                <action selector="saveButtonPressed:" destination="SOw-nE-y2d" id="AF2-6m-ZIo"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Title" id="rLj-nH-0sN"/>
                     <connections>
                         <outlet property="deleteButton" destination="Dch-py-Nws" id="5ko-v6-2eC"/>
-                        <outlet property="indicator" destination="B6V-3T-oW3" id="FVG-u1-Iuv"/>
                         <outlet property="navBar" destination="rLj-nH-0sN" id="qVy-EH-zs9"/>
                         <outlet property="noteBody" destination="mIt-yt-bhE" id="oO3-54-Ph0"/>
                         <outlet property="noteTitle" destination="lNN-Nd-RX0" id="xkD-x6-kzF"/>
-                        <outlet property="saveButton" destination="vUX-BO-I07" id="NKf-DX-fYd"/>
                         <segue destination="j88-Vd-vob" kind="unwind" identifier="unwindFromCreateNote" unwindAction="unwindToEditWith:" id="7NR-xe-8fh"/>
                     </connections>
                 </viewController>

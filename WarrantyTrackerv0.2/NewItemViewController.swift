@@ -70,7 +70,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
                     session!.startRunning()
                 }
             }
-            //videoPreviewLayer!.frame = imageView.bounds
+            videoPreviewLayer!.frame = imageView.bounds
         }
     }
     

@@ -286,22 +286,27 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                     } else {
                         record.hasWarranty = true
                     }
+                    
+                    // save locally
+                    do {
+                        try managedContext.save()
+                        
+                        CoreDataHelper.importImagesFromCloudKit(associatedWith: record, in: managedContext)
+                        CoreDataHelper.importNotesFromCloudKit(associatedWith: record, in: managedContext)
+                        
+                    } catch {
+                        DispatchQueue.main.async {
+                            self.errorLabel.text = "Connection error. Try again later."
+                            self.errorLabel.textColor = .red
+                            self.errorLabel.isHidden = false
+                            self.indicator.isHidden = true
+                            self.indicator.stopAnimating()
+                        }
+                        return
+                    }
                 }
-                // save locally
-                do {
-                    try managedContext.save()
-                    DispatchQueue.main.async {
-                        self.performSegue(withIdentifier: "unwindToInitial", sender: nil)
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        self.errorLabel.text = "Connection error. Try again later."
-                        self.errorLabel.textColor = .red
-                        self.errorLabel.isHidden = false
-                        self.indicator.isHidden = true
-                        self.indicator.stopAnimating()
-                    }
-                    return
+                DispatchQueue.main.async {
+                    self.performSegue(withIdentifier: "unwindToInitial", sender: nil)
                 }
             }
         })
