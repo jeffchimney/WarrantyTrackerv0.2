@@ -429,7 +429,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         records = []
         for eachRecord in recordsArray {
             let calendar = NSCalendar.current
-            
             if eachRecord.recentlyDeleted {
                 // Replace the hour (time) of both dates with 00:00
                 let deletedDate = calendar.startOfDay(for: eachRecord.dateDeleted! as Date)

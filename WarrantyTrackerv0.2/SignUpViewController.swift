@@ -290,10 +290,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                     // save locally
                     do {
                         try managedContext.save()
-                        
                         CoreDataHelper.importImagesFromCloudKit(associatedWith: record, in: managedContext)
                         CoreDataHelper.importNotesFromCloudKit(associatedWith: record, in: managedContext)
-                        
                     } catch {
                         DispatchQueue.main.async {
                             self.errorLabel.text = "Connection error. Try again later."

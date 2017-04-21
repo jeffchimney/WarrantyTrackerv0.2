@@ -101,7 +101,6 @@ class WarrantyDetailsViewController: UITableViewController, UITextFieldDelegate,
         
         record.title = titleTextField.text!
         record.descriptionString = descriptionTextField.text!
-        //record.tags = tagArray
         record.warrantyStarts = startDate as NSDate?
         record.warrantyEnds = endDate as NSDate?
         record.itemImage = itemImageData as NSData?

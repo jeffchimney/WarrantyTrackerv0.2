@@ -418,31 +418,29 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 return
         }
         
-        var returnedRecords: [NSManagedObject] = []
-        
         let managedContext =
             appDelegate.persistentContainer.viewContext
         
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
+        let fetchedRecord = CoreDataHelper.fetchRecord(with: record.recordID!, in: managedContext)
+        
+        fetchedRecord.recentlyDeleted = true
+        fetchedRecord.dateDeleted = Date() as NSDate?
         
         do {
-            returnedRecords = try managedContext.fetch(fetchRequest)
-        } catch let error as NSError {
-            print("Could not fetch. \(error), \(error.userInfo)")
-        }
-        
-        for thisRecord in returnedRecords {
-            if record == thisRecord {
-                let thisRecord = thisRecord as! Record
-                thisRecord.recentlyDeleted = true
-                thisRecord.dateDeleted = Date() as NSDate?
-                do {
-                    try managedContext.save()
-                } catch {
-                    print("Error deleting record")
+            try managedContext.save()
+            
+            if (UserDefaultsHelper.isSignedIn()) {
+                // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                let conn = UserDefaultsHelper.currentConnection()
+                if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                    CloudKitHelper.updateRecordInCloudKit(cdRecord: record, context: managedContext)
+                } else {
+                    // queue up the record to sync when you have a good connection
+                    UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
                 }
             }
+        } catch {
+            print("Error deleting record")
         }
     }
     
@@ -453,16 +451,10 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         }
         let managedContext =
             appDelegate.persistentContainer.viewContext
-        let fetchRequest =
-            NSFetchRequest<NSManagedObject>(entityName: "Record")
-        fetchRequest.predicate = NSPredicate(format: "dateCreated==%@", record.dateCreated!)
-        let object = try! managedContext.fetch(fetchRequest)
         
         if deleteButton.title == "Delete" { // delete first returned object
-            let record = object[0] as! Record
-            
             record.recentlyDeleted = true
-            record.dateDeleted = Date() as NSDate?
+            record.dateDeleted = Date() as NSDate
             record.lastUpdated = Date() as NSDate
             do {
                 try managedContext.save()
@@ -481,8 +473,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 print("The record couldn't be updated.")
             }
         } else { // save or update the returned object
-            let record = object[0] as! Record
-            
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "MMM d, yyyy"
             

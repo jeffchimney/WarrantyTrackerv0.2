@@ -256,13 +256,18 @@ class CoreDataHelper {
             } else {
                 // pare down results that already exist in the cloud
                 for result in results! {
-                    let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: context)!
-                    let image = NSManagedObject(entity: imageEntity, insertInto: context) as! Image
                     
+                    let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: context)!
+                    
+                    let image = NSManagedObject(entity: imageEntity, insertInto: context) as! Image
+
                     image.lastSynced = Date() as NSDate
+
                     // CKAssets need to be converted to NSData
-                    let imageData = result.value(forKey: "itemData") as! CKAsset
+                    let imageData = result.value(forKey: "image") as! CKAsset
+                    
                     image.image = NSData(contentsOf: imageData.fileURL)
+                    
                     image.id = result.recordID.recordName
                     image.record = associatedWith
                     

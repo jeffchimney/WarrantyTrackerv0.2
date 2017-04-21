@@ -74,6 +74,10 @@ class CloudKitHelper {
                         let syncedDate = Date()
                         ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
                         
+                        if cdRecord.recentlyDeleted {
+                            ckRecord.setObject(cdRecord.dateDeleted as CKRecordValue?, forKey: "dateDeleted")
+                        }
+                        
                         publicDatabase.save(ckRecord, completionHandler: { (record, error) in
                             if error != nil {
                                 print(error!)
@@ -134,6 +138,10 @@ class CloudKitHelper {
                         let syncedDate = Date()
                         ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
                         
+                        if cdRecord.recentlyDeleted {
+                            ckRecord.setObject(cdRecord.dateDeleted as CKRecordValue?, forKey: "dateDeleted")
+                        }
+                        
                         publicDatabase.save(ckRecord, completionHandler: { (record, error) in
                             if error != nil {
                                 print(error!)
@@ -183,7 +191,7 @@ class CloudKitHelper {
                 
                 // sync remaining records to cloudkit
                 for image in cdImageRecords {
-                    let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: UUID().uuidString))
+                    let ckImage = CKRecord(recordType: "Images", recordID: CKRecordID(recordName: image.id!))
                     
                     let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
                     let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
