@@ -114,9 +114,9 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
                     }
                     handleNotesDelegate?.passBack(newNote: note, selectedIndex: selectedNotesIndex)
                 }
-            }else {
-                let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext)!
-                let note = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
+            } else {
+                //let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: managedContext)!
+                //let note = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
                 
                 note.title = noteTitle.text
                 note.noteString = noteBody.text

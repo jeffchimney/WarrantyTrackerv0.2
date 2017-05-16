@@ -259,7 +259,7 @@ class CloudKitHelper {
                     ckNote.setObject(reference, forKey: "associatedRecord")
                     ckNote.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
                     ckNote.setObject(note.title! as CKRecordValue?, forKey: "title")
-                    ckNote.setObject(note.noteString! as CKRecordValue?, forKey: "title")
+                    ckNote.setObject(note.noteString! as CKRecordValue?, forKey: "noteString")
                     
                     publicDatabase.save(ckNote, completionHandler: { (record, error) in
                         if error != nil {
@@ -309,12 +309,18 @@ class CloudKitHelper {
             }
         }
     }
+    
     static func importAssociatedNotes(cdRecord: Record, syncedDate: Date, context: NSManagedObjectContext) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
         let associatedNotes = CoreDataHelper.fetchNotes(for: cdRecord, in: context)
         
         for note in associatedNotes {
             let ckNote = CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: note.id!))
+            
+            DispatchQueue.main.async {
+                print(note.title)
+                print(note.noteString)
+            }
             
             let reference = CKReference(recordID: CKRecordID(recordName: cdRecord.recordID!) , action: CKReferenceAction.deleteSelf)
             ckNote.setObject(reference, forKey: "associatedRecord")

@@ -500,10 +500,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    func updateAssociatedImagesInCloudKit(cdRecord: Record, syncedDate: Date) {
-        
-    }
-    
     @IBAction func syncButtonPressed(_ sender: Any) {
         
     }

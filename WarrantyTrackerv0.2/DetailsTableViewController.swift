@@ -894,7 +894,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     nextViewController.note = notes[selectedNotesIndex-1]
                 }
                 
-                if isEditingRecord && !willEditNote && selectedNotesIndex != 0{ // create new note
+                if isEditingRecord && !willEditNote && selectedNotesIndex != 0 { // create new note
                     nextViewController.navBar.title = "Create Note"
                     let emptyNote = NSManagedObject(entity: noteEntity, insertInto: managedContext) as! Note
                     emptyNote.title = "Title"
