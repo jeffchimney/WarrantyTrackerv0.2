@@ -259,10 +259,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                                 record.lastUpdated = Date() as NSDate?
                                 record.recordID = result.recordID.recordName
                             }
+                            // Check each note and image in the cloud to check if it has been deleted
+                            self.removeRecentlyDeletedImagesAndNotes(associatedWith: result.recordID, in: self.managedContext!)
                         }
-                        // Check each note and image in the cloud to check if it has been deleted
-                        
-                        
                         // Whatever remains in the cdRecords array, sync to cloud and set lastSynced to current time
                         // this should already be up to date because everything is being synced on creation.
 //                        for eachRecord in cdRecords {
@@ -282,6 +281,30 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 // let user know they don't have a connection
             }
         }
+    }
+    
+    func removeRecentlyDeletedImagesAndNotes(associatedWith: CKRecordID, in context: NSManagedObjectContext) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Images", recordID: associatedWith), action: CKReferenceAction.deleteSelf))
+        let query = CKQuery(recordType: "Images", predicate: predicate)
+        
+        publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print("Error pulling from CloudKit")
+            } else {
+                if results != nil {
+                    for result in results! {
+                        if result.value(forKey: "recentlyDeleted") as! Int != 0 { // if recently deleted
+                            // find in coredata and delete
+                            let deleted_record = CoreDataHelper.fetchRecord(with: result.recordID.recordName, in: context)
+                            
+                            CoreDataHelper.delete(record: deleted_record, in: context)
+                            
+                        }
+                    }
+                }
+            }
+        })
     }
     
     func configureButton()
