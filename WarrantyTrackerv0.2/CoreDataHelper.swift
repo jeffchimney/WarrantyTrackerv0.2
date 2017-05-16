@@ -210,7 +210,7 @@ class CoreDataHelper {
     
     static func importNotesFromCloudKit(associatedWith: Record, in context: NSManagedObjectContext) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-        let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
+        let predicate = NSPredicate(format: "associatedRecord = %@ AND recentlyDeleted = 0", CKReference(record: CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
         let query = CKQuery(recordType: "Notes", predicate: predicate)
         
         publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
@@ -222,23 +222,25 @@ class CoreDataHelper {
                     let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: context)!
                     let note = NSManagedObject(entity: noteEntity, insertInto: context) as! Note
                     
-                    note.id = result.recordID.recordName
-                    note.lastSynced = Date() as NSDate
-                    note.title = result.value(forKey: "title") as? String
-                    note.noteString = result.value(forKey: "noteString") as? String
-                    note.record = associatedWith
-                    
-                    // save locally
-                    do {
-                        try context.save()
-                        DispatchQueue.main.async {
-                            print("Imported notes to core data")
+                    if result.object(forKey: "recentlyDeleted") as! Int == 0 { // if !recentlyDeleted, add to coredata
+                        note.id = result.recordID.recordName
+                        note.lastSynced = Date() as NSDate
+                        note.title = result.value(forKey: "title") as? String
+                        note.noteString = result.value(forKey: "noteString") as? String
+                        note.record = associatedWith
+                        
+                        // save locally
+                        do {
+                            try context.save()
+                            DispatchQueue.main.async {
+                                print("Imported notes to core data")
+                            }
+                        } catch {
+                            DispatchQueue.main.async {
+                                print("Error importing notes to core data")
+                            }
+                            return
                         }
-                    } catch {
-                        DispatchQueue.main.async {
-                            print("Error importing notes to core data")
-                        }
-                        return
                     }
                 }
             }
@@ -247,7 +249,7 @@ class CoreDataHelper {
     
     static func importImagesFromCloudKit(associatedWith: Record, in context: NSManagedObjectContext) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
-        let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Images", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
+        let predicate = NSPredicate(format: "associatedRecord = %@ AND recentlyDeleted = 0", CKReference(record: CKRecord(recordType: "Images", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
         let query = CKQuery(recordType: "Images", predicate: predicate)
         
         publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
@@ -257,31 +259,33 @@ class CoreDataHelper {
                 // pare down results that already exist in the cloud
                 for result in results! {
                     
-                    let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: context)!
-                    
-                    let image = NSManagedObject(entity: imageEntity, insertInto: context) as! Image
+                    if result.value(forKey: "recentlyDeleted") as! Int == 0 { // if !recentlyDeleted, add to coredata
+                        let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: context)!
+                        
+                        let image = NSManagedObject(entity: imageEntity, insertInto: context) as! Image
 
-                    image.lastSynced = Date() as NSDate
+                        image.lastSynced = Date() as NSDate
 
-                    // CKAssets need to be converted to NSData
-                    let imageData = result.value(forKey: "image") as! CKAsset
-                    
-                    image.image = NSData(contentsOf: imageData.fileURL)
-                    
-                    image.id = result.recordID.recordName
-                    image.record = associatedWith
-                    
-                    // save locally
-                    do {
-                        try context.save()
-                        DispatchQueue.main.async {
-                            print("Imported images to core data")
+                        // CKAssets need to be converted to NSData
+                        let imageData = result.value(forKey: "image") as! CKAsset
+                        
+                        image.image = NSData(contentsOf: imageData.fileURL)
+                        
+                        image.id = result.recordID.recordName
+                        image.record = associatedWith
+                        
+                        // save locally
+                        do {
+                            try context.save()
+                            DispatchQueue.main.async {
+                                print("Imported images to core data")
+                            }
+                        } catch {
+                            DispatchQueue.main.async {
+                                print("Error importing images to core data")
+                            }
+                            return
                         }
-                    } catch {
-                        DispatchQueue.main.async {
-                            print("Error importing images to core data")
-                        }
-                        return
                     }
                 }
             }

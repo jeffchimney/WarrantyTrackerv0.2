@@ -180,6 +180,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         do {
             managedContext.delete(record)
             try managedContext.save()
+            CloudKitHelper.deleteWithID(recordID: noteIDs[index-1])
         } catch {
             print("The record couldn't be deleted.")
         }
@@ -341,6 +342,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         do {
             managedContext.delete(record)
             try managedContext.save()
+            CloudKitHelper.deleteWithID(recordID: imageIDs[indexToDelete-2])
         } catch {
             print("The record couldn't be deleted.")
         }

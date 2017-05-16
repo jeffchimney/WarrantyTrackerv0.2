@@ -292,6 +292,7 @@ class CloudKitHelper {
                 ckImage.setObject(reference, forKey: "associatedRecord")
                 ckImage.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
                 ckImage.setObject(image.id as CKRecordValue?, forKey: "id")
+                ckImage.setObject(0 as CKRecordValue?, forKey: "recentlyDeleted")
                 
                 publicDatabase.save(ckImage, completionHandler: { (record, error) in
                     if error != nil {
@@ -317,16 +318,12 @@ class CloudKitHelper {
         for note in associatedNotes {
             let ckNote = CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: note.id!))
             
-            DispatchQueue.main.async {
-                print(note.title)
-                print(note.noteString)
-            }
-            
             let reference = CKReference(recordID: CKRecordID(recordName: cdRecord.recordID!) , action: CKReferenceAction.deleteSelf)
             ckNote.setObject(reference, forKey: "associatedRecord")
             ckNote.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
             ckNote.setObject(note.title! as CKRecordValue, forKey: "title")
             ckNote.setObject(note.noteString! as CKRecordValue, forKey: "noteString")
+            ckNote.setObject(0 as CKRecordValue?, forKey: "recentlyDeleted")
             
             publicDatabase.save(ckNote, completionHandler: { (record, error) in
                 if error != nil {
@@ -358,6 +355,7 @@ class CloudKitHelper {
             ckImage.setObject(reference, forKey: "associatedRecord")
             ckImage.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
             ckImage.setObject(imageRecord.id as CKRecordValue?, forKey: "id")
+            ckImage.setObject(0 as CKRecordValue, forKey: "recentlyDeleted")
             
             publicDatabase.save(ckImage, completionHandler: { (record, error) in
                 if error != nil {
@@ -395,6 +393,7 @@ class CloudKitHelper {
                     ckNote.setObject(Date() as CKRecordValue?, forKey: "lastSynced")
                     ckNote.setObject(noteRecord.title! as CKRecordValue, forKey: "title")
                     ckNote.setObject(noteRecord.noteString! as CKRecordValue, forKey: "noteString")
+                    ckNote.setObject(0 as CKRecordValue, forKey: "recentlyDeleted")
                     
                     publicDatabase.save(ckNote, completionHandler: { (record, error) in
                         if error != nil {
@@ -425,6 +424,33 @@ class CloudKitHelper {
                         }
                     })
                 }
+            }
+        }))
+    }
+    
+    // Can be used to delete notes or images from a record.
+    static func deleteWithID(recordID: String) {
+        let ckRecordID = CKRecordID(recordName: recordID)
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        publicDatabase.fetch(withRecordID: ckRecordID, completionHandler: ({record, error in
+            if let err = error {
+                DispatchQueue.main.async() {
+                    print(err.localizedDescription)
+                }
+            } else {
+                // found record
+                record?.setObject(1 as CKRecordValue, forKey: "recentlyDeleted")
+                record?.setObject(Date() as CKRecordValue, forKey: "lastSynced")
+                
+                publicDatabase.save(record!, completionHandler: { (savedRecord, error) in
+                    if error != nil {
+                        print(error!)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        print("Successfully updated item in cloudkit")
+                    }
+                })
             }
         }))
     }

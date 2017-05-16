@@ -203,28 +203,24 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                                     // remove updated record from record lists so that once finished, the remainder
                                     // (those not existing on the cloud) can be synced to the cloud.
                                     cdRecords.remove(at: recordIndex!)
-                                    DispatchQueue.main.async {
-                                        print("Removed from record list")
-                                    }
                                     cdRecordIDs.remove(at: recordIndex!)
-                                    DispatchQueue.main.async {
-                                        print("Removed from id list")
-                                    }
                                     // sync any images that havent been synced to the cloud yet
-                                    CloudKitHelper.syncImagesToCloudKit(associatedWith: recordMatch, in: self.managedContext!)
+                                    //CloudKitHelper.syncImagesToCloudKit(associatedWith: recordMatch, in: self.managedContext!)
+                                    // ^ this should be happening automatically on image creation now.
                                 } else { // if localSynced >= cloudSynced, sync from device to cloud
-                                    DispatchQueue.main.async {
-                                        print("Updating record in cloudkit")
-                                    }
-                                    CloudKitHelper.updateRecordInCloudKit(cdRecord: recordMatch, context: self.managedContext!)
-                                    cdRecords.remove(at: recordIndex!)
-                                    DispatchQueue.main.async {
-                                        print("Removed from record list")
-                                    }
-                                    cdRecordIDs.remove(at: recordIndex!)
-                                    DispatchQueue.main.async {
-                                        print("Removed from id list")
-                                    }
+                                    // this could act as a safeguard if it turns out that some data isnt being automatically synced to the cloud on data creation
+//                                    DispatchQueue.main.async {
+//                                        print("Updating record in cloudkit")
+//                                    }
+//                                    CloudKitHelper.updateRecordInCloudKit(cdRecord: recordMatch, context: self.managedContext!)
+//                                    cdRecords.remove(at: recordIndex!)
+//                                    DispatchQueue.main.async {
+//                                        print("Removed from record list")
+//                                    }
+//                                    cdRecordIDs.remove(at: recordIndex!)
+//                                    DispatchQueue.main.async {
+//                                        print("Removed from id list")
+//                                    }
                                 }
                             } else { // create new record from data in cloud
                                 let record = NSManagedObject(entity: recordEntity, insertInto: self.managedContext!) as! Record
@@ -264,14 +260,17 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                                 record.recordID = result.recordID.recordName
                             }
                         }
+                        // Check each note and image in the cloud to check if it has been deleted
+                        
                         
                         // Whatever remains in the cdRecords array, sync to cloud and set lastSynced to current time
-                        for eachRecord in cdRecords {
-                            CloudKitHelper.importCDRecord(cdRecord: eachRecord, context: self.managedContext!)
-                        }
-                        DispatchQueue.main.async {
-                            print("Just about to save")
-                        }
+                        // this should already be up to date because everything is being synced on creation.
+//                        for eachRecord in cdRecords {
+//                            CloudKitHelper.importCDRecord(cdRecord: eachRecord, context: self.managedContext!)
+//                        }
+//                        DispatchQueue.main.async {
+//                            print("Just about to save")
+//                        }
                         CoreDataHelper.save(context: self.managedContext!)
                     }
                     DispatchQueue.main.async {
