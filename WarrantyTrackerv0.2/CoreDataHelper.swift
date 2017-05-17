@@ -49,7 +49,7 @@ class CoreDataHelper {
         return record
     }
     
-    static func fetchImage(with id: String, in context: NSManagedObjectContext) -> Image {
+    static func fetchImage(with id: String, in context: NSManagedObjectContext) -> Image? {
         let predicate = NSPredicate(format: "id = %@", id)
         
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: "Image")
@@ -61,9 +61,13 @@ class CoreDataHelper {
         } catch let error as NSError {
             print("Could not fetch. \(error), \(error.userInfo)")
         }
-        let image = returnedImages[0] as! Image
-        
-        return image
+        if returnedImages.count > 0 {
+            let image = returnedImages[0] as! Image
+            
+            return image
+        } else {
+            return nil
+        }
     }
     
     static func fetchImages(for record: Record, in context: NSManagedObjectContext) -> [Image] {
@@ -100,9 +104,13 @@ class CoreDataHelper {
             print("Could not fetch. \(error), \(error.userInfo)")
             return nil
         }
-        let note = returnedNotes[0] as! Note
-        
-        return note
+        if returnedNotes.count > 0 {
+            let note = returnedNotes[0] as! Note
+            
+            return note
+        } else {
+            return nil
+        }
     }
     
     static func fetchNotes(for record: Record, in context: NSManagedObjectContext) -> [Note] {
@@ -152,6 +160,54 @@ class CoreDataHelper {
         
         for thisRecord in returnedRecords {
             if record == thisRecord {
+                context.delete(thisRecord)
+                do {
+                    try context.save()
+                } catch {
+                    print("Error deleting record")
+                }
+            }
+        }
+    }
+    
+    static func delete(note: Note, in context: NSManagedObjectContext) {
+        var returnedRecords: [NSManagedObject] = []
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Note")
+        
+        do {
+            returnedRecords = try context.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for thisRecord in returnedRecords {
+            if note == thisRecord {
+                context.delete(thisRecord)
+                do {
+                    try context.save()
+                } catch {
+                    print("Error deleting record")
+                }
+            }
+        }
+    }
+    
+    static func delete(image: Image, in context: NSManagedObjectContext) {
+        var returnedRecords: [NSManagedObject] = []
+        
+        let fetchRequest =
+            NSFetchRequest<NSManagedObject>(entityName: "Image")
+        
+        do {
+            returnedRecords = try context.fetch(fetchRequest)
+        } catch let error as NSError {
+            print("Could not fetch. \(error), \(error.userInfo)")
+        }
+        
+        for thisRecord in returnedRecords {
+            if image == thisRecord {
                 context.delete(thisRecord)
                 do {
                     try context.save()
@@ -213,6 +269,12 @@ class CoreDataHelper {
         let predicate = NSPredicate(format: "associatedRecord = %@ AND recentlyDeleted = 0", CKReference(record: CKRecord(recordType: "Notes", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
         let query = CKQuery(recordType: "Notes", predicate: predicate)
         
+        let localNoteRecords = fetchNotes(for: associatedWith, in: context)
+        var localNoteIDs: [String] = []
+        for noteRecord in localNoteRecords {
+            localNoteIDs.append(noteRecord.id!)
+        }
+        
         publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
             if error != nil {
                 print("Error pulling from CloudKit")
@@ -222,7 +284,7 @@ class CoreDataHelper {
                     let noteEntity = NSEntityDescription.entity(forEntityName: "Note", in: context)!
                     let note = NSManagedObject(entity: noteEntity, insertInto: context) as! Note
                     
-                    if result.object(forKey: "recentlyDeleted") as! Int == 0 { // if !recentlyDeleted, add to coredata
+                    if result.object(forKey: "recentlyDeleted") as! Int == 0 && !localNoteIDs.contains(result.recordID.recordName) { // if !recentlyDeleted, add to coredata
                         note.id = result.recordID.recordName
                         note.lastSynced = Date() as NSDate
                         note.title = result.value(forKey: "title") as? String
@@ -252,6 +314,12 @@ class CoreDataHelper {
         let predicate = NSPredicate(format: "associatedRecord = %@ AND recentlyDeleted = 0", CKReference(record: CKRecord(recordType: "Images", recordID: CKRecordID(recordName: associatedWith.recordID!)), action: CKReferenceAction.deleteSelf))
         let query = CKQuery(recordType: "Images", predicate: predicate)
         
+        let localImageRecords = fetchImages(for: associatedWith, in: context)
+        var localImageIDs: [String] = []
+        for imageRecord in localImageRecords {
+            localImageIDs.append(imageRecord.id!)
+        }
+        
         publicDatabase.perform(query, inZoneWith: nil, completionHandler: { (results, error) in
             if error != nil {
                 print("Error pulling from CloudKit")
@@ -259,7 +327,7 @@ class CoreDataHelper {
                 // pare down results that already exist in the cloud
                 for result in results! {
                     
-                    if result.value(forKey: "recentlyDeleted") as! Int == 0 { // if !recentlyDeleted, add to coredata
+                    if result.value(forKey: "recentlyDeleted") as! Int == 0 && !localImageIDs.contains(result.recordID.recordName) { // if !recentlyDeleted and doesnt already exist in coredata, add to coredata
                         let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: context)!
                         
                         let image = NSManagedObject(entity: imageEntity, insertInto: context) as! Image

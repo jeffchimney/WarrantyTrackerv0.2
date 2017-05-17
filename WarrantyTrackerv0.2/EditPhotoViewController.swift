@@ -168,6 +168,7 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
                             ckImage.setObject(reference, forKey: "associatedRecord")
                             ckImage.setObject(imageAsset as CKRecordValue?, forKey: "image")
                             ckImage.setObject(self.imageID as CKRecordValue?, forKey: "id")
+                            ckImage.setObject(0 as CKRecordValue?, forKey: "recentlyDeleted")
                             
                             publicDatabase.save(ckImage, completionHandler: { (record, error) in
                                 if error != nil {

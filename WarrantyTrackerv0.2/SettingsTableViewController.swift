@@ -41,7 +41,7 @@ class SettingsTableViewController: UITableViewController {
             usernameRow.usernameLabel.text = "N/A"
         }
         
-        let toggleRow = tableView.cellForRow(at: IndexPath(row: 1, section: 0)) as! TitleAndSwitchTableViewCell
+        let toggleRow = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! TitleAndSwitchTableViewCell
         toggleRow.toggle.isOn = UserDefaultsHelper.canSyncUsingData()
     }
     

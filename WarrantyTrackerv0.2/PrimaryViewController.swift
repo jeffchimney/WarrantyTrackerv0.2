@@ -33,7 +33,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
     @IBOutlet weak var archiveButton: UIBarButtonItem!
-    @IBOutlet weak var syncButton: UIBarButtonItem!
     let cellIdentifier = "WarrantyTableViewCell"
     var records: [Record] = []
     var filteredRecords: [Record] = []
@@ -98,6 +97,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         NotificationCenter.default.addObserver(self, selector: #selector(statusManager), name: .flagsChanged, object: Network.reachability)
         updateUserInterface()
+        
+        handleRefresh(refreshControl: refreshControl)
     }
     
     func handleRefresh(refreshControl: UIRefreshControl) {
@@ -204,24 +205,16 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                                     // (those not existing on the cloud) can be synced to the cloud.
                                     cdRecords.remove(at: recordIndex!)
                                     cdRecordIDs.remove(at: recordIndex!)
-                                    // sync any images that havent been synced to the cloud yet
-                                    //CloudKitHelper.syncImagesToCloudKit(associatedWith: recordMatch, in: self.managedContext!)
-                                    // ^ this should be happening automatically on image creation now.
-                                } else { // if localSynced >= cloudSynced, sync from device to cloud
-                                    // this could act as a safeguard if it turns out that some data isnt being automatically synced to the cloud on data creation
-//                                    DispatchQueue.main.async {
-//                                        print("Updating record in cloudkit")
-//                                    }
-//                                    CloudKitHelper.updateRecordInCloudKit(cdRecord: recordMatch, context: self.managedContext!)
-//                                    cdRecords.remove(at: recordIndex!)
-//                                    DispatchQueue.main.async {
-//                                        print("Removed from record list")
-//                                    }
-//                                    cdRecordIDs.remove(at: recordIndex!)
-//                                    DispatchQueue.main.async {
-//                                        print("Removed from id list")
-//                                    }
                                 }
+                                
+                                // sync notes and images associated with this record to coredata if they aren't already there
+                                CoreDataHelper.importImagesFromCloudKit(associatedWith: recordMatch, in: self.managedContext!)
+                                CoreDataHelper.importNotesFromCloudKit(associatedWith: recordMatch, in: self.managedContext!)
+                                
+                                // sync any images that havent been synced to the cloud yet
+                                CloudKitHelper.syncImagesToCloudKit(associatedWith: recordMatch, in: self.managedContext!)
+                                // ^ this should be happening automatically on image creation now.
+                                
                             } else { // create new record from data in cloud
                                 let record = NSManagedObject(entity: recordEntity, insertInto: self.managedContext!) as! Record
                                 record.dateCreated = result.value(forKey: "dateCreated") as! NSDate?
@@ -279,12 +272,15 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 })
             } else {
                 // let user know they don't have a connection
+                
             }
         }
     }
     
     func removeRecentlyDeletedImagesAndNotes(associatedWith: CKRecordID, in context: NSManagedObjectContext) {
         let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        
+        // remove any images that have been deleted recently
         let predicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Images", recordID: associatedWith), action: CKReferenceAction.deleteSelf))
         let query = CKQuery(recordType: "Images", predicate: predicate)
         
@@ -295,11 +291,49 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 if results != nil {
                     for result in results! {
                         if result.value(forKey: "recentlyDeleted") as! Int != 0 { // if recently deleted
+                            DispatchQueue.main.async {
+                                print("CK record to delete: \(result.recordID.recordName)")
+                            }
                             // find in coredata and delete
-                            let deleted_record = CoreDataHelper.fetchRecord(with: result.recordID.recordName, in: context)
+                            let deletedRecord: Image? = CoreDataHelper.fetchImage(with: result.recordID.recordName, in: context)
                             
-                            CoreDataHelper.delete(record: deleted_record, in: context)
+                            if deletedRecord != nil {
+                                CoreDataHelper.delete(image: deletedRecord!, in: context)
+                                
+                                DispatchQueue.main.async {
+                                    print("Successfully deleted)")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        
+        // remove any notes that have been deleted recently
+        let notesPredicate = NSPredicate(format: "associatedRecord = %@", CKReference(record: CKRecord(recordType: "Notes", recordID: associatedWith), action: CKReferenceAction.deleteSelf))
+        let notesQuery = CKQuery(recordType: "Notes", predicate: notesPredicate)
+        
+        publicDatabase.perform(notesQuery, inZoneWith: nil, completionHandler: { (results, error) in
+            if error != nil {
+                print("Error pulling from CloudKit")
+            } else {
+                if results != nil {
+                    for result in results! {
+                        if result.value(forKey: "recentlyDeleted") as! Int != 0 { // if recently deleted
+                            DispatchQueue.main.async {
+                                print("CK record to delete: \(result.recordID.recordName)")
+                            }
+                            // find in coredata and delete
+                            let deletedNote: Note? = CoreDataHelper.fetchNote(with: result.recordID.recordName, in: context)
                             
+                            if deletedNote != nil {
+                                CoreDataHelper.delete(note: deletedNote!, in: context)
+                                
+                                DispatchQueue.main.async {
+                                    print("Successfully deleted)")
+                                }
+                            }
                         }
                     }
                 }
@@ -520,10 +554,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }
             })
         }
-    }
-    
-    @IBAction func syncButtonPressed(_ sender: Any) {
-        
     }
     
     //MARK: Search bar delegate functions
