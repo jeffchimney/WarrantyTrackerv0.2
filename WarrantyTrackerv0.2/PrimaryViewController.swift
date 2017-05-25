@@ -30,6 +30,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var backToTopButton: UIButton!
 
     //@IBOutlet weak var searchView: UIView!
+    @IBOutlet weak var searchButton: UIBarButtonItem!
     @IBOutlet weak var sortBySegmentControl: UISegmentedControl!
     @IBOutlet weak var warrantiesTableView: UITableView!
     @IBOutlet weak var archiveButton: UIBarButtonItem!
@@ -96,8 +97,26 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         } // otherwise, carry on as normal.
         
         NotificationCenter.default.addObserver(self, selector: #selector(statusManager), name: .flagsChanged, object: Network.reachability)
-        updateUserInterface()
         
+        // fonts
+        let defaultFont = UIFont(name: "Kohinoor Bangla", size: 15)!
+        let attributes = [
+            NSFontAttributeName: defaultFont
+        ]
+        let defaultBarButtonFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        let barButtonAttributes = [
+            NSFontAttributeName: defaultBarButtonFont
+        ]
+        
+        sortBySegmentControl.setTitleTextAttributes(attributes, for: .normal)
+        searchButton.setTitleTextAttributes(barButtonAttributes, for: .normal)
+        
+         let textFieldInsideSearchBar = searchController.searchBar.value(forKey: "searchField") as! UITextField
+        textFieldInsideSearchBar.defaultTextAttributes = attributes
+        
+        self.navigationController?.navigationBar.titleTextAttributes = [NSFontAttributeName: UIFont(name: "Kohinoor Telugu", size: 18)!]
+        
+        updateUserInterface()
         handleRefresh(refreshControl: refreshControl)
     }
     

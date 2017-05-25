@@ -14,6 +14,9 @@ import CoreData
 class SettingsTableViewController: UITableViewController {
     
     @IBOutlet weak var logOutButton: UIBarButtonItem!
+    @IBOutlet weak var usernameLabel: UILabel!
+    @IBOutlet weak var allowDataSyncLabel: UILabel!
+    @IBOutlet weak var navBar: UINavigationItem!
     
     override func viewDidLoad() {
         if UserDefaultsHelper.isSignedIn() {
@@ -23,6 +26,9 @@ class SettingsTableViewController: UITableViewController {
             let button = logOutButton.customView as! UIButton
             button.setTitle("Sign In", for:.normal)
         }
+        
+        usernameLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        allowDataSyncLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
     }
     
     override func viewDidLayoutSubviews() {

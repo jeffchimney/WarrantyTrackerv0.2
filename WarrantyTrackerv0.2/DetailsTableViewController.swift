@@ -84,6 +84,14 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             print("3D Touch Not Available")
         }
         deleteButton.isEnabled = false
+        
+        let defaultBarButtonFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        let barButtonAttributes = [
+            NSFontAttributeName: defaultBarButtonFont
+        ]
+        
+        deleteButton.setTitleTextAttributes(barButtonAttributes, for: .normal)
+        editButton.setTitleTextAttributes(barButtonAttributes, for: .normal)
     }
     
     override func viewWillAppear(_ animated: Bool) {

@@ -11,7 +11,7 @@ import CoreData
 import CloudKit
 import EventKit
 
-class WarrantyDetailsViewController: UITableViewController, UITextFieldDelegate {
+class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var descriptionTextField: UITextField!
@@ -33,7 +33,9 @@ class WarrantyDetailsViewController: UITableViewController, UITextFieldDelegate 
         descriptionTextField.text = ""
         
         titleTextField.autocapitalizationType = .words
+        titleTextField.borderStyle = .none
         descriptionTextField.autocapitalizationType = .sentences
+        descriptionTextField.borderStyle = .none
         
         titleTextField.tag = 0
         descriptionTextField.tag = 1
