@@ -159,12 +159,14 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
                 self.warrantyEndsLabel.alpha = 1
                 self.selectedEndDate.alpha = 1
-            }, completion: { (_) in
-                print(self.daysBeforeSlidingView.center.y)
-                
-                UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
-                    self.daysBeforeSlidingView.center.y = self.view.frame.height - self.daysBeforeSlidingView.frame.height/2
-                }, completion: nil)
+                self.daysBeforeSlidingView.center.y = self.view.frame.height - self.daysBeforeSlidingView.frame.height/2
+//            }, completion: { (_) in
+//                print(self.daysBeforeSlidingView.center.y)
+//                
+//                UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
+//                    self.daysBeforeSlidingView.center.y = self.view.frame.height - self.daysBeforeSlidingView.frame.height/2
+//                }, completion: nil)
+//            })
             })
         } else if startDatePicked == true && endDatePicked == true { // clear both dates and start over
             self.selectedStartDate.text = ""

@@ -11,10 +11,10 @@ import CoreData
 import CloudKit
 import EventKit
 
-class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
+class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate {
     
     @IBOutlet weak var titleTextField: UITextField!
-    @IBOutlet weak var descriptionTextField: UITextField!
+    @IBOutlet weak var descriptionTextField: UITextView!
     @IBOutlet weak var nextButton: UIBarButtonItem!
     @IBOutlet weak var navBar: UINavigationItem!
     
@@ -33,9 +33,9 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
         descriptionTextField.text = ""
         
         titleTextField.autocapitalizationType = .words
-        titleTextField.borderStyle = .none
+        //titleTextField.borderStyle = .none
         descriptionTextField.autocapitalizationType = .sentences
-        descriptionTextField.borderStyle = .none
+        //descriptionTextField.borderStyle = .none
         
         titleTextField.tag = 0
         descriptionTextField.tag = 1
@@ -43,7 +43,17 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
         titleTextField.becomeFirstResponder()
         
         titleTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
-        descriptionTextField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: .editingChanged)
+        
+        // fonts
+        let defaultFont = UIFont(name: "Kohinoor Bangla", size: 15)!
+        let attributes = [
+            NSFontAttributeName: defaultFont
+        ]
+        
+        titleTextField.defaultTextAttributes = attributes
+        descriptionTextField.font = UIFont(name: "Kohinoor Bangla", size: 15)!
+        
+        self.navigationController?.navigationBar.titleTextAttributes = [NSFontAttributeName: UIFont(name: "Kohinoor Telugu", size: 18)!]
         
         navigationController?.isToolbarHidden = true
     }
@@ -75,6 +85,14 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldDidChange(_ textField: UITextField) {
+        if titleTextField.text != "" && descriptionTextField.text != "" {
+            nextButton.isEnabled = true
+        } else {
+            nextButton.isEnabled = false
+        }
+    }
+    
+    func textViewDidChange(_ textView: UITextView) {
         if titleTextField.text != "" && descriptionTextField.text != "" {
             nextButton.isEnabled = true
         } else {

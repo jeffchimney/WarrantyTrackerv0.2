@@ -27,7 +27,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
     var hidingSearchView = false
     var refreshControl: UIRefreshControl!
     
-    var backToTopButton: UIButton!
+    //var backToTopButton: UIButton!
 
     //@IBOutlet weak var searchView: UIView!
     @IBOutlet weak var searchButton: UIBarButtonItem!
@@ -360,24 +360,24 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         })
     }
     
-    func configureButton()
-    {
-        backToTopButton = UIButton()
-        backToTopButton.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-        backToTopButton.layer.cornerRadius = 0.5 * backToTopButton.bounds.size.width
-        backToTopButton.layer.borderColor = warrantiesTableView.tintColor.cgColor
-        backToTopButton.layer.borderWidth = 2.0
-        backToTopButton.clipsToBounds = true
-        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .normal)
-        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .selected)
-        backToTopButton.center = CGPoint(x: warrantiesTableView.center.x, y: view.frame.height - 50)
-        backToTopButton.alpha = 0
-        backToTopButton.addTarget(self, action: #selector(backToTopButtonPressed(sender:)), for: .touchUpInside)
-        self.view.addSubview(backToTopButton)
-    }
+//    func configureButton()
+//    {
+//        backToTopButton = UIButton()
+//        backToTopButton.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
+//        backToTopButton.layer.cornerRadius = 0.5 * backToTopButton.bounds.size.width
+//        backToTopButton.layer.borderColor = warrantiesTableView.tintColor.cgColor
+//        backToTopButton.layer.borderWidth = 2.0
+//        backToTopButton.clipsToBounds = true
+//        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .normal)
+//        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .selected)
+//        backToTopButton.center = CGPoint(x: warrantiesTableView.center.x, y: view.frame.height - 50)
+//        backToTopButton.alpha = 0
+//        backToTopButton.addTarget(self, action: #selector(backToTopButtonPressed(sender:)), for: .touchUpInside)
+//        self.view.addSubview(backToTopButton)
+//    }
     
     override func viewDidLayoutSubviews() {
-        configureButton()
+        //configureButton()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -486,19 +486,19 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        
-        if (scrollView.contentOffset.y <= 0 && self.backToTopButton.alpha != 0) {
-            UIView.animate(withDuration: 0.5, animations: {
-                self.backToTopButton.alpha = 0
-            })
-        } else if (scrollView.contentOffset.y > 0 && self.backToTopButton.alpha == 0) {
-            UIView.animate(withDuration: 0.5, animations: {
-                self.backToTopButton.alpha = 0.5
-            })
-        }
-        
-    }
+//    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+//        
+//        if (scrollView.contentOffset.y <= 0 && self.backToTopButton.alpha != 0) {
+//            UIView.animate(withDuration: 0.5, animations: {
+//                self.backToTopButton.alpha = 0
+//            })
+//        } else if (scrollView.contentOffset.y > 0 && self.backToTopButton.alpha == 0) {
+//            UIView.animate(withDuration: 0.5, animations: {
+//                self.backToTopButton.alpha = 0.5
+//            })
+//        }
+//        
+//    }
     
     func checkExpiryAndDeletedDates(for recordsArray: [Record], context: NSManagedObjectContext) {
         records = []
@@ -610,13 +610,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         warrantiesTableView.reloadData()
     }
     
-    func backToTopButtonPressed(sender: UIButton) {
-        //let indexPath = IndexPath(row: 0, section: 0)
-        //warrantiesTableView.scrollToRow(at: indexPath, at: UITableViewScrollPosition.top, animated: true)
-        UIView.animate(withDuration: 0.2, animations: {
-            self.warrantiesTableView.contentOffset.y = 0
-        })
-    }
+//    func backToTopButtonPressed(sender: UIButton) {
+//        //let indexPath = IndexPath(row: 0, section: 0)
+//        //warrantiesTableView.scrollToRow(at: indexPath, at: UITableViewScrollPosition.top, animated: true)
+//        UIView.animate(withDuration: 0.2, animations: {
+//            self.warrantiesTableView.contentOffset.y = 0
+//        })
+//    }
     
     //MARK: Peek and Pop methods
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController? {
