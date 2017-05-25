@@ -7,10 +7,15 @@
 //
 
 import UIKit
+import CoreData
+import CloudKit
+import EventKit
 
 class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
     // variables that have been passed forward
+    var titleString: String! = nil
+    var descriptionString: String! = nil
     var itemImageData: Data! = nil
     var receiptImageData: Data! = nil
     //
@@ -18,7 +23,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
     @IBOutlet weak var beginsPicker: UIDatePicker!
     @IBOutlet weak var selectedStartDate: UILabel!
     @IBOutlet weak var selectedEndDate: UILabel!
-    @IBOutlet weak var nextButton: UIBarButtonItem!
+    @IBOutlet weak var saveButton: UIBarButtonItem!
     @IBOutlet weak var saveDateButton: UIButton!
     @IBOutlet weak var warrantyBeginsLabel: UILabel!
     @IBOutlet weak var warrantyEndsLabel: UILabel!
@@ -36,6 +41,10 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
     var pickerData: [String] = []
     var navBarHeight: CGFloat!
     
+    let defaults = UserDefaults.standard
+    let eventStore = EKEventStore()
+    var calendars: [EKCalendar]?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -51,7 +60,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         warrantyEndsLabel.isHidden = true
         selectedEndDate.isHidden = true
         navBar.title = "Warranty"
-        nextButton.title = "Skip"
+        saveButton.isEnabled = false
         
         remindMeLabel1.isHidden = true
         daysBeforePicker.isHidden = true
@@ -79,6 +88,8 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         
         navBarHeight = navigationController!.navigationBar.frame.height
         navigationController?.isToolbarHidden = true
+        
+        requestAccessToCalendar()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -118,7 +129,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             warrantyBeginsLabel.isHidden = false
             saveDateButton.setTitle("Set End Date", for: .normal)
             startDatePicked = true
-            nextButton.title = "Skip"
+            saveButton.isEnabled = false
             
             UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
                 //let statusHeight = UIApplication.shared.statusBarFrame.size.height
@@ -139,7 +150,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             selectedEndDate.isHidden = false
             saveDateButton.setTitle("Change Dates", for: .normal)
             endDatePicked = true
-            nextButton.title = "Next"
+            saveButton.isEnabled = true
             
             remindMeLabel1.isHidden = false
             daysBeforePicker.isHidden = false
@@ -163,7 +174,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             selectedEndDate.isHidden = true
             startDatePicked = false
             endDatePicked = false
-            nextButton.title = "Skip"
+            saveButton.isEnabled = false
             saveDateButton.setTitle("Set Start Date", for: .normal)
             
             UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
@@ -192,26 +203,141 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "toDetails" {
+    @IBAction func saveButtonPressed(_ sender: Any) {
+        guard let appDelegate =
+            UIApplication.shared.delegate as? AppDelegate else {
+                return
+        }
+        
+        let managedContext = appDelegate.persistentContainer.viewContext
+        
+        let recordEntity = NSEntityDescription.entity(forEntityName: "Record", in: managedContext)!
+        
+        let record = NSManagedObject(entity: recordEntity, insertInto: managedContext) as! Record
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
+        
+        let startDate = dateFormatter.date(from: selectedStartDate.text!)
+        let endDate = dateFormatter.date(from: selectedEndDate.text!)
+        let daysBeforeReminder = Int(daysBeforePicker.selectedRow(inComponent: 0)+1)
+        
+        record.title = titleString
+        record.descriptionString = descriptionString
+        record.warrantyStarts = startDate as NSDate?
+        record.warrantyEnds = endDate as NSDate?
+        record.itemImage = itemImageData as NSData?
+        record.receiptImage = receiptImageData as NSData?
+        record.daysBeforeReminder = Int32(daysBeforeReminder)
+        record.hasWarranty = hasWarranty
+        record.dateCreated = Date() as NSDate?
+        record.lastUpdated = Date() as NSDate?
+        record.recentlyDeleted = false
+        record.expired = false
+        record.recordID = UUID().uuidString
+        
+        // to find and use the calendar for events:
+        let calendar = checkCalendar()
+        let newEvent = EKEvent(eventStore: eventStore)
+        newEvent.calendar = calendar
+        newEvent.title = titleString + " Warranty Expires"
+        newEvent.notes = "Is your item still working properly?  Its warranty expires today."
+        newEvent.startDate = endDate!
+        newEvent.endDate = endDate!
+        newEvent.isAllDay = true
+        // configure alarm for event
+        let daysToSubtract = -(daysBeforeReminder+1)
+        
+        var addingPeriod = DateComponents()
+        addingPeriod.day = daysToSubtract
+        addingPeriod.hour = 12
+        
+        let userCalendar = NSCalendar.current
+        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
+        
+        let alarm = EKAlarm(absoluteDate: alarmDate!)
+        newEvent.addAlarm(alarm)
+        
+        // try to save the event
+        do {
+            try eventStore.save(newEvent, span: .thisEvent, commit: true)
+            record.eventIdentifier = newEvent.eventIdentifier
+            print("Event Identifier: " + newEvent.eventIdentifier)
+            self.dismiss(animated: true, completion: nil)
+        } catch {
+            let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
+            let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            alert.addAction(OKAction)
             
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMM d, yyyy"
-            
-            if let nextViewController = segue.destination as? WarrantyDetailsViewController { // pass data to the next view controller
-                if itemImageData != nil {
-                    nextViewController.itemImageData = itemImageData
-                }
-                if receiptImageData != nil {
-                    nextViewController.receiptImageData = receiptImageData
-                }
-                if hasWarranty { // pass along warranty dates
-                    nextViewController.startDate = dateFormatter.date(from: selectedStartDate.text!)
-                    nextViewController.endDate = dateFormatter.date(from: selectedEndDate.text!)
-                    nextViewController.daysBeforeReminder = Int(daysBeforePicker.selectedRow(inComponent: 0)+1)
+            self.present(alert, animated: true, completion: nil)
+        }
+        
+        // Save the created Record object
+        do {
+            try managedContext.save()
+            // check if the user is signed in, if not then there is nothing to refresh.
+            if (UserDefaultsHelper.isSignedIn()) {
+                // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                let conn = UserDefaultsHelper.currentConnection()
+                if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                    CloudKitHelper.importCDRecord(cdRecord: record, context: managedContext)
+                } else {
+                    // queue up the record to sync when you have a good connection
+                    UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
                 }
             }
+        } catch let error as NSError {
+            print("Could not save. \(error), \(error.userInfo)")
         }
+        
+        self.navigationController!.popToRootViewController(animated: true)
+    }
+    
+    func checkCalendar() -> EKCalendar {
+        var retCal: EKCalendar?
+        
+        let calendars = eventStore.calendars(for: EKEntityType.event) // Grab every calendar the user has
+        var exists: Bool = false
+        for calendar in calendars { // Search all these calendars
+            if calendar.title == "WarrantyTracker" {
+                exists = true
+                retCal = calendar
+            }
+        }
+        
+        if !exists {
+            let newCalendar = EKCalendar(for:EKEntityType.event, eventStore:eventStore)
+            newCalendar.title="WarrantyTracker"
+            newCalendar.source = eventStore.defaultCalendarForNewEvents.source
+            do {
+                try eventStore.saveCalendar(newCalendar, commit:true)
+            } catch {
+                print("Couldn't add calendar")
+            }
+            retCal = newCalendar
+        }
+        
+        return retCal!
+    }
+    
+    func requestAccessToCalendar() {
+        eventStore.requestAccess(to: EKEntityType.event, completion: {
+            (accessGranted: Bool, error: Error?) in
+            
+            if accessGranted == true {
+                DispatchQueue.main.async(execute: {
+                    self.loadCalendars()
+                })
+            } else {
+                DispatchQueue.main.async(execute: {
+                    // Are you sure?
+                })
+            }
+        })
+    }
+    
+    func loadCalendars() {
+        calendars = eventStore.calendars(for: EKEntityType.event)
     }
 }
 

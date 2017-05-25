@@ -21,7 +21,11 @@ class UserDefaultsHelper {
     }
     
     static func isSignedIn() -> Bool {
-        return defaults.object(forKey: "SignedIn") as! Bool
+        if (defaults.object(forKey: "SignedIn") as? Bool) != nil {
+            return defaults.object(forKey: "SignedIn") as! Bool
+        } else {
+            return false
+        }
     }
     
     static func isSignedIn(bool: Bool) {

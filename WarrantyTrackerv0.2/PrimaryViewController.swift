@@ -578,11 +578,8 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         filteredRecords = []
         for record in records {
             let currentRecord = record
-            for tag in currentRecord.tags! {
-                let currentTag = tag as! Tag
-                if ((currentRecord.title?.contains(searchText))! || (currentTag.tag?.contains(searchText))!) && !filteredRecords.contains(currentRecord) {
-                    filteredRecords.append(currentRecord)
-                }
+            if (currentRecord.title?.contains(searchText))! && !filteredRecords.contains(currentRecord) {
+                filteredRecords.append(currentRecord)
             }
         }
         

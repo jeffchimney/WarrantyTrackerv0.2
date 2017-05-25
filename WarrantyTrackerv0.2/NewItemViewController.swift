@@ -21,6 +21,12 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     let imagePicker = UIImagePickerController()
     var imagePicked = false
     
+    // variables that have been passed forward
+    var titleString: String! = nil
+    var descriptionString: String! = nil
+    //
+
+    
     //camera variables
     var session: AVCaptureSession?
     var stillImageOutput: AVCaptureStillImageOutput?
@@ -31,6 +37,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         imagePicker.delegate = self
         navBar.title = "Item"
         navigationController?.isToolbarHidden = true
+        nextButton.isEnabled = false
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -92,6 +99,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
                     self.imageView.layer.sublayers?.removeAll()
                     self.imageView.contentMode = .scaleAspectFill
                     self.imageView.image = image
+                    self.nextButton.isEnabled = true
                 }
             })
         }
@@ -114,6 +122,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             imageView.image = pickedImage
             imageDataToSave = UIImageJPEGRepresentation(pickedImage, 1.0)
             imagePicked = true
+            nextButton.isEnabled = true
         }
         
         dismiss(animated: true, completion: nil)
@@ -132,6 +141,8 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             if let nextViewController = segue.destination as? NewReceiptViewController {
                 if (imageView.image != nil) {
                     nextViewController.itemImageData = imageDataToSave
+                    nextViewController.titleString = titleString
+                    nextViewController.descriptionString = descriptionString
                 } else {
                     print("Was nil")
                 }

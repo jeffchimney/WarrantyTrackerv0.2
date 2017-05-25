@@ -13,6 +13,8 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
     
     // variables that have been passed forward
     var itemImageData: Data! = nil
+    var titleString: String! = nil
+    var descriptionString: String! = nil
     //
     
     @IBOutlet weak var imageView: UIImageView!
@@ -35,6 +37,7 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
         imagePicker.delegate = self
         navBar.title = "Receipt"
         navigationController?.isToolbarHidden = true
+        nextButton.isEnabled = false
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -96,6 +99,7 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
                     self.imageView.layer.sublayers?.removeAll()
                     self.imageView.contentMode = .scaleAspectFill
                     self.imageView.image = image
+                    self.nextButton.isEnabled = true
                 }
             })
         }
@@ -118,6 +122,7 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
             imageView.image = pickedImage
             imageDataToSave = UIImageJPEGRepresentation(pickedImage, 1.0)
             imagePicked = true
+            nextButton.isEnabled = true
         }
         
         dismiss(animated: true, completion: nil)
@@ -139,6 +144,8 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
                 if (imageView.image != nil) {
                     nextViewController.receiptImageData = imageDataToSave
                 }
+                nextViewController.titleString = titleString
+                nextViewController.descriptionString = descriptionString
             }
         }
     }
