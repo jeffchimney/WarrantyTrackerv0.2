@@ -38,6 +38,15 @@ class NoteViewController: UIViewController, UITextFieldDelegate {
         if !isEditingRecord {
             deleteButton.isEnabled = false
         }
+        
+        // fonts
+        let defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        let attributes = [
+            NSFontAttributeName: defaultFont
+        ]
+        
+        noteTitle.defaultTextAttributes = attributes
+        noteBody.font = UIFont(name: "Kohinoor Bangla", size: 15)!
     }
     
     override func viewWillDisappear(_ animated: Bool) {

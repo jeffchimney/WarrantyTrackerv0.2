@@ -597,7 +597,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         filteredRecords = []
         for record in records {
             let currentRecord = record
-            if (currentRecord.title?.contains(searchText))! && !filteredRecords.contains(currentRecord) {
+            if (currentRecord.title?.lowercased().contains(searchText.lowercased()))! && !filteredRecords.contains(currentRecord) {
                 filteredRecords.append(currentRecord)
             }
         }
@@ -694,7 +694,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         print("Wifi:", Network.reachability?.isReachableViaWiFi ?? "nil")
     }
     func statusManager(_ notification: NSNotification) {
-        updateUserInterface()
+        if UserDefaultsHelper.isSignedIn() {
+            updateUserInterface()
+        }
     }
     
     func syncEverything() {
@@ -705,6 +707,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         let managedContext = appDelegate.persistentContainer.viewContext
         let queuedRecords = UserDefaultsHelper.getQueuedChanges()
+        let queuedRecordsToDelete = UserDefaultsHelper.getQueuedToDelete()
         
         if queuedRecords != nil {
             if (queuedRecords?.count)! > 0 {
@@ -722,6 +725,27 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                             CloudKitHelper.importCDRecord(cdRecord: fetchedRecord, context: managedContext)
                         } else { // found record, update it in cloud
                             CloudKitHelper.updateRecordInCloudKit(cdRecord: fetchedRecord, context: managedContext)
+                        }
+                    }))
+                }
+                UserDefaultsHelper.setQueueToEmpty()
+            }
+        }
+        
+        if queuedRecordsToDelete != nil {
+            if (queuedRecordsToDelete?.count)! > 0 {
+                for recordID in queuedRecordsToDelete! {
+                    
+                    let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+                    publicDatabase.delete(withRecordID: CKRecordID(recordName: recordID), completionHandler: ({record, error in
+                        if let err = error {
+                            DispatchQueue.main.async() {
+                                print(err.localizedDescription)
+                                print("Syncing as new record to cloud.")
+                            }
+                            // couldn't find record, save in cloud as new record
+                        } else { // found record, update it in cloud
+                            
                         }
                     }))
                 }

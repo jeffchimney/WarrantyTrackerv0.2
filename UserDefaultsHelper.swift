@@ -44,6 +44,10 @@ class UserDefaultsHelper {
         return  defaults.object(forKey: "recordQueue") as? [String]
     }
     
+    static func getQueuedToDelete() -> [String]? {
+        return  defaults.object(forKey: "toDeleteQueue") as? [String]
+    }
+    
     static func addRecordToQueue(recordID: String) {
         var queuedRecords = defaults.object(forKey: "recordQueue") as! [String]?
         
@@ -58,7 +62,25 @@ class UserDefaultsHelper {
         defaults.set(queuedRecords, forKey: "recordQueue")
     }
     
+    static func addRecordToDeleteQueue(recordID: String) {
+        var queuedRecords = defaults.object(forKey: "recordQueue") as! [String]?
+        
+        if queuedRecords != nil {
+            if !(queuedRecords?.contains(recordID))! {
+                queuedRecords!.append(recordID)
+            }
+        } else {
+            queuedRecords = []
+            queuedRecords!.append(recordID)
+        }
+        defaults.set(queuedRecords, forKey: "toDeleteQueue")
+    }
+    
     static func setQueueToEmpty() {
         defaults.set([], forKey: "recordQueue")
+    }
+    
+    static func setToDeleteQueueToEmpty() {
+        defaults.set([], forKey: "toDeleteQueue")
     }
 }

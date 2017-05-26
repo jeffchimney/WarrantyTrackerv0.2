@@ -51,6 +51,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     var tappedReceipt = false
     var originalCellSize = 0
     let generator = UIImpactFeedbackGenerator(style: .medium)
+    var changesMade = false
     
     var managedContext: NSManagedObjectContext?
     
@@ -206,13 +207,91 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
         
         if isEditingRecord {
-            deleteButton.title = "Save"
-            deleteButton.tintColor = tableView.tintColor
+            if changesMade { // save any changes that were made while editing.
+                guard let appDelegate =
+                    UIApplication.shared.delegate as? AppDelegate else {
+                        return
+                }
+                let managedContext =
+                    appDelegate.persistentContainer.viewContext
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "MMM d, yyyy"
+                
+                let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
+                let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
+                let descriptionCell = tableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! NotesTableViewCell
+                
+                record.warrantyStarts = dateFormatter.date(from: startDateCell.detail.text!) as NSDate?
+                record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
+                record.descriptionString = descriptionCell.title.text
+                record.lastUpdated = Date() as NSDate
+                
+                do {
+                    try managedContext.save()
+                    
+                    let eventStore = EKEventStore()
+                    let calendars = eventStore.calendars(for: .event)
+                    
+                    for calendar in calendars {
+                        if calendar.title == "WarrantyTracker" {
+                            let event = eventStore.event(withIdentifier: record.eventIdentifier!)
+                            
+                            event?.startDate = dateFormatter.date(from: endDateCell.detail.text!)!
+                            let endDate = dateFormatter.date(from: endDateCell.detail.text!)!
+                            event?.endDate = endDate
+                            event?.isAllDay = true
+                            
+                            // remove old alarm and configure new alarm for event
+                            if (event?.hasAlarms)! {
+                                event?.alarms?.removeAll()
+                            }
+                            
+                            let daysToSubtract = Int(-record.daysBeforeReminder)
+                            
+                            var addingPeriod = DateComponents()
+                            addingPeriod.day = daysToSubtract
+                            addingPeriod.hour = 12
+                            
+                            let userCalendar = NSCalendar.current
+                            let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate) // this is really subtracting...
+                            
+                            let alarm = EKAlarm(absoluteDate: alarmDate!)
+                            event?.addAlarm(alarm)
+                            
+                            do {
+                                try eventStore.save(event!, span: .thisEvent, commit: true)
+                                self.navigationController!.popToRootViewController(animated: true)
+                            } catch {
+                                print("The event couldnt be updated")
+                            }
+                        }
+                    }
+                    
+                    if (UserDefaultsHelper.isSignedIn()) {
+                        // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
+                        let conn = UserDefaultsHelper.currentConnection()
+                        if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                            CloudKitHelper.updateRecordInCloudKit(cdRecord: record, context: managedContext)
+                        } else {
+                            // queue up the record to sync when you have a good connection
+                            UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
+                        }
+                    }
+                    navigationController?.popViewController(animated: true)
+                } catch {
+                    print("The record couldn't be saved.")
+                }
+            }
+            
+            //deleteButton.title = "Save"
+            //deleteButton.tintColor = tableView.tintColor
+            deleteButton.isEnabled = false
             startDateCell.isUserInteractionEnabled = false
             endDateCell.isUserInteractionEnabled = false
             editButton.title = "Edit"
             isEditingRecord = false
-            navBar.setHidesBackButton(isEditingRecord, animated: true)
+            //navBar.setHidesBackButton(isEditingRecord, animated: true)
             
             startDateCell.detail.textColor = UIColor.black
             endDateCell.detail.textColor = UIColor.black
@@ -232,9 +311,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             endDateCell.isUserInteractionEnabled = true
             editButton.title = "Done"
             isEditingRecord = true
-            navBar.setHidesBackButton(isEditingRecord, animated: true)
-            deleteButton.title = "Delete"
-            deleteButton.tintColor = UIColor.red
+            //navBar.setHidesBackButton(isEditingRecord, animated: true)
+            //deleteButton.title = "Delete"
+            //deleteButton.tintColor = UIColor.red
             
             for index in 0...images.count-1 {
                 startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
@@ -396,6 +475,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             let cell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
             cell.detail.text = labelText
         }
+        changesMade = true
     }
     
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
@@ -478,77 +558,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                         // queue up the record to sync when you have a good connection
                         UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
                     }
+                    
+                    navigationController?.popViewController(animated: true)
                 }
             } catch {
                 print("The record couldn't be updated.")
-            }
-        } else { // save or update the returned object
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MMM d, yyyy"
-            
-            let startDateCell = tableView.cellForRow(at: IndexPath(row: 0, section: 1)) as! InfoTableViewCell
-            let endDateCell = tableView.cellForRow(at: IndexPath(row: 1, section: 1)) as! InfoTableViewCell
-            let descriptionCell = tableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! NotesTableViewCell
-            
-            record.warrantyStarts = dateFormatter.date(from: startDateCell.detail.text!) as NSDate?
-            record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
-            record.descriptionString = descriptionCell.title.text
-            record.lastUpdated = Date() as NSDate
-            
-            do {
-                try managedContext.save()
-                
-                let eventStore = EKEventStore()
-                let calendars = eventStore.calendars(for: .event)
-                
-                for calendar in calendars {
-                    if calendar.title == "WarrantyTracker" {
-                        let event = eventStore.event(withIdentifier: record.eventIdentifier!)
-                        
-                        event?.startDate = dateFormatter.date(from: endDateCell.detail.text!)!
-                        let endDate = dateFormatter.date(from: endDateCell.detail.text!)!
-                        event?.endDate = endDate
-                        event?.isAllDay = true
-                        
-                        // remove old alarm and configure new alarm for event
-                        if (event?.hasAlarms)! {
-                            event?.alarms?.removeAll()
-                        }
-                        
-                        let daysToSubtract = Int(-record.daysBeforeReminder)
-                        
-                        var addingPeriod = DateComponents()
-                        addingPeriod.day = daysToSubtract
-                        addingPeriod.hour = 12
-                        
-                        let userCalendar = NSCalendar.current
-                        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate) // this is really subtracting...
-                        
-                        let alarm = EKAlarm(absoluteDate: alarmDate!)
-                        event?.addAlarm(alarm)
-                        
-                        do {
-                            try eventStore.save(event!, span: .thisEvent, commit: true)
-                            self.navigationController!.popToRootViewController(animated: true)
-                        } catch {
-                            print("The event couldnt be updated")
-                        }
-                    }
-                }
-                
-                if (UserDefaultsHelper.isSignedIn()) {
-                    // check what the current connection is.  If wifi, refresh.  If data, and sync by data is enabled, refresh.
-                    let conn = UserDefaultsHelper.currentConnection()
-                    if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
-                        CloudKitHelper.updateRecordInCloudKit(cdRecord: record, context: managedContext)
-                    } else {
-                        // queue up the record to sync when you have a good connection
-                        UserDefaultsHelper.addRecordToQueue(recordID: record.recordID!)
-                    }
-                }
-                navigationController?.popViewController(animated: true)
-            } catch {
-                print("The record couldn't be saved.")
             }
         }
     }

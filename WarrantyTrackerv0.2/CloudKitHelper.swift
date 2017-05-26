@@ -454,4 +454,15 @@ class CloudKitHelper {
             }
         }))
     }
+    
+    static func permanentlyDeleteWithID(recordID: String) {
+        let publicDatabase:CKDatabase = CKContainer.default().publicCloudDatabase
+        publicDatabase.delete(withRecordID: CKRecordID(recordName: recordID), completionHandler: ({record, error in
+            if let err = error {
+                DispatchQueue.main.async() {
+                    print(err.localizedDescription)
+                }
+            }
+        }))
+    }
 }

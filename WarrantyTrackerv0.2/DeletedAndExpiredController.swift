@@ -165,9 +165,25 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
         let delete = UITableViewRowAction(style: .destructive, title: "Delete") { action, index in
             if indexPath.section == 0 { // expired
                 
+                if UserDefaultsHelper.isSignedIn() {
+                    let conn = UserDefaultsHelper.currentConnection()
+                    if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                        CloudKitHelper.permanentlyDeleteWithID(recordID: self.expiredRecords[indexPath.row].recordID!)
+                    } else {
+                        UserDefaultsHelper.addRecordToDeleteQueue(recordID: self.expiredRecords[indexPath.row].recordID!)
+                    }
+                }
                 CoreDataHelper.delete(record: self.expiredRecords[indexPath.row], in: self.managedContext!)
                 self.expiredRecords.remove(at: indexPath.row)
             } else { // recently deleted
+                if UserDefaultsHelper.isSignedIn() {
+                    let conn = UserDefaultsHelper.currentConnection()
+                    if (conn == "wifi" || (conn == "data" && UserDefaultsHelper.canSyncUsingData())) {
+                        CloudKitHelper.permanentlyDeleteWithID(recordID: self.deletedRecords[indexPath.row].recordID!)
+                    } else {
+                        UserDefaultsHelper.addRecordToDeleteQueue(recordID: self.deletedRecords[indexPath.row].recordID!)
+                    }
+                }
                 CoreDataHelper.delete(record: self.deletedRecords[indexPath.row], in: self.managedContext!)
                 self.deletedRecords.remove(at: indexPath.row)
             }
