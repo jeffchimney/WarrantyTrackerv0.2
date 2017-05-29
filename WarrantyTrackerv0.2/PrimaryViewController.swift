@@ -311,7 +311,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     for result in results! {
                         if result.value(forKey: "recentlyDeleted") as! Int != 0 { // if recently deleted
                             DispatchQueue.main.async {
-                                print("CK record to delete: \(result.recordID.recordName)")
+                                //print("CK record to delete: \(result.recordID.recordName)")
                             }
                             // find in coredata and delete
                             let deletedRecord: Image? = CoreDataHelper.fetchImage(with: result.recordID.recordName, in: context)
@@ -341,7 +341,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     for result in results! {
                         if result.value(forKey: "recentlyDeleted") as! Int != 0 { // if recently deleted
                             DispatchQueue.main.async {
-                                print("CK record to delete: \(result.recordID.recordName)")
+                                //print("CK record to delete: \(result.recordID.recordName)")
                             }
                             // find in coredata and delete
                             let deletedNote: Note? = CoreDataHelper.fetchNote(with: result.recordID.recordName, in: context)
@@ -359,22 +359,6 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         })
     }
-    
-//    func configureButton()
-//    {
-//        backToTopButton = UIButton()
-//        backToTopButton.frame = CGRect(x: 0, y: 0, width: 50, height: 50)
-//        backToTopButton.layer.cornerRadius = 0.5 * backToTopButton.bounds.size.width
-//        backToTopButton.layer.borderColor = warrantiesTableView.tintColor.cgColor
-//        backToTopButton.layer.borderWidth = 2.0
-//        backToTopButton.clipsToBounds = true
-//        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .normal)
-//        backToTopButton.setBackgroundImage(UIImage(named: "arrow"), for: .selected)
-//        backToTopButton.center = CGPoint(x: warrantiesTableView.center.x, y: view.frame.height - 50)
-//        backToTopButton.alpha = 0
-//        backToTopButton.addTarget(self, action: #selector(backToTopButtonPressed(sender:)), for: .touchUpInside)
-//        self.view.addSubview(backToTopButton)
-//    }
     
     override func viewDidLayoutSubviews() {
         //configureButton()

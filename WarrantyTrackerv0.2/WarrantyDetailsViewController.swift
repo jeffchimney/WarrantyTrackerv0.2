@@ -34,8 +34,9 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UITe
         
         titleTextField.autocapitalizationType = .words
         //titleTextField.borderStyle = .none
+        titleTextField.backgroundColor = UIColor.white
         descriptionTextField.autocapitalizationType = .sentences
-        descriptionTextField.backgroundColor = .blue
+        //descriptionTextField.backgroundColor = .blue
         
         titleTextField.tag = 0
         descriptionTextField.tag = 1
