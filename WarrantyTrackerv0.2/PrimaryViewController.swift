@@ -410,7 +410,11 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 cell.title.text = record.title
                 //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                if !record.hasWarranty {
+                    cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                } else {
+                    cell.warrantyEnds.text = "∞"
+                }
                 let recordImage = UIImage(data: record.itemImage! as Data)
                 cell.warrantyImageView.image = recordImage
             } else {
@@ -419,7 +423,11 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 cell.title.text = record.title
                 //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                if !record.hasWarranty {
+                    cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                } else {
+                    cell.warrantyEnds.text = "∞"
+                }
                 let recordImage = UIImage(data: record.itemImage! as Data)
                 cell.warrantyImageView.image = recordImage
             }
@@ -430,7 +438,11 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 cell.title.text = record.title
                 //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                if !record.hasWarranty {
+                    cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                } else {
+                    cell.warrantyEnds.text = "∞"
+                }
                 let recordImage = UIImage(data: record.itemImage! as Data)
                 cell.warrantyImageView.image = recordImage
             } else {
@@ -439,7 +451,11 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 cell.title.text = record.title
                 //cell.descriptionView.text = record.descriptionString
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                if !record.hasWarranty {
+                    cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                } else {
+                    cell.warrantyEnds.text = "∞"
+                }
                 let recordImage = UIImage(data: record.itemImage! as Data)
                 cell.warrantyImageView.image = recordImage
             }

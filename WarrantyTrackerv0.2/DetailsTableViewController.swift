@@ -223,7 +223,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                 let descriptionCell = tableView.cellForRow(at: IndexPath(row: 0, section: 2)) as! NotesTableViewCell
                 
                 record.warrantyStarts = dateFormatter.date(from: startDateCell.detail.text!) as NSDate?
-                record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
+                if !record.hasWarranty {
+                    record.warrantyEnds = dateFormatter.date(from: endDateCell.detail.text!) as NSDate?
+                }
                 record.descriptionString = descriptionCell.title.text
                 record.lastUpdated = Date() as NSDate
                 
@@ -233,37 +235,39 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     let eventStore = EKEventStore()
                     let calendars = eventStore.calendars(for: .event)
                     
-                    for calendar in calendars {
-                        if calendar.title == "WarrantyTracker" {
-                            let event = eventStore.event(withIdentifier: record.eventIdentifier!)
-                            
-                            event?.startDate = dateFormatter.date(from: endDateCell.detail.text!)!
-                            let endDate = dateFormatter.date(from: endDateCell.detail.text!)!
-                            event?.endDate = endDate
-                            event?.isAllDay = true
-                            
-                            // remove old alarm and configure new alarm for event
-                            if (event?.hasAlarms)! {
-                                event?.alarms?.removeAll()
-                            }
-                            
-                            let daysToSubtract = Int(-record.daysBeforeReminder)
-                            
-                            var addingPeriod = DateComponents()
-                            addingPeriod.day = daysToSubtract
-                            addingPeriod.hour = 12
-                            
-                            let userCalendar = NSCalendar.current
-                            let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate) // this is really subtracting...
-                            
-                            let alarm = EKAlarm(absoluteDate: alarmDate!)
-                            event?.addAlarm(alarm)
-                            
-                            do {
-                                try eventStore.save(event!, span: .thisEvent, commit: true)
-                                self.navigationController!.popToRootViewController(animated: true)
-                            } catch {
-                                print("The event couldnt be updated")
+                    if !record.hasWarranty {
+                        for calendar in calendars {
+                            if calendar.title == "WarrantyTracker" {
+                                let event = eventStore.event(withIdentifier: record.eventIdentifier!)
+                                
+                                event?.startDate = dateFormatter.date(from: endDateCell.detail.text!)!
+                                let endDate = dateFormatter.date(from: endDateCell.detail.text!)!
+                                event?.endDate = endDate
+                                event?.isAllDay = true
+                                
+                                // remove old alarm and configure new alarm for event
+                                if (event?.hasAlarms)! {
+                                    event?.alarms?.removeAll()
+                                }
+                                
+                                let daysToSubtract = Int(-record.daysBeforeReminder)
+                                
+                                var addingPeriod = DateComponents()
+                                addingPeriod.day = daysToSubtract
+                                addingPeriod.hour = 12
+                                
+                                let userCalendar = NSCalendar.current
+                                let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate) // this is really subtracting...
+                                
+                                let alarm = EKAlarm(absoluteDate: alarmDate!)
+                                event?.addAlarm(alarm)
+                                
+                                do {
+                                    try eventStore.save(event!, span: .thisEvent, commit: true)
+                                    self.navigationController!.popToRootViewController(animated: true)
+                                } catch {
+                                    print("The event couldnt be updated")
+                                }
                             }
                         }
                     }
@@ -308,7 +312,12 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         } else {
             deleteButton.isEnabled = true
             startDateCell.isUserInteractionEnabled = true
-            endDateCell.isUserInteractionEnabled = true
+            if !record.hasWarranty {
+                endDateCell.isUserInteractionEnabled = true
+                endDateCell.detail.textColor = tableView.tintColor
+            } else {
+                endDateCell.isUserInteractionEnabled = false
+            }
             editButton.title = "Done"
             isEditingRecord = true
             //navBar.setHidesBackButton(isEditingRecord, animated: true)
@@ -320,7 +329,6 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             }
             
             startDateCell.detail.textColor = tableView.tintColor
-            endDateCell.detail.textColor = tableView.tintColor
             
             tableView.beginUpdates()
             tableView.insertRows(at: [IndexPath(row: notes.count + 1, section: 2)], with: UITableViewRowAnimation.fade)
@@ -601,7 +609,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             return 1
         }
         if section == 1 {
-            return 4
+            if !record.hasWarranty {
+                return 4
+            } else {
+                return 2
+            }
         }
         if section == 2 {
             if isEditingRecord {
@@ -684,32 +696,39 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             }
             if indexPath.row == 1 {
                 cell.title.text = "End Date"
-                cell.detail.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                if !record.hasWarranty {
+                    cell.detail.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                } else {
+                    cell.detail.text = "∞"
+                }
             }
-            if indexPath.row == 2 {
-                
-                // calculate alarm for event
-                let daysToSubtract = Int(-record.daysBeforeReminder)
-                
-                var addingPeriod = DateComponents()
-                addingPeriod.day = daysToSubtract
-                addingPeriod.hour = 12
-                
-                let userCalendar = NSCalendar.current
-                let alarmDate = userCalendar.date(byAdding: addingPeriod, to: record.warrantyEnds! as Date) // this is really subtracting...
-                
-                cell.title.text = "Scheduled Alert"
-                cell.detail.text = dateFormatter.string(from: alarmDate!)
-            }
-            if indexPath.row == 3 {
-                let calendar = NSCalendar.current
-                // Replace the hour (time) of both dates with 00:00
-                let currentDate = calendar.startOfDay(for: Date())
-                let endDate = calendar.startOfDay(for: record.warrantyEnds! as Date)
-                let daysLeft = calendar.dateComponents([.day], from: currentDate, to: endDate)
-                
-                cell.title.text = "Days Remaining"
-                cell.detail.text = String(daysLeft.day!)
+            
+            if !record.hasWarranty {
+                if indexPath.row == 2 {
+                    
+                    // calculate alarm for event
+                    let daysToSubtract = Int(-record.daysBeforeReminder)
+                    
+                    var addingPeriod = DateComponents()
+                    addingPeriod.day = daysToSubtract
+                    addingPeriod.hour = 12
+                    
+                    let userCalendar = NSCalendar.current
+                    let alarmDate = userCalendar.date(byAdding: addingPeriod, to: record.warrantyEnds! as Date) // this is really subtracting...
+                    
+                    cell.title.text = "Scheduled Alert"
+                    cell.detail.text = dateFormatter.string(from: alarmDate!)
+                }
+                if indexPath.row == 3 {
+                    let calendar = NSCalendar.current
+                    // Replace the hour (time) of both dates with 00:00
+                    let currentDate = calendar.startOfDay(for: Date())
+                    let endDate = calendar.startOfDay(for: record.warrantyEnds! as Date)
+                    let daysLeft = calendar.dateComponents([.day], from: currentDate, to: endDate)
+                    
+                    cell.title.text = "Days Remaining"
+                    cell.detail.text = String(daysLeft.day!)
+                }
             }
             
             return cell

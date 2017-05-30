@@ -103,7 +103,11 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
                 let record = expiredRecords[indexPath.row]
                 cell.title.text = record.title
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                if !record.hasWarranty {
+                    cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                } else {
+                    cell.warrantyEnds.text = "∞"
+                }
                 let recordImage = UIImage(data: record.itemImage as! Data)
                 cell.warrantyImageView.image = recordImage
             }
@@ -120,7 +124,11 @@ class DeletedAndExpiredController: UIViewController, UITableViewDelegate, UITabl
                 let record = deletedRecords[indexPath.row]
                 cell.title.text = record.title
                 cell.warrantyStarts.text = dateFormatter.string(from: record.warrantyStarts! as Date)
-                cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                if !record.hasWarranty {
+                    cell.warrantyEnds.text = dateFormatter.string(from: record.warrantyEnds! as Date)
+                } else {
+                    cell.warrantyEnds.text = "∞"
+                }
                 let recordImage = UIImage(data: record.itemImage as! Data)
                 cell.warrantyImageView.image = recordImage
             }

@@ -34,6 +34,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
     @IBOutlet weak var remindMeLabel2: UILabel!
     @IBOutlet weak var datesSlidingView: UIView!
     @IBOutlet weak var daysBeforeSlidingView: UIView!
+    @IBOutlet weak var lifetimeWarrantySwitch: UISwitch!
     
     var startDatePicked = false
     var endDatePicked = false
@@ -85,6 +86,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         daysBeforeSlidingView.layer.shadowRadius = 5
         daysBeforeSlidingView.translatesAutoresizingMaskIntoConstraints = true
         daysBeforeSlidingView.layer.cornerRadius = 15
+        lifetimeWarrantySwitch.isHidden = true
         
         navBarHeight = navigationController!.navigationBar.frame.height
         navigationController?.isToolbarHidden = true
@@ -106,6 +108,14 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         // Dispose of any resources that can be recreated.
     }
 
+    @IBAction func lifetimeWarrantySwitched(_ sender: Any) {
+        if lifetimeWarrantySwitch.isOn {
+            saveButton.isEnabled = true
+        } else {
+            saveButton.isEnabled = false
+        }
+    }
+    
     @IBAction func pickerChanged(_ sender: Any) {
         if startDatePicked { // make sure end date is never earlier than start date
             let dateFormatter = DateFormatter()
@@ -130,6 +140,11 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             saveDateButton.setTitle("Set End Date", for: .normal)
             startDatePicked = true
             saveButton.isEnabled = false
+            lifetimeWarrantySwitch.isHidden = false
+            lifetimeWarrantySwitch.isOn = false
+            warrantyEndsLabel.text = "Lifetime"
+            warrantyEndsLabel.isHidden = false
+            
             
             UIView.animate(withDuration: 0.5, delay: 0, options: [], animations: {
                 //let statusHeight = UIApplication.shared.statusBarFrame.size.height
@@ -142,10 +157,11 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             dateFormatter.dateFormat = "MMM d, yyyy"
             let endDate = dateFormatter.string(from: beginsPicker.date)
             self.selectedEndDate.text = endDate
-            
+            warrantyEndsLabel.text = "Ends"
             warrantyEndsLabel.alpha = 0
             selectedEndDate.alpha = 0
-            
+            lifetimeWarrantySwitch.isHidden = true
+            lifetimeWarrantySwitch.isOn = false
             warrantyEndsLabel.isHidden = false
             selectedEndDate.isHidden = false
             saveDateButton.setTitle("Change Dates", for: .normal)
@@ -173,6 +189,7 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             self.selectedEndDate.text = ""
             warrantyEndsLabel.isHidden = true
             selectedStartDate.isHidden = true
+            lifetimeWarrantySwitch.isHidden = true
             selectedEndDate.isHidden = true
             startDatePicked = false
             endDatePicked = false
@@ -227,11 +244,15 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         record.title = titleString
         record.descriptionString = descriptionString
         record.warrantyStarts = startDate as NSDate?
-        record.warrantyEnds = endDate as NSDate?
+        if lifetimeWarrantySwitch.isOn {
+            record.warrantyEnds = NSDate.distantFuture as NSDate
+        } else {
+            record.warrantyEnds = endDate as NSDate?
+        }
         record.itemImage = itemImageData as NSData?
         record.receiptImage = receiptImageData as NSData?
         record.daysBeforeReminder = Int32(daysBeforeReminder)
-        record.hasWarranty = hasWarranty
+        record.hasWarranty = lifetimeWarrantySwitch.isOn
         record.dateCreated = Date() as NSDate?
         record.lastUpdated = Date() as NSDate?
         record.recentlyDeleted = false
@@ -239,39 +260,43 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         record.recordID = UUID().uuidString
         
         // to find and use the calendar for events:
-        let calendar = checkCalendar()
-        let newEvent = EKEvent(eventStore: eventStore)
-        newEvent.calendar = calendar
-        newEvent.title = titleString + " Warranty Expires"
-        newEvent.notes = "Is your item still working properly?  Its warranty expires today."
-        newEvent.startDate = endDate!
-        newEvent.endDate = endDate!
-        newEvent.isAllDay = true
-        // configure alarm for event
-        let daysToSubtract = -(daysBeforeReminder+1)
-        
-        var addingPeriod = DateComponents()
-        addingPeriod.day = daysToSubtract
-        addingPeriod.hour = 12
-        
-        let userCalendar = NSCalendar.current
-        let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
-        
-        let alarm = EKAlarm(absoluteDate: alarmDate!)
-        newEvent.addAlarm(alarm)
-        
-        // try to save the event
-        do {
-            try eventStore.save(newEvent, span: .thisEvent, commit: true)
-            record.eventIdentifier = newEvent.eventIdentifier
-            print("Event Identifier: " + newEvent.eventIdentifier)
-            self.dismiss(animated: true, completion: nil)
-        } catch {
-            let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
-            let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-            alert.addAction(OKAction)
+        if !lifetimeWarrantySwitch.isOn {
+            let calendar = checkCalendar()
+            let newEvent = EKEvent(eventStore: eventStore)
+            newEvent.calendar = calendar
+            newEvent.title = titleString + " Warranty Expires"
+            newEvent.notes = "Is your item still working properly?  Its warranty expires today."
+            newEvent.startDate = endDate!
+            newEvent.endDate = endDate!
+            newEvent.isAllDay = true
+            // configure alarm for event
+            let daysToSubtract = -(daysBeforeReminder+1)
             
-            self.present(alert, animated: true, completion: nil)
+            var addingPeriod = DateComponents()
+            addingPeriod.day = daysToSubtract
+            addingPeriod.hour = 12
+            
+            let userCalendar = NSCalendar.current
+            let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
+            
+            let alarm = EKAlarm(absoluteDate: alarmDate!)
+            newEvent.addAlarm(alarm)
+            
+            // try to save the event
+            do {
+                try eventStore.save(newEvent, span: .thisEvent, commit: true)
+                record.eventIdentifier = newEvent.eventIdentifier
+                print("Event Identifier: " + newEvent.eventIdentifier)
+                self.dismiss(animated: true, completion: nil)
+            } catch {
+                let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
+                let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                alert.addAction(OKAction)
+                
+                self.present(alert, animated: true, completion: nil)
+            }
+        } else {
+            record.eventIdentifier = "LifetimeWarranty"
         }
         
         // Save the created Record object
