@@ -236,37 +236,39 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
                     let calendars = eventStore.calendars(for: .event)
                     
                     if !record.hasWarranty {
-                        for calendar in calendars {
-                            if calendar.title == "WarrantyTracker" {
-                                let event = eventStore.event(withIdentifier: record.eventIdentifier!)
-                                
-                                event?.startDate = dateFormatter.date(from: endDateCell.detail.text!)!
-                                let endDate = dateFormatter.date(from: endDateCell.detail.text!)!
-                                event?.endDate = endDate
-                                event?.isAllDay = true
-                                
-                                // remove old alarm and configure new alarm for event
-                                if (event?.hasAlarms)! {
-                                    event?.alarms?.removeAll()
-                                }
-                                
-                                let daysToSubtract = Int(-record.daysBeforeReminder)
-                                
-                                var addingPeriod = DateComponents()
-                                addingPeriod.day = daysToSubtract
-                                addingPeriod.hour = 12
-                                
-                                let userCalendar = NSCalendar.current
-                                let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate) // this is really subtracting...
-                                
-                                let alarm = EKAlarm(absoluteDate: alarmDate!)
-                                event?.addAlarm(alarm)
-                                
-                                do {
-                                    try eventStore.save(event!, span: .thisEvent, commit: true)
-                                    self.navigationController!.popToRootViewController(animated: true)
-                                } catch {
-                                    print("The event couldnt be updated")
+                        if EKEventStore.authorizationStatus(for: EKEntityType.event) == .authorized {
+                            for calendar in calendars {
+                                if calendar.title == "WarrantyTracker" {
+                                    let event = eventStore.event(withIdentifier: record.eventIdentifier!)
+                                    
+                                    event?.startDate = dateFormatter.date(from: endDateCell.detail.text!)!
+                                    let endDate = dateFormatter.date(from: endDateCell.detail.text!)!
+                                    event?.endDate = endDate
+                                    event?.isAllDay = true
+                                    
+                                    // remove old alarm and configure new alarm for event
+                                    if (event?.hasAlarms)! {
+                                        event?.alarms?.removeAll()
+                                    }
+                                    
+                                    let daysToSubtract = Int(-record.daysBeforeReminder)
+                                    
+                                    var addingPeriod = DateComponents()
+                                    addingPeriod.day = daysToSubtract
+                                    addingPeriod.hour = 12
+                                    
+                                    let userCalendar = NSCalendar.current
+                                    let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate) // this is really subtracting...
+                                    
+                                    let alarm = EKAlarm(absoluteDate: alarmDate!)
+                                    event?.addAlarm(alarm)
+                                    
+                                    do {
+                                        try eventStore.save(event!, span: .thisEvent, commit: true)
+                                        self.navigationController!.popToRootViewController(animated: true)
+                                    } catch {
+                                        print("The event couldnt be updated")
+                                    }
                                 }
                             }
                         }

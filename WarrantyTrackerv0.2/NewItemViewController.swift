@@ -16,6 +16,8 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var captureButton: UIButton!
     @IBOutlet weak var libraryButton: UIButton!
+    @IBOutlet weak var cameraAccessLabel: UILabel!
+    @IBOutlet weak var openSettingsButton: UIButton!
     
     var imageDataToSave: Data!
     let imagePicker = UIImagePickerController()
@@ -40,13 +42,46 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         nextButton.isEnabled = false
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        if imagePicked {
-            nextButton.title = "Next"
-        } else {
-            nextButton.title = "Next"
+    override func viewWillAppear(_ animated: Bool) {        
+        if AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) ==  AVAuthorizationStatus.authorized
+        {
+            // Already Authorized
+            openSettingsButton.isHidden = true
+            cameraAccessLabel.isHidden = true
+            imageView.isHidden = false
+            setUpCamera()
         }
-        
+        else
+        {
+            AVCaptureDevice.requestAccess(forMediaType: AVMediaTypeVideo, completionHandler: { (granted :Bool) -> Void in
+                if granted == true
+                {
+                    // User granted
+                    DispatchQueue.main.async {
+                        UserDefaultsHelper.setCameraPermissions(to: true)
+                        self.imageView.isHidden = false
+                        self.openSettingsButton.isHidden = true
+                        self.cameraAccessLabel.isHidden = true
+                        self.setUpCamera()
+                        self.captureButton.isEnabled = true
+                    }
+                }
+                else
+                {
+                    // User Rejected
+                    DispatchQueue.main.async {
+                        UserDefaultsHelper.setCameraPermissions(to: false)
+                        self.imageView.isHidden = true
+                        self.cameraAccessLabel.isHidden = false
+                        self.openSettingsButton.isHidden = false
+                        self.captureButton.isEnabled = false;
+                    }
+                }
+            });
+        }
+    }
+    
+    func setUpCamera() {
         if !imagePicked {
             session = AVCaptureSession()
             session!.sessionPreset = AVCaptureSessionPresetPhoto
@@ -134,6 +169,18 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     @IBAction func nextButtonPressed(_ sender: Any) {
         
+    }
+    
+    @IBAction func cameraSwitchPressed(_ sender: Any) {
+        guard let settingsUrl = URL(string: UIApplicationOpenSettingsURLString) else {
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                print("Settings opened: \(success)") // Prints true
+            })
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

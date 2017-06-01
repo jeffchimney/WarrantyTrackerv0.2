@@ -91,7 +91,9 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         navBarHeight = navigationController!.navigationBar.frame.height
         navigationController?.isToolbarHidden = true
         
-        requestAccessToCalendar()
+        if !UserDefaultsHelper.hasCalendarPermissions() {
+            requestAccessToCalendar()
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -261,39 +263,44 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         
         // to find and use the calendar for events:
         if !lifetimeWarrantySwitch.isOn {
-            let calendar = checkCalendar()
-            let newEvent = EKEvent(eventStore: eventStore)
-            newEvent.calendar = calendar
-            newEvent.title = titleString + " Warranty Expires"
-            newEvent.notes = "Is your item still working properly?  Its warranty expires today."
-            newEvent.startDate = endDate!
-            newEvent.endDate = endDate!
-            newEvent.isAllDay = true
-            // configure alarm for event
-            let daysToSubtract = -(daysBeforeReminder+1)
-            
-            var addingPeriod = DateComponents()
-            addingPeriod.day = daysToSubtract
-            addingPeriod.hour = 12
-            
-            let userCalendar = NSCalendar.current
-            let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
-            
-            let alarm = EKAlarm(absoluteDate: alarmDate!)
-            newEvent.addAlarm(alarm)
-            
-            // try to save the event
-            do {
-                try eventStore.save(newEvent, span: .thisEvent, commit: true)
-                record.eventIdentifier = newEvent.eventIdentifier
-                print("Event Identifier: " + newEvent.eventIdentifier)
-                self.dismiss(animated: true, completion: nil)
-            } catch {
-                let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
-                let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-                alert.addAction(OKAction)
+            // make sure we have permission for the calendar
+            if EKEventStore.authorizationStatus(for: EKEntityType.event) == .authorized {
+                let calendar = checkCalendar()
+                let newEvent = EKEvent(eventStore: eventStore)
+                newEvent.calendar = calendar
+                newEvent.title = titleString + " Warranty Expires"
+                newEvent.notes = "Is your item still working properly?  Its warranty expires today."
+                newEvent.startDate = endDate!
+                newEvent.endDate = endDate!
+                newEvent.isAllDay = true
+                // configure alarm for event
+                let daysToSubtract = -(daysBeforeReminder+1)
                 
-                self.present(alert, animated: true, completion: nil)
+                var addingPeriod = DateComponents()
+                addingPeriod.day = daysToSubtract
+                addingPeriod.hour = 12
+                
+                let userCalendar = NSCalendar.current
+                let alarmDate = userCalendar.date(byAdding: addingPeriod, to: endDate!) // this is really subtracting...
+                
+                let alarm = EKAlarm(absoluteDate: alarmDate!)
+                newEvent.addAlarm(alarm)
+                
+                // try to save the event
+                do {
+                    try eventStore.save(newEvent, span: .thisEvent, commit: true)
+                    record.eventIdentifier = newEvent.eventIdentifier
+                    print("Event Identifier: " + newEvent.eventIdentifier)
+                    self.dismiss(animated: true, completion: nil)
+                } catch {
+                    let alert = UIAlertController(title: "Event could not be saved", message: (error as NSError).localizedDescription, preferredStyle: .alert)
+                    let OKAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+                    alert.addAction(OKAction)
+                    
+                    self.present(alert, animated: true, completion: nil)
+                }
+            } else {
+                record.eventIdentifier = "NotAuthorized"
             }
         } else {
             record.eventIdentifier = "LifetimeWarranty"
@@ -352,12 +359,23 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
             (accessGranted: Bool, error: Error?) in
             
             if accessGranted == true {
+                UserDefaultsHelper.setCalendarPermissions(to: true)
                 DispatchQueue.main.async(execute: {
                     self.loadCalendars()
                 })
             } else {
+                UserDefaultsHelper.setCalendarPermissions(to: false)
                 DispatchQueue.main.async(execute: {
-                    // Are you sure?
+                    let alertController = UIAlertController(title: "You Sure?", message: "UnderWarranty uses an app specific calendar to alert you when an item is about to leave warranty.  If you change your mind, enable the Calendar switch in Settings.", preferredStyle: UIAlertControllerStyle.alert)
+                    
+                    // Replace UIAlertActionStyle.Default by UIAlertActionStyle.default
+                    let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default) {
+                        (result : UIAlertAction) -> Void in
+                        print("OK")
+                    }
+                    
+                    alertController.addAction(okAction)
+                    self.present(alertController, animated: true, completion: nil)
                 })
             }
         })

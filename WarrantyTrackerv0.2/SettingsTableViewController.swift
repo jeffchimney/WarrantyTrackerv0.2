@@ -10,6 +10,8 @@ import Foundation
 import UIKit
 import CloudKit
 import CoreData
+import EventKit
+import AVFoundation
 
 class SettingsTableViewController: UITableViewController {
     
@@ -17,6 +19,8 @@ class SettingsTableViewController: UITableViewController {
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var allowDataSyncLabel: UILabel!
     @IBOutlet weak var navBar: UINavigationItem!
+    @IBOutlet weak var cameraSwitch: UISwitch!
+    @IBOutlet weak var calendarSwitch: UISwitch!
     
     override func viewDidLoad() {
         if UserDefaultsHelper.isSignedIn() {
@@ -29,6 +33,17 @@ class SettingsTableViewController: UITableViewController {
         
         usernameLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
         allowDataSyncLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        
+        if EKEventStore.authorizationStatus(for: EKEntityType.event) == .authorized {
+            calendarSwitch.isOn = true
+        } else {
+            calendarSwitch.isOn = false
+        }
+        if AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) ==  AVAuthorizationStatus.authorized {
+            cameraSwitch.isOn = true
+        } else {
+            cameraSwitch.isOn = false
+        }
     }
     
     override func viewDidLayoutSubviews() {
@@ -103,6 +118,30 @@ class SettingsTableViewController: UITableViewController {
             alertController.addAction(DestructiveAction)
             alertController.addAction(okAction)
             self.present(alertController, animated: true, completion: nil)
+        }
+    }
+    
+    @IBAction func cameraAccessSwitch(_ sender: Any) {
+        guard let settingsUrl = URL(string: UIApplicationOpenSettingsURLString) else {
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                print("Settings opened: \(success)") // Prints true
+            })
+        }
+    }
+    
+    @IBAction func calendarAccessSwitch(_ sender: Any) {
+        guard let settingsUrl = URL(string: UIApplicationOpenSettingsURLString) else {
+            return
+        }
+        
+        if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
+                print("Settings opened: \(success)") // Prints true
+            })
         }
     }
 }

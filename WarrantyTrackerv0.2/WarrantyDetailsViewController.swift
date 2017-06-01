@@ -9,7 +9,6 @@
 import UIKit
 import CoreData
 import CloudKit
-import EventKit
 
 class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UITextViewDelegate {
     
@@ -19,8 +18,6 @@ class WarrantyDetailsViewController: UIViewController, UITextFieldDelegate, UITe
     @IBOutlet weak var navBar: UINavigationItem!
     
     let defaults = UserDefaults.standard
-    let eventStore = EKEventStore()
-    var calendars: [EKCalendar]?
     
     override func viewDidLoad() {
         super.viewDidLoad()

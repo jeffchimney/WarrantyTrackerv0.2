@@ -36,6 +36,14 @@ class UserDefaultsHelper {
         return defaults.object(forKey: "SyncUsingData") as! Bool
     }
     
+    static func hasCameraPermissions() -> Bool {
+        return defaults.object(forKey: "CameraPermissions") as! Bool
+    }
+    
+    static func hasCalendarPermissions() -> Bool {
+        return defaults.object(forKey: "CalendarPermissions") as! Bool
+    }
+    
     static func currentConnection() -> String {
         return defaults.object(forKey: "connection") as! String
     }
@@ -82,5 +90,13 @@ class UserDefaultsHelper {
     
     static func setToDeleteQueueToEmpty() {
         defaults.set([], forKey: "toDeleteQueue")
+    }
+    
+    static func setCameraPermissions(to: Bool) {
+        defaults.set(to, forKey: "CameraPermissions")
+    }
+    
+    static func setCalendarPermissions(to: Bool) {
+        defaults.set(to, forKey: "CalendarPermissions")
     }
 }

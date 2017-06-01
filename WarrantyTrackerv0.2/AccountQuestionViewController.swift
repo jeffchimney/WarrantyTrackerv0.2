@@ -14,6 +14,11 @@ class AccountQuestionViewController: UIViewController, UIPopoverPresentationCont
     @IBOutlet weak var infoButton: UIButton!
     var signingIn = false
     
+    override func viewDidLoad() {
+        UserDefaultsHelper.setCameraPermissions(to: false)
+        UserDefaultsHelper.setCalendarPermissions(to: false)
+    }
+    
     @IBAction func skipButtonPressed(_ sender: UIButton) {
         // set userdefaults for first launch
         let defaults = UserDefaults.standard

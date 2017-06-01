@@ -13,7 +13,7 @@ class TitleAndSwitchTableViewCell: UITableViewCell {
     
     @IBOutlet var toggle: UISwitch!
     
-    @IBAction func toggleSwitch() {
+    @IBAction func toggleSwitch(_: Any) {
         defaults.set(toggle.isOn, forKey: "SyncUsingData")
     }
 }
