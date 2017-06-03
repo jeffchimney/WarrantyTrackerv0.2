@@ -45,53 +45,48 @@ class CloudKitHelper {
                     let ckRecord = CKRecord(recordType: "Records", recordID: CKRecordID(recordName: cdRecord.recordID!))
                     let reference = CKReference(recordID: accountRecord.recordID, action: CKReferenceAction.deleteSelf)
                     
-                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
+//                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+//                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+//                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
+//                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
                     
                     
-                    do {
-                        try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
-                        try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
-                        
-                        let itemAsset = CKAsset(fileURL: url)
-                        let receiptAsset = CKAsset(fileURL: receiptURL)
-                        
-                        ckRecord.setObject(reference, forKey: "AssociatedAccount")
-                        ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
-                        ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
-                        ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
-                        ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
-                        ckRecord.setObject(cdRecord.eventIdentifier! as CKRecordValue, forKey: "eventIdentifier")
-                        ckRecord.setObject(itemAsset, forKey: "itemData")
-                        ckRecord.setObject(receiptAsset, forKey: "receiptData")
-                        ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
-                        ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
-                        ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
-                        ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
-                        ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
-                        let syncedDate = Date()
-                        ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-                        
-                        if cdRecord.recentlyDeleted {
-                            ckRecord.setObject(cdRecord.dateDeleted as CKRecordValue?, forKey: "dateDeleted")
-                        }
-                        
-                        publicDatabase.save(ckRecord, completionHandler: { (record, error) in
-                            if error != nil {
-                                print(error!)
-                                return
-                            }
-                            print("Successfully added record")
-                            
-                            self.importAssociatedImages(cdRecord: cdRecord, syncedDate: syncedDate, context: context)
-                            self.importAssociatedNotes(cdRecord: cdRecord, syncedDate: syncedDate, context: context)
-                        })
-                    } catch {
-                        print("Problems writing to URL")
+                    //try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
+                    //try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
+                    
+                    //let itemAsset = CKAsset(fileURL: url)
+                    //let receiptAsset = CKAsset(fileURL: receiptURL)
+                    
+                    ckRecord.setObject(reference, forKey: "AssociatedAccount")
+                    ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
+                    ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
+                    ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
+                    ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
+                    ckRecord.setObject(cdRecord.eventIdentifier! as CKRecordValue, forKey: "eventIdentifier")
+                    //ckRecord.setObject(itemAsset, forKey: "itemData")
+                    //ckRecord.setObject(receiptAsset, forKey: "receiptData")
+                    ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
+                    ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
+                    ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
+                    ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
+                    ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
+                    let syncedDate = Date()
+                    ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
+                    
+                    if cdRecord.recentlyDeleted {
+                        ckRecord.setObject(cdRecord.dateDeleted as CKRecordValue?, forKey: "dateDeleted")
                     }
                     
+                    publicDatabase.save(ckRecord, completionHandler: { (record, error) in
+                        if error != nil {
+                            print(error!)
+                            return
+                        }
+                        print("Successfully added record")
+                        
+                        self.importAssociatedImages(cdRecord: cdRecord, syncedDate: syncedDate, context: context)
+                        self.importAssociatedNotes(cdRecord: cdRecord, syncedDate: syncedDate, context: context)
+                    })
                 }
             }
         })
@@ -111,51 +106,51 @@ class CloudKitHelper {
                 if (results?.count)! > 0 {
                     let ckRecord = (results?[0])!
                     
-                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
-                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
-                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
+//                    let filename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+//                    let receiptFilename = ProcessInfo.processInfo.globallyUniqueString + ".png"
+//                    let url = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(filename)
+//                    let receiptURL = NSURL.fileURL(withPath: NSTemporaryDirectory()).appendingPathComponent(receiptFilename)
+//                    
+//                    
+//                    do {
+//                        try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
+//                        try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
+//                        
+//                        let itemAsset = CKAsset(fileURL: url)
+//                        let receiptAsset = CKAsset(fileURL: receiptURL)
                     
+                    ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
+                    ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
+                    ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
+                    ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
+                    //ckRecord.setObject(itemAsset, forKey: "itemData")
+                    //ckRecord.setObject(receiptAsset, forKey: "receiptData")
+                    ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
+                    ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
+                    ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
+                    ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
+                    ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
+                    let syncedDate = Date()
+                    ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
                     
-                    do {
-                        try cdRecord.itemImage?.write(to: url, options: NSData.WritingOptions.atomicWrite)
-                        try cdRecord.receiptImage?.write(to: receiptURL, options: NSData.WritingOptions.atomicWrite)
-                        
-                        let itemAsset = CKAsset(fileURL: url)
-                        let receiptAsset = CKAsset(fileURL: receiptURL)
-                        
-                        ckRecord.setObject(cdRecord.title! as CKRecordValue?, forKey: "title")
-                        ckRecord.setObject(cdRecord.descriptionString! as CKRecordValue?, forKey: "descriptionString")
-                        ckRecord.setObject(cdRecord.warrantyStarts, forKey: "warrantyStarts")
-                        ckRecord.setObject(cdRecord.warrantyEnds, forKey: "warrantyEnds")
-                        ckRecord.setObject(itemAsset, forKey: "itemData")
-                        ckRecord.setObject(receiptAsset, forKey: "receiptData")
-                        ckRecord.setObject(cdRecord.daysBeforeReminder as CKRecordValue?, forKey: "daysBeforeReminder")
-                        ckRecord.setObject(cdRecord.hasWarranty as CKRecordValue?, forKey: "hasWarranty")
-                        ckRecord.setObject(cdRecord.dateCreated as CKRecordValue?, forKey: "dateCreated")
-                        ckRecord.setObject(cdRecord.recentlyDeleted as CKRecordValue?, forKey: "recentlyDeleted")
-                        ckRecord.setObject(cdRecord.expired as CKRecordValue?, forKey: "expired")
-                        let syncedDate = Date()
-                        ckRecord.setObject(syncedDate as CKRecordValue?, forKey: "lastSynced")
-                        
-                        if cdRecord.recentlyDeleted {
-                            ckRecord.setObject(cdRecord.dateDeleted as CKRecordValue?, forKey: "dateDeleted")
-                        }
-                        
-                        publicDatabase.save(ckRecord, completionHandler: { (record, error) in
-                            if error != nil {
-                                print(error!)
-                                return
-                            }
-                            DispatchQueue.main.async {
-                                print("Successfully updated record")
-                            }
-                            self.syncImagesToCloudKit(associatedWith: cdRecord, in: context)
-                            self.syncNotesToCloudKit(associatedWith: cdRecord, in: context)
-                        })
-                    } catch {
-                        print("Problems writing to URL")
+                    if cdRecord.recentlyDeleted {
+                        ckRecord.setObject(cdRecord.dateDeleted as CKRecordValue?, forKey: "dateDeleted")
                     }
+                    
+                    publicDatabase.save(ckRecord, completionHandler: { (record, error) in
+                        if error != nil {
+                            print(error!)
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            print("Successfully updated record")
+                        }
+                        self.syncImagesToCloudKit(associatedWith: cdRecord, in: context)
+                        self.syncNotesToCloudKit(associatedWith: cdRecord, in: context)
+                    })
+//                    } catch {
+//                        print("Problems writing to URL")
+//                    }
                     
                 }
             }

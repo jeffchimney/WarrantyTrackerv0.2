@@ -68,8 +68,8 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         tableView.dataSource = self
         tableView.delegate = self
         
-        images.append(UIImage(data: record.itemImage! as Data)!)
-        images.append(UIImage(data: record.receiptImage! as Data)!)
+        //images.append(UIImage(data: record.itemImage! as Data)!)
+        //images.append(UIImage(data: record.receiptImage! as Data)!)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
         
@@ -138,7 +138,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
     }
     
     func loadAssociatedImages() {
-        while images.count > 2 {
+        while images.count > 0 {
             images.removeLast()
         }
         
@@ -327,7 +327,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             //deleteButton.tintColor = UIColor.red
             
             for index in 0...images.count-1 {
-                startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+                if imageCarousel!.numberOfItems > 0 {
+                    startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+                }
             }
             
             startDateCell.detail.textColor = tableView.tintColor
@@ -431,7 +433,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             appDelegate.persistentContainer.viewContext
         let fetchRequest =
             NSFetchRequest<NSManagedObject>(entityName: "Image")
-        fetchRequest.predicate = NSPredicate(format: "id==%@", imageIDs[indexToDelete-2]) // account for item and receipt images
+        fetchRequest.predicate = NSPredicate(format: "id==%@", imageIDs[indexToDelete]) // account for item and receipt images
         let object = try! managedContext.fetch(fetchRequest)
 
         let record = object[0] as! Image
@@ -439,14 +441,14 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         do {
             managedContext.delete(record)
             try managedContext.save()
-            CloudKitHelper.deleteWithID(recordID: imageIDs[indexToDelete-2])
+            CloudKitHelper.deleteWithID(recordID: imageIDs[indexToDelete])
         } catch {
             print("The record couldn't be deleted.")
         }
         
         imageCarousel.removeItem(at: indexToDelete, animated: true)
         images.remove(at: indexToDelete)
-        imageIDs.remove(at: indexToDelete-2)
+        imageIDs.remove(at: indexToDelete)
     }
     
     func keyboardWillShow(notification:NSNotification) {
@@ -841,39 +843,39 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         if view != nil {
             imageView = UIImageView()//view as! UIImageView
         } else {
-            imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
+            imageView = UIImageView(frame: CGRect(x: 0, y: 0, width: 180, height: 240))
         }
-        
+    
         if index < images.count {
-            if index == 0 {
-                imageView.image = UIImage(data: record.itemImage! as Data)
-                imageView.isUserInteractionEnabled = true
-                let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
-                imageView.addGestureRecognizer(imageViewTap)
-                
-                if isEditingRecord {
-                    startJiggling(viewToShake: imageView)
-                }
-            } else if index == 1 {
-                imageView.image = UIImage(data: record.receiptImage! as Data)
-                imageView.isUserInteractionEnabled = true
-                let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
-                imageView.addGestureRecognizer(receiptViewTap)
-                if isEditingRecord {
-                    startJiggling(viewToShake: imageView)
-                }
-            } else {
-                imageView.image = images[index]
-                imageView.isUserInteractionEnabled = true
-                let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
-                imageView.addGestureRecognizer(imageViewTap)
-                
-                if isEditingRecord {
-                    startJiggling(viewToShake: imageView)
-                }
+//            if index == 0 {
+//                imageView.image = UIImage(data: record.itemImage! as Data)
+//                imageView.isUserInteractionEnabled = true
+//                let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(itemViewTapped(sender:)))
+//                imageView.addGestureRecognizer(imageViewTap)
+//                
+//                if isEditingRecord {
+//                    startJiggling(viewToShake: imageView)
+//                }
+//            } else if index == 1 {
+//                imageView.image = UIImage(data: record.receiptImage! as Data)
+//                imageView.isUserInteractionEnabled = true
+//                let receiptViewTap = UITapGestureRecognizer(target: self, action: #selector(receiptViewTapped(sender:)))
+//                imageView.addGestureRecognizer(receiptViewTap)
+//                if isEditingRecord {
+//                    startJiggling(viewToShake: imageView)
+//                }
+//            } else {
+            imageView.image = images[index]
+            imageView.isUserInteractionEnabled = true
+            let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
+            imageView.addGestureRecognizer(imageViewTap)
+            
+            if isEditingRecord {
+                startJiggling(viewToShake: imageView)
             }
+//            }
         } else {
-            let addView = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 239))
+            let addView = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 240))
             
             let addButton = UIButton()
             addButton.frame = CGRect(x: 0, y: 0, width: 40, height: 40)
@@ -886,7 +888,7 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             addView.addSubview(addButton)
             return addView
         }
-        
+    
         return imageView
     }
     
@@ -902,28 +904,28 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         if segue.identifier == "editImage" {
             if let nextViewController = segue.destination as? EditPhotoViewController {
                 nextViewController.record = record
-                if tappedItem {
-                    nextViewController.navBar.title = "Item"
-                    nextViewController.editImageDelegate = self
-                } else if tappedReceipt {
-                    nextViewController.navBar.title = "Receipt"
+//                if tappedItem {
+//                    nextViewController.navBar.title = "Item"
+//                    nextViewController.editImageDelegate = self
+//                } else if tappedReceipt {
+//                    nextViewController.navBar.title = "Receipt"
+//                    nextViewController.editImageDelegate = self
+//                } else {
+                    // tapped "add" button on carousel or an image that isnt the item or receipt.
+                nextViewController.navBar.title = "New Picture"
+                nextViewController.record = record
+                nextViewController.editImageDelegate = self
+                
+                let selectedView = imageCarousel.currentItemView
+                if imageCarousel.index(ofItemView: selectedView!) == imageCarousel.numberOfItems-1 {
+                    print("Tapped plus button")
                     nextViewController.editImageDelegate = self
                 } else {
-                    // tapped "add" button on carousel or an image that isnt the item or receipt.
-                    nextViewController.navBar.title = "New Picture"
-                    nextViewController.record = record
+                    print("Tapped image at index " + String(imageCarousel.index(ofItemView: selectedView!)))
+                    nextViewController.indexTapped = imageCarousel.index(ofItemView: selectedView!)
                     nextViewController.editImageDelegate = self
-                    
-                    let selectedView = imageCarousel.currentItemView
-                    if imageCarousel.index(ofItemView: selectedView!) == imageCarousel.numberOfItems-1 {
-                        print("Tapped plus button")
-                        nextViewController.editImageDelegate = self
-                    } else {
-                        print("Tapped image at index " + String(imageCarousel.index(ofItemView: selectedView!)))
-                        nextViewController.indexTapped = imageCarousel.index(ofItemView: selectedView!)
-                        nextViewController.editImageDelegate = self
-                    }
                 }
+                //}
             }
         }
         if segue.identifier == "toCreateNote" {

@@ -263,10 +263,10 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
                     record.warrantyStarts = result.value(forKey: "warrantyStarts") as! NSDate?
                     record.warrantyEnds = result.value(forKey: "warrantyEnds") as! NSDate?
                     // CKAssets need to be converted to NSData
-                    let itemImage = result.value(forKey: "itemData") as! CKAsset
-                    record.itemImage = NSData(contentsOf: itemImage.fileURL)
-                    let receiptImage = result.value(forKey: "receiptData") as! CKAsset
-                    record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
+                    //let itemImage = result.value(forKey: "itemData") as! CKAsset
+                    //record.itemImage = NSData(contentsOf: itemImage.fileURL)
+                    //let receiptImage = result.value(forKey: "receiptData") as! CKAsset
+                    //record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
                     // Bools stored as ints on CK.  Need to be converted
                     let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
                     if recentlyDeleted == 0 {

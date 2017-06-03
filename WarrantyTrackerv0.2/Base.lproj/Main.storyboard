@@ -166,20 +166,57 @@
                                     <action selector="openCameraButtonWithSender:" destination="9pv-A4-QxB" eventType="touchUpInside" id="nLv-wb-xjp"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Allow Camera Access?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dzm-aM-orp">
-                                <rect key="frame" x="101" y="281.5" width="170" height="24"/>
+                            <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Allow Camera Access?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dzm-aM-orp">
+                                <rect key="frame" x="101" y="282" width="170" height="24"/>
                                 <fontDescription key="fontDescription" name="KohinoorBangla-Regular" family="Kohinoor Bangla" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RCm-eY-5gk">
-                                <rect key="frame" x="159" y="310.5" width="56" height="33"/>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RCm-eY-5gk">
+                                <rect key="frame" x="159" y="311" width="56" height="33"/>
                                 <fontDescription key="fontDescription" name="KohinoorBangla-Regular" family="Kohinoor Bangla" pointSize="15"/>
                                 <state key="normal" title="Settings"/>
                                 <connections>
                                     <action selector="cameraSwitchPressed:" destination="9pv-A4-QxB" eventType="touchUpInside" id="4tx-Og-I8h"/>
                                 </connections>
                             </button>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="GxR-yk-BVk">
+                                <rect key="frame" x="0.0" y="538" width="375" height="53"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="53" id="EXS-xr-lfc"/>
+                                </constraints>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="5re-ID-Wah">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="photoCell" id="uIl-H9-oX9" customClass="PhotoCollectionViewCell" customModule="WarrantyTrackerv0_2" customModuleProvider="target">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                            <subviews>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hhe-2A-rIs">
+                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                                </imageView>
+                                            </subviews>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="hhe-2A-rIs" secondAttribute="trailing" id="Vs7-ZH-chg"/>
+                                            <constraint firstItem="hhe-2A-rIs" firstAttribute="leading" secondItem="uIl-H9-oX9" secondAttribute="leading" id="YoM-bZ-htM"/>
+                                            <constraint firstItem="hhe-2A-rIs" firstAttribute="top" secondItem="uIl-H9-oX9" secondAttribute="top" id="ae8-on-Bji"/>
+                                            <constraint firstAttribute="bottom" secondItem="hhe-2A-rIs" secondAttribute="bottom" id="lti-aG-uWj"/>
+                                        </constraints>
+                                        <connections>
+                                            <outlet property="imageView" destination="hhe-2A-rIs" id="Axj-yM-Bfw"/>
+                                        </connections>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
@@ -189,9 +226,12 @@
                             <constraint firstItem="08d-0p-s0e" firstAttribute="centerY" secondItem="1kV-9d-Vpg" secondAttribute="centerY" id="GQC-Vm-2AC"/>
                             <constraint firstItem="lMq-lz-NLr" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" id="GjU-aL-u4e"/>
                             <constraint firstItem="Dzm-aM-orp" firstAttribute="leading" secondItem="tsR-hK-woN" secondAttribute="leadingMargin" constant="85" id="RYo-VV-gNC"/>
+                            <constraint firstItem="GxR-yk-BVk" firstAttribute="leading" secondItem="lMq-lz-NLr" secondAttribute="leading" id="U1Z-iO-iOn"/>
                             <constraint firstItem="RCm-eY-5gk" firstAttribute="centerX" secondItem="1kV-9d-Vpg" secondAttribute="centerX" id="VQf-qZ-goB"/>
+                            <constraint firstItem="GxR-yk-BVk" firstAttribute="trailing" secondItem="lMq-lz-NLr" secondAttribute="trailing" id="WxV-wR-pKe"/>
                             <constraint firstItem="1kV-9d-Vpg" firstAttribute="top" secondItem="lMq-lz-NLr" secondAttribute="bottom" constant="24" id="ayu-Ty-BD2"/>
                             <constraint firstItem="lMq-lz-NLr" firstAttribute="leading" secondItem="tsR-hK-woN" secondAttribute="leading" id="de6-hI-eqr"/>
+                            <constraint firstItem="GxR-yk-BVk" firstAttribute="bottom" secondItem="lMq-lz-NLr" secondAttribute="bottom" id="pKE-dy-Mr1"/>
                             <constraint firstItem="RCm-eY-5gk" firstAttribute="top" secondItem="Dzm-aM-orp" secondAttribute="bottom" constant="5" id="trE-fW-h41"/>
                             <constraint firstItem="lMq-lz-NLr" firstAttribute="centerX" secondItem="1kV-9d-Vpg" secondAttribute="centerX" id="uj6-2M-Wye"/>
                             <constraint firstItem="4ug-Mw-9AY" firstAttribute="top" secondItem="1kV-9d-Vpg" secondAttribute="bottom" constant="22" id="vNw-7Z-R5E"/>
@@ -202,7 +242,7 @@
                         <barButtonItem key="rightBarButtonItem" title="Next" id="JIP-Vx-Sde">
                             <connections>
                                 <action selector="nextButtonPressed:" destination="9pv-A4-QxB" id="y38-ys-WuO"/>
-                                <segue destination="ply-ph-qyA" kind="show" identifier="toReceipt" id="4oU-AR-7dz"/>
+                                <segue destination="hub-Nr-lbi" kind="show" identifier="toDates" id="BFL-x3-9O0"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -211,6 +251,7 @@
                         <outlet property="cameraAccessLabel" destination="Dzm-aM-orp" id="lKi-4f-OEx"/>
                         <outlet property="captureButton" destination="1kV-9d-Vpg" id="Bnb-db-D9A"/>
                         <outlet property="imageView" destination="lMq-lz-NLr" id="y8K-rj-KOG"/>
+                        <outlet property="imagesCollectionView" destination="GxR-yk-BVk" id="X9T-Od-fK8"/>
                         <outlet property="libraryButton" destination="08d-0p-s0e" id="VbX-Bu-zRD"/>
                         <outlet property="navBar" destination="5e4-Sp-3R9" id="YaO-WD-kNI"/>
                         <outlet property="nextButton" destination="JIP-Vx-Sde" id="dsa-P9-phN"/>
@@ -219,7 +260,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="W5J-7L-Pyd" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2502" y="-341"/>
+            <point key="canvasLocation" x="2501.5999999999999" y="-341.37931034482762"/>
         </scene>
         <!--Settings-->
         <scene sceneID="XAD-CY-JvO">
@@ -433,7 +474,6 @@
                         <barButtonItem key="rightBarButtonItem" title="Next" id="SHa-AL-nm4">
                             <connections>
                                 <action selector="nextButtonPressed:" destination="ply-ph-qyA" id="p9g-A7-wZS"/>
-                                <segue destination="hub-Nr-lbi" kind="show" identifier="toDates" id="3Zy-da-3lv"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
@@ -447,7 +487,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Ikf-Ym-fd0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3254" y="-341"/>
+            <point key="canvasLocation" x="3254" y="-1003"/>
         </scene>
         <!--Title-->
         <scene sceneID="ync-Ic-GN4">
@@ -632,7 +672,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8BK-fu-c7w" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="4044" y="-341.37931034482762"/>
+            <point key="canvasLocation" x="3254" y="-341"/>
         </scene>
         <!--Create-->
         <scene sceneID="7Sg-XR-biA">

@@ -16,8 +16,8 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
     // variables that have been passed forward
     var titleString: String! = nil
     var descriptionString: String! = nil
-    var itemImageData: Data! = nil
-    var receiptImageData: Data! = nil
+    var itemImageData: [Data?] = []
+    //var receiptImageData: Data! = nil
     //
     
     @IBOutlet weak var beginsPicker: UIDatePicker!
@@ -251,8 +251,8 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         } else {
             record.warrantyEnds = endDate as NSDate?
         }
-        record.itemImage = itemImageData as NSData?
-        record.receiptImage = receiptImageData as NSData?
+        //record.itemImage = itemImageData as NSData?
+        //record.receiptImage = receiptImageData as NSData?
         record.daysBeforeReminder = Int32(daysBeforeReminder)
         record.hasWarranty = lifetimeWarrantySwitch.isOn
         record.dateCreated = Date() as NSDate?
@@ -305,6 +305,18 @@ class WarrantyBeginsEndsViewController: UIViewController, UIPickerViewDelegate, 
         } else {
             record.eventIdentifier = "LifetimeWarranty"
         }
+        
+        let imageEntity = NSEntityDescription.entity(forEntityName: "Image", in: managedContext)!
+        
+        for item in itemImageData {
+            let image = NSManagedObject(entity: imageEntity, insertInto: managedContext) as! Image
+            
+            image.id = UUID().uuidString
+            image.record = record
+            image.lastSynced = Date() as NSDate
+            image.image = item! as NSData
+        }
+        
         
         // Save the created Record object
         do {

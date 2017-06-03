@@ -190,10 +190,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                                         print("Assigned simple values")
                                     }
                                     // CKAssets need to be converted to NSData
-                                    let itemImage = result.value(forKey: "itemData") as! CKAsset
-                                    record.itemImage = NSData(contentsOf: itemImage.fileURL)
-                                    let receiptImage = result.value(forKey: "receiptData") as! CKAsset
-                                    record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
+                                    //let itemImage = result.value(forKey: "itemData") as! CKAsset
+                                    //record.itemImage = NSData(contentsOf: itemImage.fileURL)
+                                    //////let receiptImage = result.value(forKey: "receiptData") as! CKAsset
+                                    //record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
                                     // Bools stored as ints on CK.  Need to be converted
                                     let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
                                     if recentlyDeleted == 0 {
@@ -245,10 +245,10 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                                 record.warrantyStarts = result.value(forKey: "warrantyStarts") as! NSDate?
                                 record.warrantyEnds = result.value(forKey: "warrantyEnds") as! NSDate?
                                 // CKAssets need to be converted to NSData
-                                let itemImage = result.value(forKey: "itemData") as! CKAsset
-                                record.itemImage = NSData(contentsOf: itemImage.fileURL)
-                                let receiptImage = result.value(forKey: "receiptData") as! CKAsset
-                                record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
+                                //let itemImage = result.value(forKey: "itemData") as! CKAsset
+                                //record.itemImage = NSData(contentsOf: itemImage.fileURL)
+                                //let receiptImage = result.value(forKey: "receiptData") as! CKAsset
+                                //record.receiptImage = NSData(contentsOf: receiptImage.fileURL)
                                 // Bools stored as ints on CK.  Need to be converted
                                 let recentlyDeleted = result.value(forKey: "recentlyDeleted") as! Int64
                                 if recentlyDeleted == 0 {
@@ -415,8 +415,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 } else {
                     cell.warrantyEnds.text = "∞"
                 }
-                let recordImage = UIImage(data: record.itemImage! as Data)
-                cell.warrantyImageView.image = recordImage
+                let fetchedImages = CoreDataHelper.fetchImages(for: record, in: managedContext!)
+                if fetchedImages.count > 0 {
+                    let recordImage = fetchedImages[0]
+                    cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
+                } else {
+                    cell.warrantyImageView.image = UIImage()
+                }
             } else {
                 filteredRecords.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds! as Date) == .orderedAscending})
                 let record = filteredRecords[indexPath.row]
@@ -428,8 +433,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 } else {
                     cell.warrantyEnds.text = "∞"
                 }
-                let recordImage = UIImage(data: record.itemImage! as Data)
-                cell.warrantyImageView.image = recordImage
+                let fetchedImages = CoreDataHelper.fetchImages(for: record, in: managedContext!)
+                if fetchedImages.count > 0 {
+                    let recordImage = fetchedImages[0]
+                    cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
+                } else {
+                    cell.warrantyImageView.image = UIImage()
+                }
             }
         } else {
             if sortBySegmentControl.selectedSegmentIndex == 0 {
@@ -443,8 +453,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 } else {
                     cell.warrantyEnds.text = "∞"
                 }
-                let recordImage = UIImage(data: record.itemImage! as Data)
-                cell.warrantyImageView.image = recordImage
+                let fetchedImages = CoreDataHelper.fetchImages(for: record, in: managedContext!)
+                if fetchedImages.count > 0 {
+                    let recordImage = fetchedImages[0]
+                    cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
+                } else {
+                    cell.warrantyImageView.image = UIImage()
+                }
             } else {
                 records.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds! as Date) == .orderedAscending})
                 let record = records[indexPath.row]
@@ -456,8 +471,13 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                 } else {
                     cell.warrantyEnds.text = "∞"
                 }
-                let recordImage = UIImage(data: record.itemImage! as Data)
-                cell.warrantyImageView.image = recordImage
+                let fetchedImages = CoreDataHelper.fetchImages(for: record, in: managedContext!)
+                if fetchedImages.count > 0 {
+                    let recordImage = fetchedImages[0]
+                    cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
+                } else {
+                    cell.warrantyImageView.image = UIImage()
+                }
             }
             
         }

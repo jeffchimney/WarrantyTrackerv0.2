@@ -9,7 +9,7 @@
 import UIKit
 import AVFoundation
 
-class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
 
     @IBOutlet weak var imageView: UIImageView!
     @IBOutlet weak var nextButton: UIBarButtonItem!
@@ -18,14 +18,20 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     @IBOutlet weak var libraryButton: UIButton!
     @IBOutlet weak var cameraAccessLabel: UILabel!
     @IBOutlet weak var openSettingsButton: UIButton!
+    @IBOutlet weak var imagesCollectionView: UICollectionView!
     
-    var imageDataToSave: Data!
+    var imageDataToSave: [Data?] = []
     let imagePicker = UIImagePickerController()
     var imagePicked = false
     
     // variables that have been passed forward
     var titleString: String! = nil
     var descriptionString: String! = nil
+    //
+    
+    // Collection View Vars
+    let rows = 1
+    let columnsInFirstPage = 10
     //
 
     
@@ -39,7 +45,10 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         imagePicker.delegate = self
         navBar.title = "Item"
         navigationController?.isToolbarHidden = true
-        nextButton.isEnabled = false
+        
+        imagesCollectionView.delegate = self
+        imagesCollectionView.dataSource = self
+        imagesCollectionView.alpha = 0.75
     }
     
     override func viewWillAppear(_ animated: Bool) {        
@@ -126,15 +135,15 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             stillImageOutput?.captureStillImageAsynchronously(from: videoConnection, completionHandler: { (sampleBuffer, error) -> Void in
                 if sampleBuffer != nil {
                     let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(sampleBuffer)
-                    self.imageDataToSave = imageData
-                    let dataProvider = CGDataProvider(data: imageData as! CFData)
+                    self.imageDataToSave.append(imageData)
+                    self.imagesCollectionView.reloadData()
+                    let dataProvider = CGDataProvider(data: imageData! as CFData)
                     let cgImageRef = CGImage(jpegDataProviderSource: dataProvider!, decode: nil, shouldInterpolate: true, intent: CGColorRenderingIntent.defaultIntent)
                     let image = UIImage(cgImage: cgImageRef!, scale: 1.0, orientation: UIImageOrientation.right)
                     self.session?.stopRunning()
                     self.imageView.layer.sublayers?.removeAll()
                     self.imageView.contentMode = .scaleAspectFill
                     self.imageView.image = image
-                    self.nextButton.isEnabled = true
                 }
             })
         }
@@ -155,9 +164,9 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             imageView.layer.sublayers?.removeAll()
             imageView.contentMode = .scaleAspectFill
             imageView.image = pickedImage
-            imageDataToSave = UIImageJPEGRepresentation(pickedImage, 1.0)
+            imageDataToSave.append(UIImageJPEGRepresentation(pickedImage, 1.0))
+            self.imagesCollectionView.reloadData()
             imagePicked = true
-            nextButton.isEnabled = true
         }
         
         dismiss(animated: true, completion: nil)
@@ -184,17 +193,37 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if (segue.identifier == "toReceipt") {
-            if let nextViewController = segue.destination as? NewReceiptViewController {
+        if (segue.identifier == "toDates") {
+            if let nextViewController = segue.destination as? WarrantyBeginsEndsViewController {
                 if (imageView.image != nil) {
                     nextViewController.itemImageData = imageDataToSave
                     nextViewController.titleString = titleString
                     nextViewController.descriptionString = descriptionString
                 } else {
-                    print("Was nil")
+                    nextViewController.titleString = titleString
+                    nextViewController.descriptionString = descriptionString
                 }
             }
         }
+    }
+    
+    // MARK: Collection View Delegate Methods
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return imageDataToSave.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        if collectionView.numberOfItems(inSection: 0) > 0 {
+            collectionView.isHidden = false
+        } else {
+            collectionView.isHidden = true
+        }
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath as IndexPath) as! PhotoCollectionViewCell
+
+        cell.imageView.image = UIImage(data: imageDataToSave[indexPath.row]!)
+        cell.backgroundColor = .black
+        
+        return cell
     }
 }
 

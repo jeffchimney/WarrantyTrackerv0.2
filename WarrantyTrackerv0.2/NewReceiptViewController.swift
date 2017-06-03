@@ -139,10 +139,10 @@ class NewReceiptViewController: UIViewController, UIImagePickerControllerDelegat
         if (segue.identifier == "toDates") {
             if let nextViewController = segue.destination as? WarrantyBeginsEndsViewController {
                 if (itemImageData != nil) {
-                    nextViewController.itemImageData = itemImageData
+                    //nextViewController.itemImageData = itemImageData
                 }
                 if (imageView.image != nil) {
-                    nextViewController.receiptImageData = imageDataToSave
+                    //nextViewController.receiptImageData = imageDataToSave
                 }
                 nextViewController.titleString = titleString
                 nextViewController.descriptionString = descriptionString
