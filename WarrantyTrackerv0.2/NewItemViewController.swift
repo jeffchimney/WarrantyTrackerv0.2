@@ -23,10 +23,10 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     @IBOutlet weak var showHidePhotosView: UIView!
     
     var imageDataToSave: [Data?] = []
-    var collectionViewCells: [UICollectionViewCell] = []
     let imagePicker = UIImagePickerController()
     var imagePicked = false
     var photoDrawerIsShowing = false
+    var selectedPhotoIndexPath: IndexPath!
     
     // variables that have been passed forward
     var titleString: String! = nil
@@ -37,6 +37,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     let rows = 1
     let columns = 5
     var longPressGesture: UILongPressGestureRecognizer!
+    var pressedViewCenter = CGPoint()
     //
 
     
@@ -53,7 +54,9 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         
         imagesCollectionView.delegate = self
         imagesCollectionView.dataSource = self
-        imagesCollectionView.transform = CGAffineTransform(scaleX: -1, y: 1)
+        //imagesCollectionView.transform = CGAffineTransform(scaleX: -1, y: 1)
+        imagesCollectionView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
+        
         
         let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(NewItemViewController.swiped(gesture:)))
         imagesCollectionView.addGestureRecognizer(swipeRight)
@@ -126,29 +129,33 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     func handleLongGesture(gesture: UILongPressGestureRecognizer)
     {
         switch(gesture.state) {
-            
         case UIGestureRecognizerState.began:
-            guard let selectedIndexPath = imagesCollectionView.indexPathForItem(at: gesture.location(in: imagesCollectionView)) else {
-                break
-            }
-            imagesCollectionView.beginInteractiveMovementForItem(at: selectedIndexPath)
+            selectedPhotoIndexPath = imagesCollectionView.indexPathForItem(at: gesture.location(in: imagesCollectionView))
+            let pressedCell = imagesCollectionView.cellForItem(at: selectedPhotoIndexPath)
+            pressedViewCenter = (pressedCell?.center)!
+            imagesCollectionView.beginInteractiveMovementForItem(at: selectedPhotoIndexPath)
         case UIGestureRecognizerState.changed:
             imagesCollectionView.updateInteractiveMovementTargetPosition(gesture.location(in: gesture.view!))
+//            let pressedCell = imagesCollectionView.cellForItem(at: selectedPhotoIndexPath)
+//            if (pressedCell?.center.x)! > pressedViewCenter.x+5 {
+//                pressedCell?.center = CGPoint(x: pressedViewCenter.x+5, y: (pressedCell?.center.y)!)
+//            } else if (pressedCell?.center.x)! < pressedViewCenter.x-5 {
+//                pressedCell?.center = CGPoint(x: pressedViewCenter.x-5, y: (pressedCell?.center.y)!)
+//            } else if (pressedCell?.center.y)! > pressedViewCenter.y+5 {
+//                pressedCell?.center = CGPoint(x: (pressedCell?.center.x)!, y: pressedViewCenter.y+5)
+//            }
         case UIGestureRecognizerState.ended:
             if !imagesCollectionView.point(inside: gesture.location(in: gesture.view), with: nil) {
-                for cell in collectionViewCells {
-                    if gesture.view == cell {
-                        let index = collectionViewCells.index(of: cell)
-                        imageDataToSave.remove(at: index!)
-                        imagesCollectionView.reloadData()
-                    }
-                }
+                imagesCollectionView.cancelInteractiveMovement()
+                imageDataToSave.remove(at: selectedPhotoIndexPath.row)
+                imagesCollectionView.reloadData()
+            } else {
+                imagesCollectionView.cancelInteractiveMovement()
             }
         default:
             imagesCollectionView.cancelInteractiveMovement()
         }
     }
-    
     func tapped(gesture: UITapGestureRecognizer) {
         if photoDrawerIsShowing {
             let newConstraint = NSLayoutConstraint(item: imagesCollectionView, attribute: .trailing, relatedBy: .lessThanOrEqual, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: CGFloat(0))
@@ -288,24 +295,19 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if (segue.identifier == "toDates") {
             if let nextViewController = segue.destination as? WarrantyBeginsEndsViewController {
-                if (imageView.image != nil) {
-                    nextViewController.itemImageData = imageDataToSave
-                    nextViewController.titleString = titleString
-                    nextViewController.descriptionString = descriptionString
-                } else {
-                    nextViewController.titleString = titleString
-                    nextViewController.descriptionString = descriptionString
-                }
+                nextViewController.itemImageData = imageDataToSave.reversed()
+                nextViewController.titleString = titleString
+                nextViewController.descriptionString = descriptionString
             }
         }
     }
     
     // MARK: Collection View Delegate Methods
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if imageDataToSave.count > 0 && imageDataToSave.count <= columns {
+        if imageDataToSave.count <= columns {
             let newConstraint = NSLayoutConstraint(item: imagesCollectionView, attribute: .trailing, relatedBy: .lessThanOrEqual, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: CGFloat(75 * imageDataToSave.count))
             
-            UIView.animate(withDuration: 0.5, delay: 0.25, options: .curveEaseOut , animations: {
+            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut , animations: {
                 self.view.removeConstraint(self.collectionViewTrailingConstraint)
                 self.view.addConstraint(newConstraint)
                 self.view.layoutIfNeeded()
@@ -329,19 +331,10 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        if collectionView.numberOfItems(inSection: 0) > 0 {
-            collectionView.isHidden = false
-        } else {
-            collectionView.isHidden = true
-        }
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "photoCell", for: indexPath as IndexPath) as! PhotoCollectionViewCell
-
         cell.imageView.image = UIImage(data: imageDataToSave[indexPath.row]!)
-        cell.transform = CGAffineTransform(scaleX: -1, y: 1)
+        //cell.transform = CGAffineTransform(scaleX: -1, y: 1)
         
-        if !collectionViewCells.contains(cell) {
-            collectionViewCells.append(cell)
-        }
         return cell
     }
     
