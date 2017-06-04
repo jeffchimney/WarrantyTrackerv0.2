@@ -27,7 +27,7 @@ class ImageViewController: UIViewController {
         imageView.image = image
         // remove delete button
         deleteButton.isEnabled = false
-        if imageIndex > 1 && isEditingRecord{
+        if isEditingRecord{
             // show delete button
             deleteButton.tintColor = .red
             deleteButton.isEnabled = true
