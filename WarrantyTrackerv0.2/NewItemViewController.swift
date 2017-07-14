@@ -58,12 +58,20 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         imagesCollectionView.semanticContentAttribute = UISemanticContentAttribute.forceRightToLeft
         
         
-        let swipeRight = UISwipeGestureRecognizer(target: self, action: #selector(NewItemViewController.swiped(gesture:)))
-        imagesCollectionView.addGestureRecognizer(swipeRight)
+        let swipeLeft = UISwipeGestureRecognizer(target: self, action: #selector(NewItemViewController.swiped(gesture:)))
+        swipeLeft.direction = .left
+        imagesCollectionView.addGestureRecognizer(swipeLeft)
         let tapped = UITapGestureRecognizer(target: self, action: #selector(NewItemViewController.tapped(gesture:)))
         showHidePhotosView.addGestureRecognizer(tapped)
         longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongGesture(gesture:)))
         imagesCollectionView.addGestureRecognizer(longPressGesture)
+        
+        let rectShape = CAShapeLayer()
+        rectShape.bounds = showHidePhotosView.frame
+        rectShape.position = showHidePhotosView.center
+        rectShape.path = UIBezierPath(roundedRect: showHidePhotosView.bounds, byRoundingCorners: [.topRight], cornerRadii: CGSize(width: 10, height: 10)).cgPath
+        
+        showHidePhotosView.layer.mask = rectShape
     }
     
     override func viewWillAppear(_ animated: Bool) {        
@@ -108,7 +116,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     func swiped(gesture: UISwipeGestureRecognizer)
     {
         switch gesture.direction {
-        case UISwipeGestureRecognizerDirection.right:
+        case UISwipeGestureRecognizerDirection.left:
             let newConstraint = NSLayoutConstraint(item: imagesCollectionView, attribute: .trailing, relatedBy: .lessThanOrEqual, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: CGFloat(0))
             
             // 2
@@ -121,6 +129,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             // 3
             collectionViewTrailingConstraint = newConstraint
             photoDrawerIsShowing = false
+            print("Swiped Left")
         default:
             print("other swipe")
         }
@@ -136,19 +145,25 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             imagesCollectionView.beginInteractiveMovementForItem(at: selectedPhotoIndexPath)
         case UIGestureRecognizerState.changed:
             imagesCollectionView.updateInteractiveMovementTargetPosition(gesture.location(in: gesture.view!))
-//            let pressedCell = imagesCollectionView.cellForItem(at: selectedPhotoIndexPath)
-//            if (pressedCell?.center.x)! > pressedViewCenter.x+5 {
+            //let pressedCell = imagesCollectionView.cellForItem(at: selectedPhotoIndexPath)
+            //pressedCell?.center = gesture.location(in: view)
+//            if gesture.location(in: view).x > pressedViewCenter.x+5 {
 //                pressedCell?.center = CGPoint(x: pressedViewCenter.x+5, y: (pressedCell?.center.y)!)
-//            } else if (pressedCell?.center.x)! < pressedViewCenter.x-5 {
+//            } else if gesture.location(in: view).x < pressedViewCenter.x-5 {
 //                pressedCell?.center = CGPoint(x: pressedViewCenter.x-5, y: (pressedCell?.center.y)!)
-//            } else if (pressedCell?.center.y)! > pressedViewCenter.y+5 {
+//            } else if gesture.location(in: view).y > pressedViewCenter.y+5 {
 //                pressedCell?.center = CGPoint(x: (pressedCell?.center.x)!, y: pressedViewCenter.y+5)
 //            }
         case UIGestureRecognizerState.ended:
             if !imagesCollectionView.point(inside: gesture.location(in: gesture.view), with: nil) {
-                imagesCollectionView.cancelInteractiveMovement()
-                imageDataToSave.remove(at: selectedPhotoIndexPath.row)
-                imagesCollectionView.reloadData()
+                imagesCollectionView.performBatchUpdates({ () -> Void in
+                    self.imageDataToSave.remove(at: self.selectedPhotoIndexPath.row)
+                    self.imagesCollectionView.deleteItems(at: [self.selectedPhotoIndexPath])
+                    //self.imagesCollectionView.reloadData()
+                }, completion: nil)
+                //imageDataToSave.remove(at: selectedPhotoIndexPath.row)
+                //imagesCollectionView.reloadData()
+                imagesCollectionView.endInteractiveMovement()
             } else {
                 imagesCollectionView.cancelInteractiveMovement()
             }
@@ -239,7 +254,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
                     self.imageView.contentMode = .scaleAspectFill
                     self.imageView.image = image
                     
-                    let when = DispatchTime.now() + 2 // change 2 to desired number of seconds
+                    let when = DispatchTime.now() + 1 // change 1 to desired number of seconds
                     DispatchQueue.main.asyncAfter(deadline: when) {
                         self.setUpCamera()
                         self.imageView.image = nil
@@ -265,7 +280,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             imageView.contentMode = .scaleAspectFill
             imageView.image = pickedImage
             imageDataToSave.append(UIImageJPEGRepresentation(pickedImage, 1.0))
-            self.imagesCollectionView.reloadData()
+            imagesCollectionView.reloadData()
             imagePicked = true
             self.setUpCamera()
         }
