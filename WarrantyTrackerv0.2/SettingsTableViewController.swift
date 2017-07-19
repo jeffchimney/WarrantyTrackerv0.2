@@ -12,12 +12,17 @@ import CloudKit
 import CoreData
 import EventKit
 import AVFoundation
+import StoreKit
 
 class SettingsTableViewController: UITableViewController {
     
     @IBOutlet weak var logOutButton: UIButton!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var allowDataSyncLabel: UILabel!
+    @IBOutlet weak var allowCameraAccessLabel: UILabel!
+    @IBOutlet weak var allowCalendarAccessLabel: UILabel!
+    @IBOutlet weak var rateUnderWarantyLabel: UILabel!
+    @IBOutlet weak var rateUnderWarrantySubTitle: UILabel!
     @IBOutlet weak var navBar: UINavigationItem!
     @IBOutlet weak var cameraSwitch: UISwitch!
     @IBOutlet weak var calendarSwitch: UISwitch!
@@ -33,6 +38,9 @@ class SettingsTableViewController: UITableViewController {
         
         usernameLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
         allowDataSyncLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        allowCameraAccessLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        allowCalendarAccessLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
+        rateUnderWarantyLabel.defaultFont = UIFont(name: "Kohinoor Bangla", size: 17)!
         
         if EKEventStore.authorizationStatus(for: EKEntityType.event) == .authorized {
             calendarSwitch.isOn = true
@@ -142,6 +150,29 @@ class SettingsTableViewController: UITableViewController {
             UIApplication.shared.open(settingsUrl, completionHandler: { (success) in
                 print("Settings opened: \(success)") // Prints true
             })
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        switch section {
+        case 0:
+            return "Account"
+        case 1:
+            return "Permissions"
+        case 2:
+            return "Feedback"
+        default:
+            return ""
+        }
+    }
+    
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if indexPath.section == 2 {
+            if #available(iOS 10.3, *) {
+                SKStoreReviewController.requestReview()
+            } else {
+                // Fallback on earlier versions
+            }
         }
     }
 }

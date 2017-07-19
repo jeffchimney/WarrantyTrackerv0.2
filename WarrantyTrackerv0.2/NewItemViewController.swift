@@ -40,7 +40,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     var pressedViewCenter = CGPoint()
     //
 
-    
+    let generator = UIImpactFeedbackGenerator(style: .medium)
     //camera variables
     var session: AVCaptureSession?
     var stillImageOutput: AVCaptureStillImageOutput?
@@ -72,6 +72,9 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
         rectShape.path = UIBezierPath(roundedRect: showHidePhotosView.bounds, byRoundingCorners: [.topRight], cornerRadii: CGSize(width: 10, height: 10)).cgPath
         
         showHidePhotosView.layer.mask = rectShape
+        
+        captureButton.layer.cornerRadius = 25
+        generator.prepare()
     }
     
     override func viewWillAppear(_ animated: Bool) {        
@@ -155,17 +158,15 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
 //                pressedCell?.center = CGPoint(x: (pressedCell?.center.x)!, y: pressedViewCenter.y+5)
 //            }
         case UIGestureRecognizerState.ended:
-            if !imagesCollectionView.point(inside: gesture.location(in: gesture.view), with: nil) {
+            if !imagesCollectionView.point(inside: gesture.location(in: imagesCollectionView), with: nil) {
                 imagesCollectionView.performBatchUpdates({ () -> Void in
                     self.imageDataToSave.remove(at: self.selectedPhotoIndexPath.row)
                     self.imagesCollectionView.deleteItems(at: [self.selectedPhotoIndexPath])
-                    //self.imagesCollectionView.reloadData()
+                    self.imagesCollectionView.reloadData()
                 }, completion: nil)
-                //imageDataToSave.remove(at: selectedPhotoIndexPath.row)
-                //imagesCollectionView.reloadData()
-                imagesCollectionView.endInteractiveMovement()
+                self.imagesCollectionView.endInteractiveMovement()
             } else {
-                imagesCollectionView.cancelInteractiveMovement()
+                imagesCollectionView.endInteractiveMovement()
             }
         default:
             imagesCollectionView.cancelInteractiveMovement()
@@ -187,7 +188,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             photoDrawerIsShowing = false
         } else {
             let newConstraint = NSLayoutConstraint(item: imagesCollectionView, attribute: .trailing, relatedBy: .lessThanOrEqual, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: CGFloat(75 * imageDataToSave.count))
-            
+            print(imageDataToSave.count)
             UIView.animate(withDuration: 0.5, delay: 0.0, options: .curveEaseOut , animations: {
                 self.view.removeConstraint(self.collectionViewTrailingConstraint)
                 self.view.addConstraint(newConstraint)
@@ -240,6 +241,7 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     }
     
     @IBAction func openCameraButton(sender: AnyObject) {
+        generator.impactOccurred()
         if let videoConnection = stillImageOutput!.connection(withMediaType: AVMediaTypeVideo) {
             stillImageOutput?.captureStillImageAsynchronously(from: videoConnection, completionHandler: { (sampleBuffer, error) -> Void in
                 if sampleBuffer != nil {
@@ -319,20 +321,17 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     // MARK: Collection View Delegate Methods
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        if imageDataToSave.count <= columns {
-            let newConstraint = NSLayoutConstraint(item: imagesCollectionView, attribute: .trailing, relatedBy: .lessThanOrEqual, toItem: self.view, attribute: .leading, multiplier: 1.0, constant: CGFloat(75 * imageDataToSave.count))
-            
-            UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut , animations: {
-                self.view.removeConstraint(self.collectionViewTrailingConstraint)
-                self.view.addConstraint(newConstraint)
-                self.view.layoutIfNeeded()
-            }, completion: nil)
-            
-            collectionViewTrailingConstraint = newConstraint
-            photoDrawerIsShowing = true
-        } else {
-            photoDrawerIsShowing = false
-        }
+        let newConstraint = NSLayoutConstraint(item: imagesCollectionView, attribute: .right, relatedBy: .lessThanOrEqual, toItem: self.view, attribute: .left, multiplier: 1.0, constant: CGFloat(75 * imageDataToSave.count))
+        print(imageDataToSave.count)
+        UIView.animate(withDuration: 0.5, delay: 0, options: .curveEaseOut , animations: {
+            self.view.layoutIfNeeded()
+            self.view.removeConstraint(self.collectionViewTrailingConstraint)
+            self.view.addConstraint(newConstraint)
+            self.view.layoutIfNeeded()
+        }, completion: nil)
+        
+        collectionViewTrailingConstraint = newConstraint
+        photoDrawerIsShowing = true
         
         if imageDataToSave.count == columns {
             captureButton.isEnabled = false
@@ -341,7 +340,6 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
             captureButton.isEnabled = true
             libraryButton.isEnabled = true
         }
-        
         return imageDataToSave.count
     }
     
@@ -355,6 +353,9 @@ class NewItemViewController: UIViewController, UIImagePickerControllerDelegate, 
     
     func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
         // move your data order
+        let imageToMove = imageDataToSave[sourceIndexPath.row]
+        imageDataToSave.remove(at: sourceIndexPath.row)
+        imageDataToSave.insert(imageToMove, at: destinationIndexPath.row)
     }
 }
 
