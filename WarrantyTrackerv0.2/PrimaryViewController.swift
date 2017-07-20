@@ -369,6 +369,9 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
         checkExpiryAndDeletedDates(for: fetchedRecords, context: managedContext!)
         
         navigationController?.isToolbarHidden = false
+        navigationController?.view.clipsToBounds = true
+        navigationController?.view.layer.masksToBounds = true
+        navigationController?.view.layer.cornerRadius = 8
         
         self.warrantiesTableView.reloadData()
     }

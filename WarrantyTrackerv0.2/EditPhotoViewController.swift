@@ -33,6 +33,8 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     var stillImageOutput: AVCaptureStillImageOutput?
     var videoPreviewLayer: AVCaptureVideoPreviewLayer?
     
+    let generator = UIImpactFeedbackGenerator(style: .medium)
+    
     weak var editImageDelegate: EditImageDelegate?
     
     override func viewDidLoad() {
@@ -40,6 +42,9 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
         imagePicker.delegate = self
         navigationController?.setToolbarHidden(true, animated: true)
         saveButton.isEnabled = false
+        
+        captureButton.layer.cornerRadius = 25
+        generator.prepare()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -130,6 +135,7 @@ class EditPhotoViewController: UIViewController, UIImagePickerControllerDelegate
     }
     
     @IBAction func openCameraButton(sender: AnyObject) {
+        generator.impactOccurred()
         if let videoConnection = stillImageOutput!.connection(withMediaType: AVMediaTypeVideo) {
             stillImageOutput?.captureStillImageAsynchronously(from: videoConnection, completionHandler: { (sampleBuffer, error) -> Void in
                 if sampleBuffer != nil {
