@@ -880,6 +880,9 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             let imageViewTap = UITapGestureRecognizer(target: self, action: #selector(imageViewTapped(sender:)))
             imageView.addGestureRecognizer(imageViewTap)
             
+            imageView.layer.cornerRadius = 10
+            imageView.layer.masksToBounds = true
+            
             if isEditingRecord {
                 startJiggling(viewToShake: imageView)
             }
