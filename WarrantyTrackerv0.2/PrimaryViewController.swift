@@ -423,7 +423,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     let recordImage = fetchedImages[0]
                     cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
                 } else {
-                    cell.warrantyImageView.image = UIImage()
+                    cell.warrantyImageView.image = UIImage(named: "loadingIndicator")
                 }
             } else {
                 filteredRecords.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds! as Date) == .orderedAscending})
@@ -441,7 +441,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     let recordImage = fetchedImages[0]
                     cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
                 } else {
-                    cell.warrantyImageView.image = UIImage()
+                    cell.warrantyImageView.image = UIImage(named: "loadingIndicator")
                 }
             }
         } else {
@@ -461,7 +461,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     let recordImage = fetchedImages[0]
                     cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
                 } else {
-                    cell.warrantyImageView.image = UIImage()
+                    cell.warrantyImageView.image = UIImage(named: "loadingIndicator")
                 }
             } else {
                 records.sort(by:{ $0.warrantyEnds?.compare($1.warrantyEnds! as Date) == .orderedAscending})
@@ -479,7 +479,7 @@ class PrimaryViewController: UIViewController, UITableViewDelegate, UITableViewD
                     let recordImage = fetchedImages[0]
                     cell.warrantyImageView.image = UIImage(data: recordImage.image! as Data)
                 } else {
-                    cell.warrantyImageView.image = UIImage()
+                    cell.warrantyImageView.image = UIImage(named: "loadingIndicator")
                 }
             }
             

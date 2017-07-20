@@ -99,10 +99,13 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
         navigationController?.setToolbarHidden(false, animated: true)
         
         if isEditingRecord {
-            for index in 0...images.count-1 {
-                startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+            if images.count > 0 {
+                for index in 0...images.count-1 {
+                    startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+                }
             }
             deleteButton.isEnabled = true
+                
         }
         selectedNotesIndex = -1
     }

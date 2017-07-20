@@ -169,7 +169,7 @@
                                 <rect key="frame" x="0.0" y="64" width="375" height="529"/>
                             </imageView>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Allow Camera Access?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dzm-aM-orp">
-                                <rect key="frame" x="102.5" y="282" width="170" height="24"/>
+                                <rect key="frame" x="101" y="283" width="173" height="24"/>
                                 <fontDescription key="fontDescription" name="KohinoorBangla-Regular" family="Kohinoor Bangla" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -1005,16 +1005,35 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AEl-fy-R0B">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XlK-DZ-aql">
                                 <rect key="frame" x="0.0" y="64" width="375" height="559"/>
-                            </imageView>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AEl-fy-R0B">
+                                        <rect key="frame" x="8" y="8" width="359" height="543"/>
+                                    </imageView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="375" id="GiD-K1-E6J"/>
+                                    <constraint firstItem="AEl-fy-R0B" firstAttribute="centerX" secondItem="XlK-DZ-aql" secondAttribute="centerX" id="IXU-p2-hOn"/>
+                                    <constraint firstItem="AEl-fy-R0B" firstAttribute="leading" secondItem="XlK-DZ-aql" secondAttribute="leadingMargin" id="Oaz-Sl-Ttq"/>
+                                    <constraint firstItem="AEl-fy-R0B" firstAttribute="bottom" secondItem="XlK-DZ-aql" secondAttribute="bottomMargin" id="QLh-aP-Fu4"/>
+                                    <constraint firstItem="AEl-fy-R0B" firstAttribute="centerY" secondItem="XlK-DZ-aql" secondAttribute="centerY" id="Xcl-My-NDk"/>
+                                    <constraint firstAttribute="height" constant="559" id="dly-EF-bko"/>
+                                    <constraint firstItem="AEl-fy-R0B" firstAttribute="trailing" secondItem="XlK-DZ-aql" secondAttribute="trailingMargin" id="g9z-En-R7R"/>
+                                    <constraint firstItem="AEl-fy-R0B" firstAttribute="top" secondItem="XlK-DZ-aql" secondAttribute="topMargin" id="yFg-pk-BP6"/>
+                                </constraints>
+                                <connections>
+                                    <outlet property="delegate" destination="QTl-4U-hE1" id="g8s-77-Udj"/>
+                                </connections>
+                            </scrollView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="AEl-fy-R0B" firstAttribute="leading" secondItem="rpR-C5-p30" secondAttribute="leading" id="3nW-PD-aXl"/>
-                            <constraint firstItem="AEl-fy-R0B" firstAttribute="top" secondItem="qCA-6f-zHc" secondAttribute="bottom" id="Upi-kh-SL0"/>
-                            <constraint firstAttribute="trailing" secondItem="AEl-fy-R0B" secondAttribute="trailing" id="XZE-nr-XTI"/>
-                            <constraint firstItem="AEl-fy-R0B" firstAttribute="bottom" secondItem="bNr-6Z-DIy" secondAttribute="top" id="aZe-0z-ds5"/>
+                            <constraint firstItem="bNr-6Z-DIy" firstAttribute="top" secondItem="XlK-DZ-aql" secondAttribute="bottom" id="6ij-kH-qmq"/>
+                            <constraint firstAttribute="trailing" secondItem="XlK-DZ-aql" secondAttribute="trailing" id="ch7-Pz-DSW"/>
+                            <constraint firstItem="XlK-DZ-aql" firstAttribute="leading" secondItem="rpR-C5-p30" secondAttribute="leading" id="eb9-Nj-dxj"/>
+                            <constraint firstItem="XlK-DZ-aql" firstAttribute="top" secondItem="qCA-6f-zHc" secondAttribute="bottom" id="lg5-bN-wnf"/>
+                            <constraint firstItem="XlK-DZ-aql" firstAttribute="centerX" secondItem="rpR-C5-p30" secondAttribute="centerX" id="mgQ-kd-Gxf"/>
                         </constraints>
                     </view>
                     <toolbarItems>
@@ -1033,11 +1052,12 @@
                     <connections>
                         <outlet property="deleteButton" destination="YS9-ej-2BT" id="eYC-N0-uUs"/>
                         <outlet property="imageView" destination="AEl-fy-R0B" id="5xx-vq-bNx"/>
+                        <outlet property="scrollView" destination="XlK-DZ-aql" id="jcx-ie-Jsu"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="oIe-zF-Mgh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="3254" y="1766"/>
+            <point key="canvasLocation" x="3253.5999999999999" y="1764.4677661169417"/>
         </scene>
         <!--Account Question View Controller-->
         <scene sceneID="kak-5x-TQl">
