@@ -167,7 +167,7 @@
                                 </connections>
                             </button>
                             <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Allow Camera Access?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Dzm-aM-orp">
-                                <rect key="frame" x="101" y="282" width="170" height="24"/>
+                                <rect key="frame" x="102.5" y="282" width="170" height="24"/>
                                 <fontDescription key="fontDescription" name="KohinoorBangla-Regular" family="Kohinoor Bangla" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -245,7 +245,6 @@
                             <constraint firstAttribute="trailing" secondItem="lMq-lz-NLr" secondAttribute="trailing" id="GLu-I8-9DT"/>
                             <constraint firstItem="08d-0p-s0e" firstAttribute="centerY" secondItem="1kV-9d-Vpg" secondAttribute="centerY" id="GQC-Vm-2AC"/>
                             <constraint firstItem="lMq-lz-NLr" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" id="GjU-aL-u4e"/>
-                            <constraint firstItem="Dzm-aM-orp" firstAttribute="leading" secondItem="tsR-hK-woN" secondAttribute="leadingMargin" constant="85" id="RYo-VV-gNC"/>
                             <constraint firstItem="RCm-eY-5gk" firstAttribute="centerX" secondItem="1kV-9d-Vpg" secondAttribute="centerX" id="VQf-qZ-goB"/>
                             <constraint firstItem="1kV-9d-Vpg" firstAttribute="top" secondItem="lMq-lz-NLr" secondAttribute="bottom" constant="24" id="ayu-Ty-BD2"/>
                             <constraint firstItem="lMq-lz-NLr" firstAttribute="leading" secondItem="tsR-hK-woN" secondAttribute="leading" id="de6-hI-eqr"/>
@@ -256,6 +255,7 @@
                             <constraint firstItem="lMq-lz-NLr" firstAttribute="centerX" secondItem="1kV-9d-Vpg" secondAttribute="centerX" id="uj6-2M-Wye"/>
                             <constraint firstItem="4ug-Mw-9AY" firstAttribute="top" secondItem="1kV-9d-Vpg" secondAttribute="bottom" constant="22" id="vNw-7Z-R5E"/>
                             <constraint firstItem="lMq-lz-NLr" firstAttribute="top" secondItem="Ia1-K6-d13" secondAttribute="bottom" id="xZG-qF-rum"/>
+                            <constraint firstItem="Dzm-aM-orp" firstAttribute="centerX" secondItem="tsR-hK-woN" secondAttribute="centerX" id="xeX-nR-j6u"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Image 1" id="5e4-Sp-3R9">

@@ -326,9 +326,11 @@ class DetailsTableViewController: UITableViewController, UIPopoverPresentationCo
             //deleteButton.title = "Delete"
             //deleteButton.tintColor = UIColor.red
             
-            for index in 0...images.count-1 {
-                if imageCarousel!.numberOfItems > 0 {
-                    startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+            if images.count > 0 {
+                for index in 0...images.count-1 {
+                    if imageCarousel!.numberOfItems > 0 {
+                        startJiggling(viewToShake: imageCarousel!.itemView(at: index) as! UIImageView)
+                    }
                 }
             }
             
