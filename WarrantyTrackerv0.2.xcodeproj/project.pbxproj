@@ -28,6 +28,7 @@
 		BE56CE451E2D389D006870E7 /* NotesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE56CE441E2D389D006870E7 /* NotesTableViewCell.swift */; };
 		BE56CE481E2D50FE006870E7 /* InfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE56CE471E2D50FE006870E7 /* InfoTableViewCell.swift */; };
 		BE56CE4A1E2D5909006870E7 /* ImagesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE56CE491E2D5909006870E7 /* ImagesTableViewCell.swift */; };
+		BE58157B1F26B69600CF03CC /* Ensembles.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE58157A1F26B64F00CF03CC /* Ensembles.framework */; };
 		BE6525551E1F46A200DF03BC /* WhySignUpController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6525541E1F46A200DF03BC /* WhySignUpController.swift */; };
 		BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE69FF1C1DE4DD830052685E /* CoreData.framework */; };
 		BE6B7FEE1E0B82CD00B588C1 /* DeletedAndExpiredController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */; };
@@ -64,6 +65,34 @@
 			remoteGlobalIDString = BE1C110B1DC921D200B0D493;
 			remoteInfo = WarrantyTrackerv0.2;
 		};
+		BE5815731F26B64F00CF03CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE58156A1F26B64F00CF03CC /* Ensembles iOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 07BF374517F184DD00C56F64;
+			remoteInfo = "Ensembles iOS";
+		};
+		BE5815751F26B64F00CF03CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE58156A1F26B64F00CF03CC /* Ensembles iOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 07571F0F1910EC02008479A9;
+			remoteInfo = "Ensembles Resources iOS";
+		};
+		BE5815771F26B64F00CF03CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE58156A1F26B64F00CF03CC /* Ensembles iOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 070D336118018A960054BA23;
+			remoteInfo = "Tests iOS";
+		};
+		BE5815791F26B64F00CF03CC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BE58156A1F26B64F00CF03CC /* Ensembles iOS.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 07F2D9B41D950FDB00EB9483;
+			remoteInfo = "Ensembles iOS Module";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -94,6 +123,7 @@
 		BE56CE441E2D389D006870E7 /* NotesTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotesTableViewCell.swift; sourceTree = "<group>"; };
 		BE56CE471E2D50FE006870E7 /* InfoTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoTableViewCell.swift; sourceTree = "<group>"; };
 		BE56CE491E2D5909006870E7 /* ImagesTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagesTableViewCell.swift; sourceTree = "<group>"; };
+		BE58156A1F26B64F00CF03CC /* Ensembles iOS.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = "Ensembles iOS.xcodeproj"; path = "../Ensembles/ensembles/Framework/Ensembles iOS.xcodeproj"; sourceTree = "<group>"; };
 		BE6525541E1F46A200DF03BC /* WhySignUpController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WhySignUpController.swift; sourceTree = "<group>"; };
 		BE69FF1C1DE4DD830052685E /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		BE6B7FED1E0B82CD00B588C1 /* DeletedAndExpiredController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeletedAndExpiredController.swift; sourceTree = "<group>"; };
@@ -123,6 +153,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BE58157B1F26B69600CF03CC /* Ensembles.framework in Frameworks */,
 				BEE224C91E9EB810004D92D7 /* SystemConfiguration.framework in Frameworks */,
 				BE69FF1D1DE4DD830052685E /* CoreData.framework in Frameworks */,
 				BECD25D51E60E76C0028BA71 /* CloudKit.framework in Frameworks */,
@@ -248,9 +279,21 @@
 			name = TableViewCells;
 			sourceTree = "<group>";
 		};
+		BE58156B1F26B64F00CF03CC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BE5815741F26B64F00CF03CC /* libensembles.a */,
+				BE5815761F26B64F00CF03CC /* Ensembles.bundle */,
+				BE5815781F26B64F00CF03CC /* Tests iOS.xctest */,
+				BE58157A1F26B64F00CF03CC /* Ensembles.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		BE69FF1B1DE4DD830052685E /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				BE58156A1F26B64F00CF03CC /* Ensembles iOS.xcodeproj */,
 				BEE224C81E9EB810004D92D7 /* SystemConfiguration.framework */,
 				BECD25D41E60E76C0028BA71 /* CloudKit.framework */,
 				BE69FF1C1DE4DD830052685E /* CoreData.framework */,
@@ -371,6 +414,12 @@
 			mainGroup = BE1C11031DC921D200B0D493;
 			productRefGroup = BE1C110D1DC921D200B0D493 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = BE58156B1F26B64F00CF03CC /* Products */;
+					ProjectRef = BE58156A1F26B64F00CF03CC /* Ensembles iOS.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				BE1C110B1DC921D200B0D493 /* WarrantyTrackerv0.2 */,
@@ -379,6 +428,37 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		BE5815741F26B64F00CF03CC /* libensembles.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libensembles.a;
+			remoteRef = BE5815731F26B64F00CF03CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BE5815761F26B64F00CF03CC /* Ensembles.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = Ensembles.bundle;
+			remoteRef = BE5815751F26B64F00CF03CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BE5815781F26B64F00CF03CC /* Tests iOS.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "Tests iOS.xctest";
+			remoteRef = BE5815771F26B64F00CF03CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		BE58157A1F26B64F00CF03CC /* Ensembles.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = Ensembles.framework;
+			remoteRef = BE5815791F26B64F00CF03CC /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		BE1C110A1DC921D200B0D493 /* Resources */ = {
